@@ -991,9 +991,7 @@ function filterTopics() {
   var $url;
   var id;
   var name;
-  console.log("0");
   $('div.main_content form table tbody tr,div#messageindex table tbody tr').each(function () {
-    console.log("1");
     $row = $(this);
     if ($row.attr("class") === undefined) {
       if (page.type == "bookmarks") {
@@ -1128,17 +1126,13 @@ function saveUserList() {
 
 function loadCurrentList() {
   log("functiontrace", "Start Function");
-  //console.log("Loading current list");
-  //console.log($("#modalpop #userListAdded").html());
   $("#modalpop #userListAdded").html("");
-  //console.log($("#modalpop #userListAdded").html());
   for (var key in currentUserList) {
     var res = currentUserList[key];
     var strAdd = "";
     strAdd += res.name + " (" + res.id + ") ";
     strAdd += "<img src='https://elliquiy.com/forums/Themes/elliquiy2/images/pm_recipient_delete.gif' id='userListRemove-" + res.id + "'>";
     strAdd += "<br />"
-    //console.log(strAdd);
     $("#modalpop #userListAdded").append(strAdd)
     $("#modalpop #userListAdded #userListRemove-" + res.id).click(function () {
       var strID = $(this).prop("id");
@@ -1168,10 +1162,8 @@ function frmUserListButtons() {
         if (res.status == 'ok') {
           if (currentUserList.hasOwnProperty(res.id)) {}
           else {
-            //$("#modalpop #userListAdded").append(res.name + " (" + res.id + ")<br />")
             currentUserList[res.id] = res;
           }
-          //console.log(currentUserList);
         }
         else {
           aryFailed.push(strUser);
@@ -1180,7 +1172,6 @@ function frmUserListButtons() {
     }
     loadCurrentList();
     $("#modalpop #userListAdd").val(aryFailed.join("\n"));
-    //console.log(lstUsers);
   });
   $('button#saveUserList').click(function (e) {
     e.preventDefault();
@@ -1239,7 +1230,6 @@ function pasteUserList($this, pasteType) {
   var userList;
   strUserList = strUserList.replace("-bcc", "");
   userList = userLists[strUserList].list;
-  //console.log(userList);
   insertUsers(userList, pasteType);
 }
 
@@ -1587,7 +1577,6 @@ function pasteDraft($this) {
   var strDraft = "";
   var $topicForm = $('form#search_form');
   var strID = $topicForm.find('input[name="topic"]').val();
-  //console.log("draft: " + strID);
   if (strNo == "as") {
     strDraft = drafts[strID].body;
   }
@@ -1600,7 +1589,6 @@ function pasteDraft($this) {
     case "pm-send":
       $('textarea#message').val(strDraft);
       $('iframe#html_message').contents().find('body.rich_editor').html(strDraft);
-      //log("richtext",$('iframe#html_message').contents().find('body.rich_editor').length);
       break;
     case "topic":
       $('div#quickReplyOptions textarea').val(strDraft);
@@ -1660,7 +1648,6 @@ function displayDrafts() {
     }
     $buttons.find("button#savedraft").click(function (e) {
       e.preventDefault();
-      //console.log(strID);
       setDraft(true);
       displayDrafts();
     });
@@ -2316,7 +2303,6 @@ function getUnreadMailCount() {
   if (strCount !== "none") {
     intCount = parseInt(strCount);
   }
-  //console.log("Unread mail count: " + intCount);
   GM_setValue("unreadMail", intCount)
   return intCount;
 }
@@ -2776,7 +2762,6 @@ function deleteTag(strTag) {
   for (key in BMTags) {
     var aryTags = BMTags[key];
     for (counter = 0; counter < aryTags.length; counter++) {
-      //console.log(aryTags[counter]);
       if (aryTags[counter].toLowerCase().trim() == strTag.toLowerCase().trim()) {
         aryTags.remove(counter, counter);
       }
@@ -3013,7 +2998,6 @@ function newVerInfo() {
   log("functiontrace", "Start Function");
   loadLastVer();
   if (lastVer !== GM_info.script.version) {
-    //console.log("New version: " + GM_info.script.version + ", Last: " + lastVer);
     createNewVer();
     var $displayAt = $("div#newVer");
     var strVerInfo = ""
@@ -3253,7 +3237,6 @@ function ajaxButtons_Notify() {
         var $notify = $(this);
         var url = $notify.prop("href");
         url = url.replace("https://elliquiy.com/forums/", "");
-        //console.log($(this).text().trim().toLowerCase());
         blOn = ($(this).text().trim().toLowerCase() == "notify");
         stopDefaultAction(e);
         $.ajax({
@@ -3395,12 +3378,9 @@ function getMemberSearch(auth, strSearch) {
   };
   strUrl = strUrl.replace("%search%", searchString);
 
-  //console.log("Getting: " + strUrl);
-
   $.ajax({
     url: strUrl,
     success: function (response) {
-      //console.log("Member search success");
       var $src = $(response);
       $src.find("item").each(function (index) {
         var $this = $(this);
@@ -3409,7 +3389,6 @@ function getMemberSearch(auth, strSearch) {
           objReturn.id = strID;
           objReturn.name = $this.text().trim();
           objReturn.status = "ok";
-          //console.log("Returning: " + strID);
         }
       });
     },
@@ -3425,7 +3404,7 @@ function getMemberSearch(auth, strSearch) {
 
 function getSessionAuth() {
   log("functiontrace", "Start Function");
-  //console.log("Getting auth");
+
   var auth = {};
   var $butLog = $("#button_logout a");
   var href = $butLog.prop("href");
@@ -3457,7 +3436,6 @@ function handleMemberListVariant() {
       var strTblHead = "";
       var userList = userLists[aryHashData[1]];
       // Set title
-      //console.log("Setting title: " + "User List: " + userList.name);
       $("#memberlist .ie6_header").html("User List: " + userList.name);
       if (userList) {
         for (var key in userList.list) {
@@ -3466,7 +3444,6 @@ function handleMemberListVariant() {
             search: listUser.name,
             "fields[]": ["name"]
           }
-          //console.log(searchData);
           $.ajax({
             url: "https://elliquiy.com/forums/index.php?action=mlist;sa=search",
             method: "POST",
@@ -3530,10 +3507,6 @@ function hex(buffer) {
   return hexCodes.join("");
 }
 
-//sha256("foobar").then(function(digest) {
-//  console.log(digest);
-//});
-
 function cabbitSaveSettings2(hash, callback) {
   var strData = getSettingsForExport(true);
   var strURL = "https://cabbit.org.uk/eli/?site=eli&user=" + user.id + "&hash=" + hash;
@@ -3545,10 +3518,8 @@ function cabbitSaveSettings2(hash, callback) {
       "Content-Type": "application/json"
     },
     onload: function (response) {
-      console.log(strURL);
       if (callback) {
         var data = JSON.parse(response.responseText);
-        console.log(data);
         callback(data);
       }
     }
@@ -3576,8 +3547,6 @@ function cabbitLoadSettings2(hash, callback) {
       "Content-Type": "application/json"
     },
     onload: function (response) {
-      console.log(strURL);
-      console.log(response);
       var data = JSON.parse(response.responseText);
       if (data.status == 'ok') {
         var settingsData = JSON.parse(data.settings);
@@ -3608,9 +3577,7 @@ function main() {
   log("functiontrace", "Start Function");
   log("startup", "Starting " + GM_info.script.name + " v" + GM_info.script.version);
   getUserDetails(function () {
-    console.log(strCSSFT);
     initSettings();
-    console.log(strCSSFT);
     getPageDetails();
     applyCSS();
     removeHeaderStuff(false);
@@ -3662,7 +3629,6 @@ function main() {
       loadFilterTopics();
       addFilterTopicButton();
       if (page.type == "board" || page.type == "bookmarks") {
-        console.log("Bork");
         if (page.type == "bookmarks") {
           addTBody("table", true);
         }
