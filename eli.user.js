@@ -325,322 +325,58 @@ function initSettings() {
   var aryColourConfig = arySBColours;
   aryColourConfig.push("random");
   var fields = {
-    'RemovePictures': {
-      'label': 'Remove pictures?',
-      'type': 'checkbox',
-      'title': 'Avatars and images in posts',
-      'default': blRemovePics,
-      'section': ['General Features', 'Switch basic things on and off']
-    },
-    'Snippets': {
-      'label': 'Snippets?',
-      'type': 'checkbox',
-      'title': 'For storing/pasting',
-      'default': blSnippets
-    },
-    'blUserLists': {
-      'label': 'User Lists?',
-      'type': 'checkbox',
-      'title': 'For quick PMs',
-      'default': blUserLists
-    },
-    'UnreadReplies': {
-      'label': 'Show unread replies count?',
-      'type': 'checkbox',
-      'title': 'At the top of the page, on the right',
-      'default': blUnreadReplies
-    },
-    'RepliesMenu': {
-      'label': 'Show unread replies menu?',
-      'type': 'checkbox',
-      'title': 'Show unread replies menu?',
-      'default': blRepliesMenu
-    },
-    'WordCount': {
-      'label': 'Show wordcounts?',
-      'type': 'checkbox',
-      'title': 'Show wordcounts?',
-      'default': blWordCount
-    },
-    'DebugInfo': {
-      'label': 'Debugging Information?',
-      'type': 'checkbox',
-      'title': 'Debugging Information?',
-      'default': blDebugInfo
-    },
-    'blAjaxButtons': {
-      'label': 'Make buttons AJAX-based?',
-      'type': 'checkbox',
-      'title': 'Make buttons AJAX-based?',
-      'default': blAjaxButtons
-    },
-    'TopicFilters': {
-      'label': 'Topic Filters On?',
-      'type': 'checkbox',
-      'title': 'Topic Filters On?',
-      'default': blFilterTopics,
-      'section': ['Topic Filters', 'Topic Filters']
-    },
-    'strCSSFT_Hi': {
-      'label': 'Hilight Styling (CSS)',
-      'type': 'text',
-      'title': 'Hilight Styling (CSS)',
-      'default': strCSSFT_Hi
-    },
-    'strCSSFT_Mark': {
-      'label': 'Mark Styling (CSS)',
-      'type': 'text',
-      'title': 'Mark Styling (CSS)',
-      'default': strCSSFT_Mark
-    },
-    'strCSSFT_Question': {
-      'label': 'Question Styling (CSS)',
-      'type': 'text',
-      'title': 'Question Styling (CSS)',
-      'default': strCSSFT_Question
-    },
-    'blStyleSpeech': {
-      'label': 'Style Speech?',
-      'type': 'checkbox',
-      'title': 'Style Speech?',
-      'default': blStyleSpeech,
-      'section': ['Speech Styling', 'Speech Styling']
-    },
-    'blStyleSpeechIncQuote': {
-      'label': 'Include quotes?',
-      'type': 'checkbox',
-      'title': 'Include quotes?',
-      'default': blStyleSpeechIncQuote
-    },
-    'strStyleSpeechCSS': {
-      'label': 'Speech Styling (CSS)',
-      'type': 'text',
-      'title': 'Speech Styling (CSS)',
-      'default': strStyleSpeechCSS
-    },
-    'NameNotes': {
-      'label': 'User Notes?',
-      'type': 'checkbox',
-      'title': 'User Notes?',
-      'default': blNameNotes,
-      'section': ['User Notes', 'User Notes']
-    },
-    'UserNoteOption': {
-      'label': 'Note Style',
-      'type': 'select',
-      'options': aryUserNoteOptions,
-      'title': 'Note Style',
-      'default': strUserNoteOption,
-      'size': 10
-    },
-    'QuickTopics': {
-      'label': 'Quick topics?',
-      'type': 'checkbox',
-      'title': 'The bookmarks replacement',
-      'default': blQuickTopics,
-      'section': ['Quick Topics', 'Quick Topics']
-    },
-    'QuickTopicsGoLast': {
-      'label': 'Quick topics goes to last post?',
-      'type': 'checkbox',
-      'title': 'The bookmarks replacement',
-      'default': blQuickTopicsGoLast
-    },
-    'MarkQTNew': {
-      'label': 'Mark replies to quick topics?',
-      'type': 'checkbox',
-      'title': 'Mark replies to quick topics',
-      'default': blMarkQTNew
-    },
-
-    'RepliesMins': {
-      'label': 'Update replies every X minutes (0=no auto-update)',
-      'type': 'int',
-      'title': 'Update replies every X minutes (0=no auto-update)',
-      'min': 0,
-      'default': intUnreadMinutes,
-      'size': 10,
-      'section': ['Auto-Updates', 'Automatic updates']
-    },
-    'MailMins': {
-      'label': 'Update mail count every X minutes (0=no auto-update)',
-      'type': 'int',
-      'title': 'Update mail count every X minutes (0=no auto-update)',
-      'min': 0,
-      'default': intMailMinutes,
-      'size': 10
-    },
-    'blNotifications': {
-      'label': 'Desktop notifications?',
-      'type': 'checkbox',
-      'title': 'Desktop notifications',
-      'default': blNotifications
-    },
-    'RemoveShoutbox': {
-      'label': 'Remove shoutbox?',
-      'type': 'checkbox',
-      'title': 'Remove shoutbox from header',
-      'default': blRemoveShoutbox,
-      'section': ['Remove Header and Footer Items', 'Remove Header and Footer Items']
-    },
-    'RemoveStyles': {
-      'label': 'Remove styles?',
-      'type': 'checkbox',
-      'title': 'Remvoe styles from header',
-      'default': blRemoveStyles
-    },
-    'RemoveTopicicons': {
-      'label': 'Remove topic icons key?',
-      'type': 'checkbox',
-      'title': 'Remove topic icons key',
-      'default': blRemoveStyles
-    },
-    'RemoveFooter': {
-      'label': 'Remove footer?',
-      'type': 'checkbox',
-      'title': 'Remvoe footer',
-      'default': blRemoveFooter
-    },
-    'TidyMenus': {
-      'label': 'Tidy Menus?',
-      'type': 'checkbox',
-      'title': 'Tidy Menus',
-      'default': blTidyMenus
-    },
-    'blShoutboxColour': {
-      'label': 'Colour Shoutbox Text?',
-      'type': 'checkbox',
-      'title': 'Colour Shoutbox Text?',
-      'default': blShoutboxColour,
-      'section': ['Shoutbox', 'Shoutbox']
-    },
-    'strShoutboxColour': {
-      'label': 'Shoutbox Colour',
-      'type': 'select',
-      'options': aryColourConfig,
-      'title': 'Shoutbox Colour',
-      'default': strShoutboxColour,
-      'size': 10
-    },
-    'strShoutboxColourApproved': {
-      'label': 'Shoutbox Colour (Approved Box)',
-      'type': 'select',
-      'options': aryColourConfig,
-      'title': 'Shoutbox Colour (Approved Box)',
-      'default': strShoutboxColourApproved,
-      'size': 10
-    },
-    'strShoutboxSubst': {
-      'label': 'Shoutbox Substitutions (use | to separate, leave blank for no substs)',
-      'type': 'textarea',
-      'title': 'Use the | character to seperate command and substitution',
-      'default': strShoutboxSubst,
-      'size': 10
-    },
-    'Drafts': {
-      'label': 'Drafts?',
-      'type': 'checkbox',
-      'title': 'Drafts?',
-      'default': blDrafts,
-      'section': ['Drafts', 'Drafts']
-    },
-    'AutoLoadDraft': {
-      'label': 'Auto-load draft?',
-      'type': 'checkbox',
-      'title': 'Auto-load draft?',
-      'default': blAutoLoadDraft
-    },
-    'AutoSave': {
-      'label': 'Auto-save draft every X minutes (0=no auto-save)',
-      'type': 'int',
-      'title': 'Auto-save draft every X minutes (0=no auto-save)',
-      'min': 0,
-      'default': intAutoSave,
-      'size': 10
-    },
-    'AutoClearDraft': {
-      'label': 'Auto-clear draft when you post',
-      'type': 'checkbox',
-      'title': 'Auto-clear draft when you post',
-      'default': blAutoClearDraft
-    },
-    'DraftHistory': {
-      'label': '# of manual drafts to keep (0 = no history kept)',
-      'type': 'int',
-      'title': '# of manual drafts to keep (0 = no history kept)',
-      'min': 0,
-      'default': intDraftHistory,
-      'size': 10
-    },
-    'BMTags': {
-      'label': 'Bookmark Tags?',
-      'type': 'checkbox',
-      'title': 'Bookmark Tags',
-      'default': blBMTags,
-      'section': ['Bookmarks', 'Bookmarks']
-    },
-    'BMAllLinks': {
-      'label': 'Add &apos;All&apos; link to bookmarks?',
-      'type': 'checkbox',
-      'title': 'Add &apos;All&apos; link to bookmarks?',
-      'default': blBMAllLinks
-    },
-    'BMTagsOwed': {
-      'label': 'Posts Owed Auto-Tag?',
-      'type': 'checkbox',
-      'title': 'Posts Owed Auto-Tag',
-      'default': blBMTagsOwed
-    },
-    'TagOnBM': {
-      'label': 'Add tags when bookmarking?',
-      'type': 'checkbox',
-      'title': 'Add tags when bookmarking',
-      'default': blTagOnBM
-    },
-    'BMTagsReplies': {
-      'label': 'Replies Auto-Tag?',
-      'type': 'checkbox',
-      'title': 'Replies Auto-Tag',
-      'default': blBMTagsReplies
-    },
-    'BMTagsNoTags': {
-      'label': 'No Tags Auto-Tag?',
-      'type': 'checkbox',
-      'title': 'No Tags Auto-Tag',
-      'default': blBMTagsNoTags
-    },
-    'strExportKey': {
-      'label': 'Export Key?',
-      'type': 'text',
-      'title': 'Export Key',
-      'default': strExportKey,
-      'section': ['Import / Export', 'Import / Export']
-    }
+    'RemovePictures': { 'label': 'Remove pictures?', 'type': 'checkbox', 'title': 'Avatars and images in posts', 'default': blRemovePics, 'section': ['General Features', 'Switch basic things on and off'] },
+    'Snippets': { 'label': 'Snippets?', 'type': 'checkbox', 'title': 'For storing/pasting', 'default': blSnippets },
+    'blUserLists': { 'label': 'User Lists?', 'type': 'checkbox', 'title': 'For quick PMs', 'default': blUserLists },
+    'UnreadReplies': { 'label': 'Show unread replies count?', 'type': 'checkbox', 'title': 'At the top of the page, on the right', 'default': blUnreadReplies },
+    'RepliesMenu': { 'label': 'Show unread replies menu?', 'type': 'checkbox', 'title': 'Show unread replies menu?', 'default': blRepliesMenu },
+    'WordCount': { 'label': 'Show wordcounts?', 'type': 'checkbox', 'title': 'Show wordcounts?', 'default': blWordCount },
+    'DebugInfo': { 'label': 'Debugging Information?', 'type': 'checkbox', 'title': 'Debugging Information?', 'default': blDebugInfo },
+    'blAjaxButtons': { 'label': 'Make buttons AJAX-based?', 'type': 'checkbox', 'title': 'Make buttons AJAX-based?', 'default': blAjaxButtons },
+    'TopicFilters': { 'label': 'Topic Filters On?', 'type': 'checkbox', 'title': 'Topic Filters On?', 'default': blFilterTopics, 'section': ['Topic Filters', 'Topic Filters'] },
+    'strCSSFT_Hi': { 'label': 'Hilight Styling (CSS)', 'type': 'text', 'title': 'Hilight Styling (CSS)', 'default': strCSSFT_Hi },
+    'strCSSFT_Mark': { 'label': 'Mark Styling (CSS)', 'type': 'text', 'title': 'Mark Styling (CSS)', 'default': strCSSFT_Mark },
+    'strCSSFT_Question': { 'label': 'Question Styling (CSS)', 'type': 'text', 'title': 'Question Styling (CSS)', 'default': strCSSFT_Question },
+    'blStyleSpeech': { 'label': 'Style Speech?', 'type': 'checkbox', 'title': 'Style Speech?', 'default': blStyleSpeech, 'section': ['Speech Styling', 'Speech Styling'] },
+    'blStyleSpeechIncQuote': { 'label': 'Include quotes?', 'type': 'checkbox', 'title': 'Include quotes?', 'default': blStyleSpeechIncQuote },
+    'strStyleSpeechCSS': { 'label': 'Speech Styling (CSS)', 'type': 'text', 'title': 'Speech Styling (CSS)', 'default': strStyleSpeechCSS },
+    'NameNotes': { 'label': 'User Notes?', 'type': 'checkbox', 'title': 'User Notes?', 'default': blNameNotes, 'section': ['User Notes', 'User Notes'] },
+    'UserNoteOption': { 'label': 'Note Style', 'type': 'select', 'options': aryUserNoteOptions, 'title': 'Note Style', 'default': strUserNoteOption, 'size': 10 },
+    'QuickTopics': { 'label': 'Quick topics?', 'type': 'checkbox', 'title': 'The bookmarks replacement', 'default': blQuickTopics, 'section': ['Quick Topics', 'Quick Topics'] },
+    'QuickTopicsGoLast': { 'label': 'Quick topics goes to last post?', 'type': 'checkbox', 'title': 'The bookmarks replacement', 'default': blQuickTopicsGoLast },
+    'MarkQTNew': { 'label': 'Mark replies to quick topics?', 'type': 'checkbox', 'title': 'Mark replies to quick topics', 'default': blMarkQTNew },
+    'RepliesMins': { 'label': 'Update replies every X minutes (0=no auto-update)', 'type': 'int', 'title': 'Update replies every X minutes (0=no auto-update)', 'min': 0, 'default': intUnreadMinutes, 'size': 10, 'section': ['Auto-Updates', 'Automatic updates'] },
+    'MailMins': { 'label': 'Update mail count every X minutes (0=no auto-update)', 'type': 'int', 'title': 'Update mail count every X minutes (0=no auto-update)', 'min': 0, 'default': intMailMinutes, 'size': 10 },
+    'blNotifications': { 'label': 'Desktop notifications?', 'type': 'checkbox', 'title': 'Desktop notifications', 'default': blNotifications },
+    'RemoveShoutbox': { 'label': 'Remove shoutbox?', 'type': 'checkbox', 'title': 'Remove shoutbox from header', 'default': blRemoveShoutbox, 'section': ['Remove Header and Footer Items', 'Remove Header and Footer Items'] },
+    'RemoveStyles': { 'label': 'Remove styles?', 'type': 'checkbox', 'title': 'Remvoe styles from header', 'default': blRemoveStyles },
+    'RemoveTopicicons': { 'label': 'Remove topic icons key?', 'type': 'checkbox', 'title': 'Remove topic icons key', 'default': blRemoveStyles },
+    'RemoveFooter': { 'label': 'Remove footer?', 'type': 'checkbox', 'title': 'Remvoe footer', 'default': blRemoveFooter },
+    'TidyMenus': { 'label': 'Tidy Menus?', 'type': 'checkbox', 'title': 'Tidy Menus', 'default': blTidyMenus },
+    'blShoutboxColour': { 'label': 'Colour Shoutbox Text?', 'type': 'checkbox', 'title': 'Colour Shoutbox Text?', 'default': blShoutboxColour, 'section': ['Shoutbox', 'Shoutbox'] },
+    'strShoutboxColour': { 'label': 'Shoutbox Colour','type': 'select','options': aryColourConfig, 'title': 'Shoutbox Colour', 'default': strShoutboxColour, 'size': 10 },
+    'strShoutboxColourApproved': { 'label': 'Shoutbox Colour (Approved Box)', 'type': 'select', 'options': aryColourConfig, 'title': 'Shoutbox Colour (Approved Box)', 'default': strShoutboxColourApproved, 'size': 10 },
+    'strShoutboxSubst': { 'label': 'Shoutbox Substitutions (use | to separate, leave blank for no substs)', 'type': 'textarea', 'title': 'Use the | character to seperate command and substitution', 'default': strShoutboxSubst, 'size': 10 },
+    'Drafts': { 'label': 'Drafts?', 'type': 'checkbox', 'title': 'Drafts?', 'default': blDrafts, 'section': ['Drafts', 'Drafts'] },
+    'AutoLoadDraft': { 'label': 'Auto-load draft?', 'type': 'checkbox', 'title': 'Auto-load draft?', 'default': blAutoLoadDraft },
+    'AutoSave': { 'label': 'Auto-save draft every X minutes (0=no auto-save)', 'type': 'int', 'title': 'Auto-save draft every X minutes (0=no auto-save)', 'min': 0, 'default': intAutoSave, 'size': 10 },
+    'AutoClearDraft': { 'label': 'Auto-clear draft when you post', 'type': 'checkbox', 'title': 'Auto-clear draft when you post', 'default': blAutoClearDraft },
+    'DraftHistory': { 'label': '# of manual drafts to keep (0 = no history kept)', 'type': 'int', 'title': '# of manual drafts to keep (0 = no history kept)', 'min': 0, 'default': intDraftHistory, 'size': 10 },
+    'BMTags': { 'label': 'Bookmark Tags?', 'type': 'checkbox', 'title': 'Bookmark Tags', 'default': blBMTags, 'section': ['Bookmarks', 'Bookmarks'] },
+    'BMAllLinks': { 'label': 'Add &apos;All&apos; link to bookmarks?', 'type': 'checkbox', 'title': 'Add &apos;All&apos; link to bookmarks?', 'default': blBMAllLinks },
+    'BMTagsOwed': { 'label': 'Posts Owed Auto-Tag?', 'type': 'checkbox', 'title': 'Posts Owed Auto-Tag', 'default': blBMTagsOwed },
+    'TagOnBM': { 'label': 'Add tags when bookmarking?', 'type': 'checkbox', 'title': 'Add tags when bookmarking', 'default': blTagOnBM },
+    'BMTagsReplies': { 'label': 'Replies Auto-Tag?', 'type': 'checkbox', 'title': 'Replies Auto-Tag', 'default': blBMTagsReplies },
+    'BMTagsNoTags': { 'label': 'No Tags Auto-Tag?', 'type': 'checkbox', 'title': 'No Tags Auto-Tag', 'default': blBMTagsNoTags },
+    'strExportKey': { 'label': 'Export Key?', 'type': 'text', 'title': 'Export Key', 'default': strExportKey, 'section': ['Import / Export', 'Import / Export'] }
   };
 
   if (strScriptAdmins.indexOf(user.id) > -1) {
-    fields.blRemoveSsiethExtras_banner = {
-        'label': 'Remove Newsbox?',
-        'type': 'checkbox',
-        'title': 'Remove Newsbox',
-        'default': blRemoveSsiethExtras_banner,
-        'section': ['Ssieth', 'Ssieth']
-      };
-      fields.blRemoveSsiethExtras_donate = {
-        'label': 'Remove Donate?',
-        'type': 'checkbox',
-        'title': 'Remove Donate',
-        'default': blRemoveSsiethExtras_donate
-      };
-      fields.blRemoveSsiethExtras_sbbutton = {
-        'label': 'Remove Ssieth Stuff?',
-        'type': 'checkbox',
-        'title': 'Remove Ssieth Stuff',
-        'default': blRemoveSsiethExtras_sbbutton
-      };
+    fields.blRemoveSsiethExtras_banner = { 'label': 'Remove Newsbox?', 'type': 'checkbox', 'title': 'Remove Newsbox', 'default': blRemoveSsiethExtras_banner, 'section': ['Ssieth', 'Ssieth'] };
+    fields.blRemoveSsiethExtras_donate = { 'label': 'Remove Donate?', 'type': 'checkbox', 'title': 'Remove Donate', 'default': blRemoveSsiethExtras_donate };
+    fields.blRemoveSsiethExtras_sbbutton = { 'label': 'Remove Ssieth Stuff?', 'type': 'checkbox', 'title': 'Remove Ssieth Stuff', 'default': blRemoveSsiethExtras_sbbutton };
   }
 
-  //delete fields['ExtraLinks'];
   GM_config.init({
     'id': 'e_config',
     'title': 'Settings',
