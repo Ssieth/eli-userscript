@@ -20,6 +20,9 @@
 // @copyright   2018, Ssieth (https://openuserjs.org//users/Ssieth)
 // ==/UserScript==
 
+/*jshint esversion: 6 */
+/* jshint -W083 */
+
 // -- What we are logging to the console -- //
 var logTags = {};
 logTags.startup = true;
@@ -69,7 +72,7 @@ var blAjaxButtons = true;
 var blStyleSpeech = true;
 var blStyleSpeechIncQuote = true;
 var blUserLists = true;
-var strStyleSpeechCSS = "color: blue;"
+var strStyleSpeechCSS = "color: blue;";
 var blNotifications = false;
 var strExportKey = "";
 
@@ -240,7 +243,7 @@ Date.prototype.addDays = function (days) {
   var dat = new Date(this.valueOf());
   dat.setDate(dat.getDate() + days);
   return dat;
-}
+};
 
 /*
 The following function injects code into the parent page.
@@ -285,7 +288,7 @@ String.prototype.containsCount = function (findStr) {
     }
   }
   return count;
-}
+};
 
 function throwModal(strTitle, strBody) {
   log("functiontrace", "Start Function");
@@ -616,25 +619,25 @@ function initSettings() {
   };
 
   if (strScriptAdmins.indexOf(user.id) > -1) {
-    fields['blRemoveSsiethExtras_banner'] = {
+    fields.blRemoveSsiethExtras_banner = {
         'label': 'Remove Newsbox?',
         'type': 'checkbox',
         'title': 'Remove Newsbox',
         'default': blRemoveSsiethExtras_banner,
         'section': ['Ssieth', 'Ssieth']
-      },
-      fields['blRemoveSsiethExtras_donate'] = {
+      };
+      fields.blRemoveSsiethExtras_donate = {
         'label': 'Remove Donate?',
         'type': 'checkbox',
         'title': 'Remove Donate',
         'default': blRemoveSsiethExtras_donate
-      },
-      fields['blRemoveSsiethExtras_sbbutton'] = {
+      };
+      fields.blRemoveSsiethExtras_sbbutton = {
         'label': 'Remove Ssieth Stuff?',
         'type': 'checkbox',
         'title': 'Remove Ssieth Stuff',
         'default': blRemoveSsiethExtras_sbbutton
-      }
+      };
   }
 
   //delete fields['ExtraLinks'];
@@ -1079,7 +1082,7 @@ function frmUserListBody() {
   strBody += "</tr>";
   strBody += "<tr>";
   strBody += " <th style='vertical-align: top; text-align: right;'>Users:</th>";
-  strBody += " <td><textarea id='userListAdd' rows='3' cols='20'></textarea></td>"
+  strBody += " <td><textarea id='userListAdd' rows='3' cols='20'></textarea></td>";
   strBody += " <td>&nbsp;<center><button value='Add ->' id='addToUserList'>Add -></button></center>&nbsp;</td>";
   strBody += " <td><div id='userListAdded' style='min-width: 20em; border: thin solid gray; min-height: 5.5em; max-height: 9em; overflow: scroll;'></div>";
   strBody += " </td>";
@@ -1132,8 +1135,8 @@ function loadCurrentList() {
     var strAdd = "";
     strAdd += res.name + " (" + res.id + ") ";
     strAdd += "<img src='https://elliquiy.com/forums/Themes/elliquiy2/images/pm_recipient_delete.gif' id='userListRemove-" + res.id + "'>";
-    strAdd += "<br />"
-    $("#modalpop #userListAdded").append(strAdd)
+    strAdd += "<br />";
+    $("#modalpop #userListAdded").append(strAdd);
     $("#modalpop #userListAdded #userListRemove-" + res.id).click(function () {
       var strID = $(this).prop("id");
       var intID;
@@ -1608,7 +1611,7 @@ function autoLoadDraft() {
     strID = $topicForm.find('input[name="topic"]').val();
     if (drafts[strID] && drafts[strID].body && drafts[strID].body !== "undefined") {
       $('textarea#message').val(drafts[strID].body);
-      $('iframe#html_message').contents().find('body.rich_editor').html(drafts[strID].body)
+      $('iframe#html_message').contents().find('body.rich_editor').html(drafts[strID].body);
     }
   }
 }
@@ -2303,7 +2306,7 @@ function getUnreadMailCount() {
   if (strCount !== "none") {
     intCount = parseInt(strCount);
   }
-  GM_setValue("unreadMail", intCount)
+  GM_setValue("unreadMail", intCount);
   return intCount;
 }
 
@@ -2341,18 +2344,18 @@ function askPermission() {
   if (blNotifications && permResult !== "granted" && permResult !== "denied") {
     Notification.requestPermission(function (permission) {
       permResult = permission;
-    })
+    });
   }
 }
 
-function sendNotification(strTitle, strBody, ) {
+function sendNotification(strTitle, strBody ) {
   log("functiontrace", "Start Function");
   if (blNotifications) {
     var options = {
       body: strBody,
       requireInteraction: true,
       icon: "https://elliquiy.com/favicon.ico"
-    }
+    };
     var notification = new Notification(strTitle, options);
     return notification;
   }
@@ -3000,7 +3003,7 @@ function newVerInfo() {
   if (lastVer !== GM_info.script.version) {
     createNewVer();
     var $displayAt = $("div#newVer");
-    var strVerInfo = ""
+    var strVerInfo = "";
     strVerInfo += "<p>A new version has been downloaded and installed (v" + GM_info.script.version + ")</p>";
 	if (verDelDraft.includes(GM_info.script.version)) {
 		strVerInfo += "<p style='color:red;'>There have been changes to the way that drafts work.  I recommend selecting the 'Clear Drafts' option from the settings menu.</p>";
@@ -3201,6 +3204,7 @@ function annotateNames() {
         $('p#nameNotesMsg').text("Notes saved at " + (new Date()).toLocaleString()).show();
         saveNameNotes();
       });
+      break;
     default:
       break;
   }
@@ -3340,7 +3344,7 @@ function insertUser_To(userName, userID) {
 
 function insertUser_BCC(userName, userID) {
   log("functiontrace", "Start Function");
-  var strTemplate = '<div id="suggest_bcc_suggest_%userID%"><input name="recipient_bcc[]" value="%userID%" type="hidden">%userName%&nbsp;<img src="https://elliquiy.com/forums/Themes/elliquiy2/images/pm_recipient_delete.gif" alt="Delete Item" title="Delete Item" onclick="return oPersonalMessageSend.oBccAutoSuggest.deleteAddedItem(%userID%);"></div>'
+  var strTemplate = '<div id="suggest_bcc_suggest_%userID%"><input name="recipient_bcc[]" value="%userID%" type="hidden">%userName%&nbsp;<img src="https://elliquiy.com/forums/Themes/elliquiy2/images/pm_recipient_delete.gif" alt="Delete Item" title="Delete Item" onclick="return oPersonalMessageSend.oBccAutoSuggest.deleteAddedItem(%userID%);"></div>';
   strTemplate = strTemplate.replaceAll("%userID%", userID);
   strTemplate = strTemplate.replaceAll("%userName%", userName);
   $("div#bcc_item_list_container").append(strTemplate);
@@ -3358,9 +3362,9 @@ function insertUsers(userList, toType) {
       break;
     case "b":
     case "bcc":
-      for (var i in userList) {
-        var usr = userList[i];
-        insertUser_BCC(usr.name, usr.id);
+      for (var i2 in userList) {
+        var usr2 = userList[i2];
+        insertUser_BCC(usr2.name, usr2.id);
       }
       break;
     default:
@@ -3385,7 +3389,7 @@ function getMemberSearch(auth, strSearch) {
       $src.find("item").each(function (index) {
         var $this = $(this);
         if ($this.text().trim().toLowerCase() == searchString) {
-          var strID = $this.attr("id")
+          var strID = $this.attr("id");
           objReturn.id = strID;
           objReturn.name = $this.text().trim();
           objReturn.status = "ok";
@@ -3413,7 +3417,7 @@ function getSessionAuth() {
 
   auth.sId = aryHref2[1];
   auth.sVar = aryHref2[0];
-  auth.memberSearchURL = "/forums/index.php?action=suggest;suggest_type=member;search=%search%;" + auth.sVar + "=" + auth.sId + ";xml;"
+  auth.memberSearchURL = "/forums/index.php?action=suggest;suggest_type=member;search=%search%;" + auth.sVar + "=" + auth.sId + ";xml;";
   return auth;
 }
 /* =========================== */
@@ -3432,7 +3436,7 @@ function handleMemberListVariant() {
       $("#memberlist .pagesection .buttonlist").remove();
       // Build our user table
       var $tbl;
-      var $tblBody = $("<tbody></tbody>")
+      var $tblBody = $("<tbody></tbody>");
       var strTblHead = "";
       var userList = userLists[aryHashData[1]];
       // Set title
@@ -3443,7 +3447,7 @@ function handleMemberListVariant() {
           var searchData = {
             search: listUser.name,
             "fields[]": ["name"]
-          }
+          };
           $.ajax({
             url: "https://elliquiy.com/forums/index.php?action=mlist;sa=search",
             method: "POST",
@@ -3462,7 +3466,7 @@ function handleMemberListVariant() {
               if ($(this).find("td:eq(1)").text().trim().toLowerCase() == listUser.name.trim().toLowerCase()) {
                 $tblBody.append($(this));
               }
-            })
+            });
 
           }).fail(function (data) {});
         }
@@ -3472,7 +3476,6 @@ function handleMemberListVariant() {
         $output.append($tbl);
         $("table.tablesorter").tablesorter();
       }
-      //$output.html(strHashData);
       break;
     default:
       break;
@@ -3495,12 +3498,12 @@ function hex(buffer) {
   var view = new DataView(buffer);
   for (var i = 0; i < view.byteLength; i += 4) {
     // Using getUint32 reduces the number of iterations needed (we process 4 bytes each time)
-    var value = view.getUint32(i)
+    var value = view.getUint32(i);
     // toString(16) will give the hex representation of the number without padding
-    var stringValue = value.toString(16)
+    var stringValue = value.toString(16);
     // We use concatenation and slice for padding
-    var padding = '00000000'
-    var paddedValue = (padding + stringValue).slice(-padding.length)
+    var padding = '00000000';
+    var paddedValue = (padding + stringValue).slice(-padding.length);
     hexCodes.push(paddedValue);
   }
   // Join all the hex strings into one
