@@ -5,6 +5,8 @@ This script is designed to add some extra functionality to Elliquiy.com
 The specific features are listed below:
 
 ## In the last version
+1.40.0: Moved hosting of the script to github to allow for easier collaboration.
+
 1.39.0: A fix for those users who have changed their display name.
 
 1.38.1: Bugfix for last update... oops!
