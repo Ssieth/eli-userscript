@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.40.2 
+// @version     1.40.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -480,7 +480,7 @@ function displaySettings() {
   $menuQ.append($menuSet);
   if (GM_info.script === undefined) {}
   else {
-    $menuQ.append("<ul><li><a href='#' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://openuserjs.org/scripts/Ssieth/Elliquiy_Improver' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
+    $menuQ.append("<ul><li><a href='#' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
     if (blFilterTopics) {
       $menuQ.find("ul").append("<li><a href='#' id='TF_link'><span class='TF_link'>Topic Filters</span></a></li>");
       $menuQ.find("a#TF_link").click(function (e) {
