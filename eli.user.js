@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.40.3
+// @version     1.40.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1162,6 +1162,10 @@ function loadSnippets() {
   if (strSnippets !== "") {
     snippets = JSON.parse(strSnippets);
   }
+}
+
+function rawSnippets() {
+    return JSON.stringify(snippets);
 }
 
 function saveSnippets() {
@@ -2779,11 +2783,15 @@ function debugUserInfo() {
   var $displayAt = $("div#debug ul");
   var $userInfo = $("<li>User Info: <ul></ul></li>");
   var $userInfo_ul = $userInfo.find("ul");
+  var $snippets = $("<li>Snippets: <ul></ul></li>");
+  var $snippets_ul = $snippets.find("ul");
   $userInfo_ul.append("<li>ID: " + user.id + "</li>");
   $userInfo_ul.append("<li>UserName: " + user.name + "</li>");
   $userInfo_ul.append("<li>Position: " + user.position + "</li>");
   $userInfo_ul.append("<li>Level: " + user.level + "</li>");
   $displayAt.append($userInfo);
+  $snippets_ul.append("<li><pre>" + rawSnippets() + "</pre></li>");
+  $displayAt.append($snippets);
 }
 /* =========================== */
 
