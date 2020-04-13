@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.40.4
+// @version     1.41.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -41,6 +41,7 @@ var blUnreadReplies = true;
 var intUnreadMinutes = 5;
 var intMailMinutes = 5;
 var blRepliesMenu = true;
+var blRepliesNew = false;
 var blQuickTopicsGoLast = true;
 var blMarkQTNew = true;
 var blShoutboxColour = false;
@@ -328,11 +329,12 @@ function initSettings() {
     'RemovePictures': { 'label': 'Remove pictures?', 'type': 'checkbox', 'title': 'Avatars and images in posts', 'default': blRemovePics, 'section': ['General Features', 'Switch basic things on and off'] },
     'Snippets': { 'label': 'Snippets?', 'type': 'checkbox', 'title': 'For storing/pasting', 'default': blSnippets },
     'blUserLists': { 'label': 'User Lists?', 'type': 'checkbox', 'title': 'For quick PMs', 'default': blUserLists },
-    'UnreadReplies': { 'label': 'Show unread replies count?', 'type': 'checkbox', 'title': 'At the top of the page, on the right', 'default': blUnreadReplies },
-    'RepliesMenu': { 'label': 'Show unread replies menu?', 'type': 'checkbox', 'title': 'Show unread replies menu?', 'default': blRepliesMenu },
     'WordCount': { 'label': 'Show wordcounts?', 'type': 'checkbox', 'title': 'Show wordcounts?', 'default': blWordCount },
     'DebugInfo': { 'label': 'Debugging Information?', 'type': 'checkbox', 'title': 'Debugging Information?', 'default': blDebugInfo },
     'blAjaxButtons': { 'label': 'Make buttons AJAX-based?', 'type': 'checkbox', 'title': 'Make buttons AJAX-based?', 'default': blAjaxButtons },
+    'UnreadReplies': { 'label': 'Show unread replies count?', 'type': 'checkbox', 'title': 'At the top of the page, on the right', 'default': blUnreadReplies, 'section': ['Replies', 'Replies']  },
+    'RepliesMenu': { 'label': 'Show unread replies menu?', 'type': 'checkbox', 'title': 'Show unread replies menu?', 'default': blRepliesMenu },
+    'blRepliesNew': { 'label': 'Replies links go to first new post?', 'type': 'checkbox', 'title': 'Replies links go to first new post?', 'default': blRepliesNew },
     'TopicFilters': { 'label': 'Topic Filters On?', 'type': 'checkbox', 'title': 'Topic Filters On?', 'default': blFilterTopics, 'section': ['Topic Filters', 'Topic Filters'] },
     'strCSSFT_Hi': { 'label': 'Hilight Styling (CSS)', 'type': 'text', 'title': 'Hilight Styling (CSS)', 'default': strCSSFT_Hi },
     'strCSSFT_Mark': { 'label': 'Mark Styling (CSS)', 'type': 'text', 'title': 'Mark Styling (CSS)', 'default': strCSSFT_Mark },
@@ -417,6 +419,7 @@ function initSettings() {
   intDraftHistory = GM_config.get("DraftHistory");
   blNameNotes = GM_config.get("NameNotes");
   blRepliesMenu = GM_config.get("RepliesMenu");
+  blRepliesNew = GM_config.get("blRepliesNew");
   strUserNoteOption = GM_config.get("UserNoteOption");
   strCSSFT_Mark = GM_config.get("strCSSFT_Mark");
   strCSSFT_Hi = GM_config.get("strCSSFT_Hi");
@@ -1807,6 +1810,11 @@ function displayReplies(aryReplies) {
   }
 }
 
+function url2new(strUrl) {
+    var iPos = strUrl.lastIndexOf(".");
+    return strUrl.substr(0,iPos+1) + "new#new";
+}
+
 function getUnreadReplies() {
   log("functiontrace", "Start Function");
   var strURL = "https://elliquiy.com/forums/index.php?action=unreadreplies";
@@ -1833,6 +1841,9 @@ function getUnreadReplies() {
       else {
         if (blRepliesMenu) {
           var lasturl = $(this).find("td.lastpost a:eq(0)").attr("href");
+          if (blRepliesNew) {
+            lasturl = url2new(lasturl);
+          }
           $thisa = $(this).find("a:eq(0)").attr("href", lasturl);
           aryReplies.push($thisa.parent().html());
         }
