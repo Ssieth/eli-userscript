@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.41.0
+// @version     1.41.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1062,9 +1062,9 @@ function setSnippet() {
   var strID = strName.replace(/ /g, "-");
   var snippet = {};
 
-  snippet.id = strID;
+  snippet.id = strID.replaceAll(":","");
   snippet.body = strBody;
-  snippet.name = strName;
+  snippet.name = strName.replaceAll(":","");
   snippets[strID] = snippet;
 
   displaySnippets();
