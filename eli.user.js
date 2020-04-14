@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.41.1
+// @version     1.42.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -34,6 +34,9 @@ logTags.userdetails = false;
 logTags.richtext = true;
 
 // -- No need to edit these but no harm either. If you want to change them you can in the UI --
+var config = {};
+var config_display = {};
+
 var blRemovePics = false;
 var blQuickTopics = true;
 var blSnippets = true;
@@ -313,6 +316,279 @@ function getWordCount(strText) {
   return wordCount;
 }
 
+/*
+ * jQuery throttle / debounce - v1.1 - 3/7/2010
+ * http://benalman.com/projects/jquery-throttle-debounce-plugin/
+ *
+ * Copyright (c) 2010 "Cowboy" Ben Alman
+ * Dual licensed under the MIT and GPL licenses.
+ * http://benalman.com/about/license/
+ */
+(function(b,c){var $=b.jQuery||b.Cowboy||(b.Cowboy={}),a;$.throttle=a=function(e,f,j,i){var h,d=0;if(typeof f!=="boolean"){i=j;j=f;f=c}function g(){var o=this,m=+new Date()-d,n=arguments;function l(){d=+new Date();j.apply(o,n)}function k(){h=c}if(i&&!h){l()}h&&clearTimeout(h);if(i===c&&m>e){l()}else{if(f!==true){h=setTimeout(i?k:l,i===c?e-m:e)}}}if($.guid){g.guid=j.guid=j.guid||$.guid++}return g};$.debounce=function(d,e,f){return f===c?a(d,e,false):a(d,f,e!==false)}})(this);
+
+
+/* =========================== */
+
+
+/* =========================== */
+/* New Configuration Stuff     */
+/* =========================== */
+function initConfigCategory(configCat, catDisplayName, isAdmin) {
+  if (!config[configCat]) {
+      config[configCat] = {
+          loaded: new Date()
+      };
+  }
+  config_display[configCat] = {
+      displayName: catDisplayName,
+      isAdmin: !!isAdmin,
+      loaded: new Date()
+  }
+}
+
+function initConfigItem(itemCat, itemName, defaultValue, displaySettings) {
+  if (config[itemCat]) {
+      if (!config[itemCat].hasOwnProperty(itemName)) {
+          config[itemCat][itemName] = defaultValue;
+      }
+  }
+  config_display[itemCat][itemName] = displaySettings;
+}
+
+function loadConfig(andThen) {
+  var blNewConfig;
+  var strConf = GM_getValue("config","");
+  if (strConf === "") {
+      config = {};
+      blNewConfig = true;
+  } else {
+      config = JSON.parse(strConf);
+      blNewConfig = false;
+  }
+  if (andThen) andThen();
+  return !blNewConfig;
+}
+
+function saveConfig(andThen) {
+	config.version = GM_info.script.version;
+  config.savedWhen = new Date();
+  console.log("Saving config");
+  console.log(config);
+  GM_setValue("config",JSON.stringify(config));
+  if (andThen) andThen();
+}
+
+function initConfig(andThen) {
+  var blNewConfig;
+  var aryColourConfig = arySBColours;
+  aryColourConfig.push("random");
+
+  config = {};
+  config_display = {};
+  blNewConfig = !loadConfig();
+  if (blNewConfig) {
+      initSettings();
+  }
+  // Settings categories
+  initConfigCategory("general","General Settings");
+  initConfigCategory("replies","Replies");
+  initConfigCategory("topicFilters","Topic Filters");
+  initConfigCategory("speechStyling","Speech Styling");
+  initConfigCategory("userNotes","User Notes");
+  initConfigCategory("quickTopics","Quick Topics");
+  initConfigCategory("autoUpdates","Auto-Updates");
+  initConfigCategory("removeHeadFoot","Remove Head and Footer Items");
+  initConfigCategory("shoutbox","Shoutbox");
+  initConfigCategory("drafts","Drafts");
+  initConfigCategory("bookmarks","Bookmarks");
+  initConfigCategory("admin","Admin",true);
+  //initConfigCategory("importExport","Import / Export");
+  // General Settings
+  initConfigItem("general","removePics", blRemovePics, {text: "Remove pictures?", type: "bool" });
+  initConfigItem("general","snippets", blSnippets, {text: "Snippets?", type: "bool" });
+  initConfigItem("general","userLists", blUserLists, {text: "User lists?", type: "bool" });
+  initConfigItem("general","wordCount", blWordCount, {text: "Show wordcounts?", type: "bool" });
+  initConfigItem("general","debugInfo", blDebugInfo, {text: "Debug information?", type: "bool" });
+  initConfigItem("general","ajaxButtons", blAjaxButtons, {text: "Make buttons AJAX?", type: "bool" });
+  // Replies
+  initConfigItem("replies","showCount", blUnreadReplies, {text: "Show unread replies count?", type: "bool" });
+  initConfigItem("replies","showMenu", blRepliesMenu, {text: "Show unread replies menu?", type: "bool" });
+  initConfigItem("replies","gotoNew", blRepliesNew, {text: "Replies links go to first new post?", type: "bool" });
+  // Topic Filters
+  initConfigItem("topicFilters","on", blFilterTopics, {text: "Topic Filters On?", type: "bool" });
+  initConfigItem("topicFilters","CSS_Hi", strCSSFT_Hi, {text: "Hilight Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Mark", strCSSFT_Mark, {text: "Mark Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Question", strCSSFT_Question, {text: "Question Styling (CSS)", type: "text" });
+  strCSSFT = ".FTMark { " + strCSSFT_Mark + " } .FTHi { " + strCSSFT_Hi + " }  .FTQ { " + strCSSFT_Question + "}";
+
+  // Speech Styling
+  initConfigItem("speechStyling","on", blStyleSpeech, {text: "Style Speech?", type: "bool" });
+  initConfigItem("speechStyling","incQuote", blStyleSpeechIncQuote, {text: "Include quotes?", type: "bool" });
+  initConfigItem("speechStyling","CSS", strStyleSpeechCSS, {text: "Speech Styling (CSS)", type: "text" });
+  // User Notes
+  initConfigItem("userNotes","on", blNameNotes, {text: "User Notes?", type: "bool" });
+  initConfigItem("userNotes","style",strUserNoteOption, {text: "Note Style", type: "select", select: aryUserNoteOptions});
+  // Quick Topics
+  initConfigItem("quickTopics","on", blQuickTopics, {text: "Quick topics?", type: "bool" });
+  initConfigItem("quickTopics","goLast", blQuickTopicsGoLast, {text: "Quick topics goes to last post?", type: "bool" });
+  initConfigItem("quickTopics","markNew", blMarkQTNew, {text: "Mark replies to quick topics?", type: "bool" });
+  // Auto Updates
+  initConfigItem("autoUpdates","unreadMinutes", intUnreadMinutes, {text: "Update replies every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
+  initConfigItem("autoUpdates","mailMinutes", intMailMinutes, {text: "Update mail count every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
+  initConfigItem("autoUpdates","desktopNotifications", blNotifications, {text: "Desktop notifications?", type: "bool" });
+  // Removing Headers and Footers
+  initConfigItem("removeHeadFoot","shoutbox", blRemoveShoutbox, {text: "Remove shoutbox?", type: "bool" });
+  initConfigItem("removeHeadFoot","styles", blRemoveStyles, {text: "Remove styles?", type: "bool" });
+  initConfigItem("removeHeadFoot","topicIcons", blRemoveTopicicons, {text: "Remove topic icons?", type: "bool" });
+  initConfigItem("removeHeadFoot","footer", blRemoveFooter, {text: "Remove footer?", type: "bool" });
+  initConfigItem("removeHeadFoot","tidyMenus", blTidyMenus, {text: "Tidy Menus?", type: "bool" });
+  // Shoutbox
+  initConfigItem("shoutbox","colourOn", blShoutboxColour, {text: "Colour Shoutbox Text?", type: "bool" });
+  initConfigItem("shoutbox","publicColour",strShoutboxColour, {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
+  initConfigItem("shoutbox","approvedColour",strShoutboxColourApproved, {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
+  initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
+  strShoutboxColour = config.shoutbox.publicColour;
+  strShoutboxColourApproved = config.shoutbox.approvedColour;
+  strShoutboxSubst = config.shoutbox.subst;
+  // Drafts
+  initConfigItem("drafts","on", blDrafts, {text: "Drafts?", type: "bool" });
+  initConfigItem("drafts","autoLoad", blAutoLoadDraft, {text: "Auto-load draft?", type: "bool" });
+  initConfigItem("drafts","autoSave", intAutoSave, {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
+  initConfigItem("drafts","autoClear", blAutoClearDraft, {text: "Auto-clear draft when you post?", type: "bool" });
+  initConfigItem("drafts","historyCount", intDraftHistory, {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
+  blDrafts = config.drafts.on;
+  blAutoLoadDraft = config.drafts.autoLoad;
+  intAutoSave = config.drafts.autoSave;
+  blAutoClearDraft = config.drafts.autoClear;
+  intDraftHistory = config.drafts.historyCount;
+  // Bookmarks
+  initConfigItem("bookmarks","tags", blBMTags, {text: "Bookmark Tags?", type: "bool" });
+  initConfigItem("bookmarks","allLink", blBMAllLinks, {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
+  initConfigItem("bookmarks","owedTag", blBMTagsOwed, {text: "Posts Owed Auto-Tag??", type: "bool" });
+  initConfigItem("bookmarks","tagOnBM", blTagOnBM, {text: "Add tags when bookmarking?", type: "bool" });
+  initConfigItem("bookmarks","repliesTag", blBMTagsReplies, {text: "Replies Auto-Tag?", type: "bool" });
+  initConfigItem("bookmarks","noTagsTag", blBMTagsNoTags, {text: "No Tags Auto-Tag?", type: "bool" });
+  blBMTags = config.bookmarks.tags;
+  blBMAllLinks = config.bookmarks.allLink;
+  blBMTagsOwed = config.bookmarks.owedTag;
+  blTagOnBM = config.bookmarks.tagOnBM;
+  blBMTagsReplies = config.bookmarks.repliesTag;
+  blBMTagsNoTags = config.bookmarks.noTagsTag;
+  // Admin
+  initConfigItem("admin","removeNewsbox", blRemoveSsiethExtras_banner, {text: "Remove Newsbox?", type: "bool" });
+  initConfigItem("admin","removeDonate", blRemoveSsiethExtras_donate, {text: "Remove Donate?", type: "bool" });
+  initConfigItem("admin","removeSsiethStuff", blRemoveSsiethExtras_sbbutton, {text: "Remove Ssieth Stuff?", type: "bool" });
+  blRemoveSsiethExtras_banner = config.admin.removeNewsbox;
+  blRemoveSsiethExtras_donate = config.admin.removeDonate;
+  blRemoveSsiethExtras_sbbutton = config.admin.removeSsiethStuff;
+
+  saveConfig();
+  if (andThen) andThen();
+}
+
+// Returns true if a setting hsa been set, false otherwise
+function updateConfig(controlID) {
+	var $control = $("div#helpmain").find("#" + controlID);
+	var aID = controlID.split("-");
+	var catID = aID[3];
+	var settingID = aID[4];
+	if ($control.hasClass("gm-settings-control-bool")) {
+		config[catID][settingID] = $control[0].checked;
+	} else if ($control.hasClass("gm-settings-control-int")) {
+        var intVal = parseInt($control.val());
+        if ($.isNumeric("" + intVal)) {
+            if (config_display[catID][settingID].hasOwnProperty("min") && intVal < config_display[catID][settingID].min) {
+                console.log("There's a minimum and " + intVal + " < " + config_display[catID][settingID].min);
+                return false;
+            }
+            if (config_display[catID][settingID].hasOwnProperty("max") && intVal > config_display[catID][settingID].max) {
+                console.log("There's a maximum and " + intVal + " > " + config_display[catID][settingID].max);
+                return false;
+            }
+            config[catID][settingID] = intVal;
+        } else {
+            console.log("Not an integer: " + $control.val())
+            return false;
+        }
+	} else {
+		config[catID][settingID] = $control.val();
+	}
+    return true;
+}
+
+function editConfig() {
+  GM_addStyle(".gm-settings-cat { float: left; display: block; border: thin solid black; padding: 10px; margin: 10px; background-color: #c5c5c5}");
+  GM_addStyle(".gm-settings-cat-title { font-weight: bold; font-size: 120%; margin-bottom: 10px; }");
+  GM_addStyle(".gm-settings-cat-settings { margin-left: 10px; }");
+  GM_addStyle(".gm-settings-setting { margin-bottom: 15px; border-bottom: thin solid gray; width: auto; padding-bottom: 5px; }");
+  GM_addStyle(".gm-settings-setting-label { margin-right: 10px; display: inline; font-weight: bold; }");
+  GM_addStyle(".gm-settings-control-int { width: 4rem; }");
+  GM_addStyle(".gm-settings-setting-label { max-width: 15rem; display: inline-block; }");
+  var $page = $("div#helpmain");
+
+  $page.css("max-width","initial");
+  //var $title = $("<h2>Script Settings (v" + GM_info.script.version + ")</h2>");
+  $("h3.catbg").html("<h2>Script Settings (v" + GM_info.script.version + ")</h2>");
+  document.title = "Script Settings (v" + GM_info.script.version + ")";
+  $page.html("");
+  for (var key in config_display) {
+      var confd = config_display[key];
+      var $newcat = $("<div class='gm-settings-cat well' id='gm-settings-cat-" + key + "'></div>");
+      $newcat.append("<h3 class='gm-settings-cat-title'>" + confd.displayName + "</h3>");
+      var $newSettings = $("<div class='gm-settings-cat-settings'></div>");
+      for (var key2 in confd) {
+          var $newSetting = $("<div class='gm-settings-setting'></div>");
+          var setting = confd[key2];
+          var val = config[key][key2];
+          if (setting.text) {
+              $newSetting.append("<label class='gm-settings-setting-label' for='gm-settings-value-" + key + "-" + key2 + "'>" + setting.text + "</label>");
+              switch (setting.type) {
+                  case "bool":
+                      $newSetting.append("<span class='gm-settings-setting-value' style='display: inline' ><input type='checkbox' class='gm-settings-control gm-settings-control-bool' id='gm-settings-value-" + key + "-" + key2 + "'" + ((val) ? ' checked' : '') + "></span>");
+                      break;
+                  case "int":
+                      var min = '';
+                      if (setting.hasOwnProperty('min')) {
+                          min = " min='" + setting.min + "'";
+                      }
+                      var max = '';
+                      if (setting.hasOwnProperty('max')) {
+                          max = " max='" + setting.max + "'";
+                      }
+                      $newSetting.append("<span class='gm-settings-setting-value'><input type='number' class='gm-settings-control gm-settings-control-int' id='gm-settings-value-" + key + "-" + key2 + "' value='" + val + "'" + min + max + "></span>");
+                      break;
+                  case "select":
+                      var $select;
+                      $select = $("<select class='gm-settings-control gm-settings-control-select' id='gm-settings-value-" + key + "-" + key2 + "'>");
+                      for (var i = 0; i < setting.select.length; i++) {
+                          var selKey = setting.select[i];
+                          $select.append("<option value='" + selKey + "'" + ((val === selKey) ? " selected" : "") + ">" + selKey + "</option>");
+                      }
+                      $newSetting.append($select);
+                      break;
+                  case "text":
+                  default:
+                      $newSetting.append("<span class='gm-settings-setting-value'><input type='text' class='gm-settings-control gm-settings-control-text' id='gm-settings-value-" + key + "-" + key2 + "' value='" + val + "'></span>");
+                      break;
+              }
+              $newSettings.append($newSetting);
+          }
+      }
+      $newcat.append($newSettings);
+      $page.append($newcat);
+  }
+  $page.append("<div style='clear: both;'>&nbsp;</div>");
+  $page.find(".gm-settings-control").change($.debounce(500, function(e) {
+    if (updateConfig(e.target.id)) {
+            saveConfig(loadConfig);
+        };
+  }));
+  $page.find(".gm-settings-control-text, .gm-settings-control-int").keyup($.debounce(500, function(e) {
+    if (updateConfig(e.target.id)) {
+            saveConfig(loadConfig);
+        };
+  }));
+}
 /* =========================== */
 
 /* =========================== */
@@ -473,18 +749,15 @@ function displaySettings() {
   log("functiontrace", "Start Function");
 
   $("li#button_settings").remove();
+  var settingsURL = "https://elliquiy.com/forums/index.php?action=help#scriptsettings";
   var $menunav = $('ul#menu_nav');
   var $menuQ = $("<li id='button_settings'></li>");
-  var $menuSet = $("<a class='firstlevel' href='#'><span class='firstlevel'>Script Settings</span></a>").click(function (e) {
-    e.preventDefault();
-    GM_config.open();
-    GM_config.frame.setAttribute('style', strCSSConfigFrame);
-  });
+  var $menuSet = $("<a class='firstlevel' href='" + settingsURL + "'><span class='firstlevel'>Script Settings</span></a>");
   $menuQ.append($menuSet);
   if (GM_info.script === undefined) {}
   else {
-    $menuQ.append("<ul><li><a href='#' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
-    if (blFilterTopics) {
+    $menuQ.append("<ul><li><a href='" + settingsURL + "' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
+    if (config.topicFilters.on) {
       $menuQ.find("ul").append("<li><a href='#' id='TF_link'><span class='TF_link'>Topic Filters</span></a></li>");
       $menuQ.find("a#TF_link").click(function (e) {
         e.preventDefault();
@@ -528,11 +801,13 @@ function displaySettings() {
       frmImport();
     });
 
+    /*
     $menuQ.find("#script_version").click(function (e) {
       e.preventDefault();
       GM_config.open();
       GM_config.frame.setAttribute('style', strCSSConfigFrame);
     });
+    */
   }
   $menunav.append($menuQ);
 }
@@ -1588,7 +1863,7 @@ function displayQuickTopics() {
 
   var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
   var strGoLast;
-  if (blQuickTopicsGoLast) {
+  if (config.quickTopics.goLast) {
     strGoLast = ";all#lastPost";
   }
   else {
@@ -1830,7 +2105,7 @@ function getUnreadReplies() {
     $(data).find('div#unreadreplies table tbody tr').each(function () {
       var strTopicID = $(this).find("a:eq(0)").attr("href").match(/\d+/)[0];
       intTopicID = parseInt(strTopicID, 10);
-      if (blMarkQTNew) {
+      if (config.quickTopics.markNew) {
         var strLinkText = $('#qTopic_' + intTopicID).find("a span").text();
         if (strLinkText.substring(0, 1) != "*") {
           $('#qTopic_' + intTopicID).find("a span").text("*** " + strLinkText + " ***");
@@ -1839,9 +2114,9 @@ function getUnreadReplies() {
       objReplies[intTopicID] = true;
       if (objIgnoreReplies[intTopicID] === true) {}
       else {
-        if (blRepliesMenu) {
+        if (config.replies.showMenu) {
           var lasturl = $(this).find("td.lastpost a:eq(0)").attr("href");
-          if (blRepliesNew) {
+          if (config.replies.gotoNew) {
             lasturl = url2new(lasturl);
           }
           $thisa = $(this).find("a:eq(0)").attr("href", lasturl);
@@ -1850,7 +2125,7 @@ function getUnreadReplies() {
         intCount++;
       }
     });
-    if (blNotifications) {
+    if (config.autoUpdates.desktopNotications) {
       askPermission();
       if (intCount > intUnreadCount) {
         intUnreadCount = intCount;
@@ -1861,9 +2136,9 @@ function getUnreadReplies() {
         };
       }
     }
-    if (blUnreadReplies) {
+    if (config.replies.showCount) {
       var $appendTo;
-      if (blRemoveShoutbox) {
+      if (config.removeHeadFoot.shoutbox) {
         $appendTo = $("div.main_header div.floatright a:eq(1)");
       }
       else {
@@ -1875,7 +2150,7 @@ function getUnreadReplies() {
       }
       $appendTo.html(strText);
     }
-    if (blRepliesMenu) {
+    if (config.replies.showMenu) {
       displayReplies(aryReplies);
     }
   });
@@ -1950,23 +2225,23 @@ function removeHeaderStuff(blUserDep) {
      */
   }
   else {
-    if (blRemoveShoutbox) {
+    if (config.removeHeadFoot.shoutbox) {
       // remove shoutbox stuff
       $("#shoutBoxContainer").remove(); // main container
       $(".shouttabcontainer").remove(); // channel tabs
       $(".main_header .floatright:eq(1)").remove(); // Disable shoutbox button
     }
 
-    if (blRemoveStyles) {
+    if (config.removeHeadFoot.styles) {
       // Finally everything else at the bottom of the box (alternative site styles etc)
       $(".main_header hr").nextAll().remove();
     }
 
-    if (blRemoveFooter) {
+    if (config.removeHeadFoot.footer) {
       $("div#topic_icons").remove();
     }
 
-    if (blRemoveTopicicons) {
+    if (config.removeHeadFoot.topicIcons) {
       // Finally everything else at the bottom of the box (alternative site styles etc)
       $("div.main_footer").remove();
     }
@@ -1979,7 +2254,7 @@ function removeHeaderStuff(blUserDep) {
 /* =========================== */
 function fireJQueryStuff() {
   log("functiontrace", "Start Function");
-  if (blShoutboxColour) {
+  if (config.shoutbox.colourOn) {
     shoutBoxColor();
   }
 }
@@ -1994,16 +2269,16 @@ function tick() {
   intTick += 1;
   log("tickfires", "Tick fired: " + intTick);
 
-  if (blUnreadReplies && intUnreadMinutes > 0) {
-    if (datNow.getTime() - datUnread.getTime() > 1000 * 60 * intUnreadMinutes) {
+  if (config.replies.showCount && config.autoUpdates.unreadMinutes > 0) {
+    if (datNow.getTime() - datUnread.getTime() > 1000 * 60 * config.autoUpdates.unreadMinutes) {
       datUnread = new Date();
       log("tickactions", "  Tick: Getting unread replies");
       getUnreadReplies();
     }
   }
-  if (intMailMinutes > 0) {
+  if (config.autoUpdates.mailMinutes > 0) {
     intSpan = datNow.getTime() - datMail.getTime();
-    if (datNow.getTime() - datMail.getTime() > 1000 * 60 * intMailMinutes) {
+    if (datNow.getTime() - datMail.getTime() > 1000 * 60 * config.autoUpdates.mailMinutes) {
       datMail = new Date();
       log("tickactions", "  Tick: Getting mail count");
       updateMailCount();
@@ -2092,7 +2367,7 @@ function updateMailCount() {
 /* =========================== */
 function askPermission() {
   log("functiontrace", "Start Function");
-  if (blNotifications && permResult !== "granted" && permResult !== "denied") {
+  if (config.autoUpdates.desktopNotications && permResult !== "granted" && permResult !== "denied") {
     Notification.requestPermission(function (permission) {
       permResult = permission;
     });
@@ -2101,7 +2376,7 @@ function askPermission() {
 
 function sendNotification(strTitle, strBody ) {
   log("functiontrace", "Start Function");
-  if (blNotifications) {
+  if (config.autoUpdates.desktopNotications) {
     var options = {
       body: strBody,
       requireInteraction: true,
@@ -2197,7 +2472,7 @@ function userDep() {
     reformatBMs();
   }
 
-  if (blDebugInfo) {
+  if (config.general.debugInfo) {
     debugUserInfo();
   }
 }
@@ -2643,6 +2918,7 @@ function getPageDetails() {
   page.url.full = window.location.href;
   page.url.page = window.location.pathname.split('/')[2].replace(".php", "").toLowerCase();
   page.url.query = window.location.search;
+  page.url.hash = window.location.hash;
   page.type = "other";
   if (page.url.full.toLowerCase().indexOf("action=bookmarks") > 0) {
     page.type = "bookmarks";
@@ -2652,6 +2928,13 @@ function getPageDetails() {
   }
   else if (page.url.full.toLowerCase().indexOf("action=profile") > 0) {
     page.type = "profile";
+  }
+  else if (page.url.full.toLowerCase().indexOf("action=help") > 0) {
+    if (page.url.hash.toLowerCase() == "#scriptsettings") {
+      page.type = "scriptsettings";
+    } else {
+      page.type = "help";
+    }
   }
   else if (page.url.full.toLowerCase().indexOf("?topic=") > 0) {
     page.type = "topic";
@@ -2671,6 +2954,8 @@ function getPageDetails() {
   else {
     page.url.tag = "";
   }
+  console.log("Page:");
+  console.log(page);
 }
 /* =========================== */
 
@@ -2922,7 +3207,7 @@ function annotateNames() {
         $name = $(this).find("a:eq(1)");
         strName = $name.text();
         if (nameNotes[strName] !== undefined) {
-          switch (strUserNoteOption.toLowerCase()) {
+          switch (config.userNotes.style.toLowerCase()) {
             case "hover over name":
               $name.tooltip({
                 content: renderHTML(nameNotes[strName].note)
@@ -3035,7 +3320,7 @@ function StyleSpeechElement($el) {
   var htmlOut;
   var incQuote = "";
   var excQuote = "";
-  if (blStyleSpeechIncQuote) {
+  if (config.speechStyling.incQuote) {
     incQuote = '"';
   }
   else {
@@ -3057,7 +3342,7 @@ function StyleSpeechElement($el) {
             htmlOut += incQuote + '</span>' + excQuote;
           }
           else {
-            htmlOut += excQuote + '<span style=\'' + strStyleSpeechCSS.replaceAll("'", '"') + '\'>' + incQuote;
+            htmlOut += excQuote + '<span style=\'' + config.speechStyling.CSS.replaceAll("'", '"') + '\'>' + incQuote;
           }
           blInSpeech = !blInSpeech;
         }
@@ -3335,7 +3620,8 @@ function main() {
   log("functiontrace", "Start Function");
   log("startup", "Starting " + GM_info.script.name + " v" + GM_info.script.version);
   getUserDetails(function () {
-    initSettings();
+    initConfig();
+
     getPageDetails();
     applyCSS();
     removeHeaderStuff(false);
@@ -3352,12 +3638,12 @@ function main() {
       }
     }
 
-    if (blDebugInfo) {
+    if (config.general.debugInfo) {
       createDebug();
     }
 
     // Inject JQuery for any functions that need it.
-    if (blShoutboxColour) {
+    if (config.shoutbox.colourOn) {
       injectJQuery();
       blJQueryStuff = false;
     }
@@ -3365,11 +3651,11 @@ function main() {
     // Get the sessionAuth object.  This lets us do some under-the-hood stuff :)
     oSessionAuth = getSessionAuth();
 
-    if (blTidyMenus) {
+    if (config.removeHeadFoot.tidyMenus) {
       tidyMenus();
     }
 
-    if (blNameNotes) {
+    if (config.userNotes.on) {
       loadNameNotes();
       annotateNames();
     }
@@ -3383,7 +3669,7 @@ function main() {
       $("#personal_picture").append(" (150 x 200px)");
     }
 
-    if (blFilterTopics) {
+    if (config.topicFilters.on) {
       loadFilterTopics();
       addFilterTopicButton();
       if (page.type == "board" || page.type == "bookmarks") {
@@ -3395,30 +3681,30 @@ function main() {
       }
     }
 
-    if (blRemovePics) {
+    if (config.general.removePics) {
       removeAllImages();
     }
 
-    if (blQuickTopics) {
+    if (config.quickTopics.on) {
       loadQuickTopics();
       displayQuickTopics();
       addQuickTopicButton();
     }
 
-    if (blAjaxButtons) {
+    if (config.general.ajaxButtons) {
       ajaxButtons();
     }
 
-    if (blSnippets || blDrafts) {
+    if (config.general.snippets || blDrafts) {
       registerFocuses();
     }
 
-    if (blSnippets) {
+    if (config.general.snippets) {
       loadSnippets();
       displaySnippets();
     }
 
-    if (blUserLists) {
+    if (config.general.userLists) {
       loadUserLists();
       displayUserLists();
       if (page.type == "member-search") {
@@ -3436,7 +3722,7 @@ function main() {
       displayDrafts();
     }
 
-    if (blUnreadReplies || blMarkQTNew) {
+    if (config.replies.showCount || config.quickTopics.markNew) {
       loadIgnoredReplies();
       addIgnoreRepliesButton();
       getUnreadReplies();
@@ -3450,7 +3736,7 @@ function main() {
       displayBMMenu();
     }
 
-    if (blWordCount && (page.type == "post" || page.type == "topic")) {
+    if (config.general.wordCount && (page.type == "post" || page.type == "topic")) {
       setWordCount();
     }
 
@@ -3458,8 +3744,8 @@ function main() {
       tagOnBM();
     }
 
-    if (intUnreadMinutes > 0 || intMailMinutes > 0) {
-      if (intMailMinutes > 0) {
+    if (config.autoUpdates.unreadMinutes > 0 || config.autoUpdates.mailMinutes > 0) {
+      if (config.autoUpdates.mailMinutes > 0) {
         updateMailCount();
       }
     }
@@ -3468,12 +3754,17 @@ function main() {
       BMAllLinks();
     }
 
-    if (blStyleSpeech) {
+    if (config.speechStyling.on) {
       StyleSpeech();
     }
 
     if (page.type == 'pm-send') {
       //frmUserList();
+    }
+
+    if (page.type == "scriptsettings") {
+      console.log("Editing config");
+      editConfig();
     }
 
     newVerInfo();
