@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.42.0
+// @version     1.42.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -52,10 +52,8 @@ var strShoutboxColour = "black";
 var strShoutboxColourApproved = "black";
 var strShoutboxSubst = ":h|Hello everyone\n:g|Goodbye all!";
 var arySBColours = ['gray', 'silver', 'white', 'red', 'fuchsia', 'purple', 'navy', 'blue', 'aqua', 'teal', 'green', 'olive', 'maroon', 'black'];
-var arySBColoursRandom = ['red', 'fuchsia', 'purple', 'navy', 'blue', 'aqua', 'teal', 'green', 'olive', 'maroon', 'black'];
 var aryUserNoteOptions = ['Hover Over Name', 'Above Avatar'];
 var strUserNoteOption = 'Hover Over Name';
-var blSBColourRandom = false;
 var blBMTags = true;
 var blBMTagsOwed = true;
 var blBMTagsReplies = true;
@@ -381,7 +379,6 @@ function saveConfig(andThen) {
 function initConfig(andThen) {
   var blNewConfig;
   var aryColourConfig = arySBColours;
-  aryColourConfig.push("random");
 
   config = {};
   config_display = {};
@@ -446,21 +443,14 @@ function initConfig(andThen) {
   initConfigItem("shoutbox","colourOn", blShoutboxColour, {text: "Colour Shoutbox Text?", type: "bool" });
   initConfigItem("shoutbox","publicColour",strShoutboxColour, {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
   initConfigItem("shoutbox","approvedColour",strShoutboxColourApproved, {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
-  initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
-  strShoutboxColour = config.shoutbox.publicColour;
-  strShoutboxColourApproved = config.shoutbox.approvedColour;
-  strShoutboxSubst = config.shoutbox.subst;
+  //initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
+  //strShoutboxSubst = config.shoutbox.subst;
   // Drafts
   initConfigItem("drafts","on", blDrafts, {text: "Drafts?", type: "bool" });
   initConfigItem("drafts","autoLoad", blAutoLoadDraft, {text: "Auto-load draft?", type: "bool" });
   initConfigItem("drafts","autoSave", intAutoSave, {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
   initConfigItem("drafts","autoClear", blAutoClearDraft, {text: "Auto-clear draft when you post?", type: "bool" });
   initConfigItem("drafts","historyCount", intDraftHistory, {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
-  blDrafts = config.drafts.on;
-  blAutoLoadDraft = config.drafts.autoLoad;
-  intAutoSave = config.drafts.autoSave;
-  blAutoClearDraft = config.drafts.autoClear;
-  intDraftHistory = config.drafts.historyCount;
   // Bookmarks
   initConfigItem("bookmarks","tags", blBMTags, {text: "Bookmark Tags?", type: "bool" });
   initConfigItem("bookmarks","allLink", blBMAllLinks, {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
@@ -575,7 +565,9 @@ function editConfig() {
           }
       }
       $newcat.append($newSettings);
-      $page.append($newcat);
+      if (!confd.isAdmin || strScriptAdmins.indexOf(user.id) > -1) {
+        $page.append($newcat);
+      }    
   }
   $page.append("<div style='clear: both;'>&nbsp;</div>");
   $page.find(".gm-settings-control").change($.debounce(500, function(e) {
@@ -600,7 +592,6 @@ function initSettings() {
   $('body').append("<div id='storium_config_frame' class='storium_config_frame'>");
   frame = document.getElementById('storium_config_frame');
   var aryColourConfig = arySBColours;
-  aryColourConfig.push("random");
   var fields = {
     'RemovePictures': { 'label': 'Remove pictures?', 'type': 'checkbox', 'title': 'Avatars and images in posts', 'default': blRemovePics, 'section': ['General Features', 'Switch basic things on and off'] },
     'Snippets': { 'label': 'Snippets?', 'type': 'checkbox', 'title': 'For storing/pasting', 'default': blSnippets },
@@ -725,13 +716,12 @@ function initSettings() {
   blShoutboxColour = GM_config.get("blShoutboxColour");
   strShoutboxColour = GM_config.get("strShoutboxColour");
   strShoutboxColourApproved = GM_config.get("strShoutboxColourApproved");
-  blSBColourRandom = (strShoutboxColour == "random");
   blAjaxButtons = GM_config.get("blAjaxButtons");
   blUserLists = GM_config.get("blUserLists");
   blNotifications = GM_config.get("blNotifications");
 
   strShoutboxSubst = GM_config.get("strShoutboxSubst");
-  buildSBSubst();
+//  buildSBSubst();
 
   blStyleSpeech = GM_config.get("blStyleSpeech");
   blStyleSpeechIncQuote = GM_config.get("blStyleSpeechIncQuote");
@@ -1538,7 +1528,7 @@ function draftMenu(strID) {
   var $copyTo;
   var draft;
   $("li#button_drafts").remove();
-  if (intDraftHistory > 0) {
+  if (config.drafts.historyCount > 0) {
     var draftsCol = draftHistory[strID];
     if (draftsCol !== undefined) {
       switch (page.type) {
@@ -1695,7 +1685,7 @@ function displayDrafts() {
       saveDrafts();
       displayDrafts();
     });
-    if (blAutoClearDraft) {
+    if (config.drafts.autoClear) {
       $("p#post_confirm_buttons input:eq(0)").click(function (e) {
         if (drafts[strID]) {
           delete drafts[strID];
@@ -1763,7 +1753,7 @@ function setDraft(blHistory) {
     log("drafts", draft);
     drafts[draft.id] = draft;
     // Save manual draft history if we need to
-    if (blHistory && intDraftHistory > 0) {
+    if (blHistory && config.drafts.historyCount > 0) {
       if (draftHistory[strID] === undefined) {
         draftsCol = [];
       }
@@ -1771,8 +1761,8 @@ function setDraft(blHistory) {
         draftsCol = draftHistory[strID];
       }
       draftsCol.push(draft);
-      if (draftsCol.length > intDraftHistory) {
-        draftsCol.remove(0, (draftsCol.length - intDraftHistory) - 1);
+      if (draftsCol.length > config.drafts.historyCount) {
+        draftsCol.remove(0, (draftsCol.length - config.drafts.historyCount) - 1);
       }
       draftHistory[strID] = draftsCol;
     }
@@ -2284,8 +2274,8 @@ function tick() {
       updateMailCount();
     }
   }
-  if (intAutoSave > 0) {
-    if (intSpanSave > 1000 * 60 * intAutoSave) {
+  if (config.drafts.autoSave > 0) {
+    if (intSpanSave > 1000 * 60 * config.drafts.autoSave) {
       datAutoSave = new Date();
       log("tickactions", "  Tick: Auto-save");
       setDraft(false);
@@ -2301,20 +2291,9 @@ function tick() {
     if (!blJQueryStuff) {
       log("tickactions", "  Tick: injecting code into base page");
       blJQueryStuff = true;
-      if (!blSBColourRandom) {
-        fireJQueryStuff();
-      }
+      fireJQueryStuff();
     }
   }
-  if (blJQueryStuff) {
-    if (blSBColourRandom) {
-      if ((intTick % 30) == 1) {
-        log("tickactions", "  Tick: setting random SB colours");
-        setRandomSBColour();
-      }
-    }
-  }
-
 }
 /* =========================== */
 
@@ -2492,13 +2471,6 @@ function injectJQuery() {
   inject(strSrc);
 }
 
-function setRandomSBColour() {
-  log("functiontrace", "Start Function");
-  var intRandom = Math.floor(Math.random() * arySBColoursRandom.length);
-  strShoutboxColour = arySBColoursRandom[intRandom];
-  shoutBoxColor();
-}
-
 function sbColour(strText, strCol) {
   if (strText.substr(0, 1) == '/') {
     return strText.substr(0, strText.indexOf(' ') + 1) + '[color=' + strCol + ']' + strText.substr(strText.indexOf(" ")) + '[/color]';
@@ -2513,13 +2485,14 @@ function sbFunctions(strControlPostFix, strCol) {
   // remove old click behaviour
   inject("$('#shoutChatInputFieldButton" + strControlPostFix + "').prop('onclick',null).off('click');");
   // Add new click behaviour
-  inject("$('#shoutChatInputFieldButton" + strControlPostFix + "').click( function(e) { e.preventDefault(); var strText = $('#shoutChatInputField" + strControlPostFix + "').val(); ajaxChat.sendMessage(sbColour(sbSubst(strText),'" + strCol + "')); return false;});");
+  inject("$('#shoutChatInputFieldButton" + strControlPostFix + "').click( function(e) { e.preventDefault(); var strText = $('#shoutChatInputField" + strControlPostFix + "').val(); ajaxChat.sendMessage(sbColour(strText,'" + strCol + "')); return false;});");
   // remove old enter/return key behaviour
   inject("$('#shoutChatInputField" + strControlPostFix + "').prop('onkeypress',null).off('keypress');");
   // add new enter/return key behaviour
-  inject("$('#shoutChatInputField" + strControlPostFix + "').keypress(function(event) {var strText = $('#shoutChatInputField" + strControlPostFix + "').val(); if(event.keyCode === 13 && !event.shiftKey) {ajaxChat.sendMessage(sbColour(sbSubst(strText),'" + strCol + "')); try { event.preventDefault();  } catch(e) { event.returnValue = false; } return false; } return true; });");
+  inject("$('#shoutChatInputField" + strControlPostFix + "').keypress(function(event) {var strText = $('#shoutChatInputField" + strControlPostFix + "').val(); if(event.keyCode === 13 && !event.shiftKey) {ajaxChat.sendMessage(sbColour(strText,'" + strCol + "')); try { event.preventDefault();  } catch(e) { event.returnValue = false; } return false; } return true; });");
 }
 
+/*
 function buildSBSubst() {
   log("functiontrace", "Start Function");
   objSBSubst = {};
@@ -2533,6 +2506,7 @@ function buildSBSubst() {
     }
   }
 }
+*/
 
 function shoutBoxColor() {
   log("functiontrace", "Start Function");
@@ -2540,11 +2514,12 @@ function shoutBoxColor() {
   //var objSBSubst = {":1": "/me peers at some test code and wonders if it is working", ":2": "Looks to be working"};
   var strSBSubst = JSON.stringify(objSBSubst);
   inject("var objSBSubst=" + strSBSubst + ";");
-  inject("function sbSubst(strIn) { var strOut=strIn; for (var property in objSBSubst) { if (objSBSubst.hasOwnProperty(property)) { strOut = strOut.replace(property,objSBSubst[property]); } } return strOut; }");
+  //inject("function sbSubst(strIn) { var strOut=strIn; for (var property in objSBSubst) { if (objSBSubst.hasOwnProperty(property)) { strOut = strOut.replace(property,objSBSubst[property]); } } return strOut; }");
+  inject("function sbSubst(strIn) { return strIn; }");  // Hopefully not needed any more but just to be sure...
   // Inject function to produce colour text
   inject("function sbColour(strText,strCol) { if (strText.substr(0,1) == '/') { return strText.substr(0,strText.indexOf(' ')+1) + '[color=' + strCol + ']' + strText.substr(strText.indexOf(' ')) + '[/color]'; } else { return '[color=' + strCol + ']' + strText + '[/color]'; } }");
-  sbFunctions("", strShoutboxColour);
-  sbFunctions("ApprovedBox", strShoutboxColourApproved);
+  sbFunctions("", config.shoutbox.publicColour);
+  sbFunctions("ApprovedBox", config.shoutbox.approvedColour);
 }
 /* =========================== */
 
@@ -3695,7 +3670,7 @@ function main() {
       ajaxButtons();
     }
 
-    if (config.general.snippets || blDrafts) {
+    if (config.general.snippets || config.drafts.on) {
       registerFocuses();
     }
 
@@ -3714,9 +3689,9 @@ function main() {
       }
     }
 
-    if (blDrafts) {
+    if (config.drafts.on) {
       loadDrafts();
-      if (blAutoLoadDraft) {
+      if (config.drafts.autoLoad) {
         autoLoadDraft();
       }
       displayDrafts();
