@@ -4,11 +4,10 @@
 // @description Adds extra functionality to Elliquiy
 // @match       https://elliquiy.com/*
 // @exclude     https://elliquiy.com/*.js*
-// @require     https://raw.github.com/sizzlemctwizzle/GM_config/master/gm_config.js
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.42.1
+// @version     1.42.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -37,52 +36,10 @@ logTags.richtext = true;
 var config = {};
 var config_display = {};
 
-var blRemovePics = false;
-var blQuickTopics = true;
-var blSnippets = true;
-var blUnreadReplies = true;
-var intUnreadMinutes = 5;
-var intMailMinutes = 5;
-var blRepliesMenu = true;
-var blRepliesNew = false;
-var blQuickTopicsGoLast = true;
-var blMarkQTNew = true;
-var blShoutboxColour = false;
-var strShoutboxColour = "black";
-var strShoutboxColourApproved = "black";
 var strShoutboxSubst = ":h|Hello everyone\n:g|Goodbye all!";
 var arySBColours = ['gray', 'silver', 'white', 'red', 'fuchsia', 'purple', 'navy', 'blue', 'aqua', 'teal', 'green', 'olive', 'maroon', 'black'];
 var aryUserNoteOptions = ['Hover Over Name', 'Above Avatar'];
-var strUserNoteOption = 'Hover Over Name';
-var blBMTags = true;
-var blBMTagsOwed = true;
-var blBMTagsReplies = true;
-var blBMTagsNoTags = true;
-var blWordCount = true;
-var blTagOnBM = true;
-var blTidyMenus = true;
-var blDebugInfo = false;
-var blFilterTopics = true;
-var blDrafts = true;
-var intAutoSave = 0;
-var blAutoLoadDraft = true;
-var blAutoClearDraft = false;
-var intDraftHistory = 3;
-var blNameNotes = true;
-var blBMAllLinks = true;
-var blAjaxButtons = true;
-var blStyleSpeech = true;
-var blStyleSpeechIncQuote = true;
-var blUserLists = true;
-var strStyleSpeechCSS = "color: blue;";
-var blNotifications = false;
 var strExportKey = "";
-
-// -- These are all for tidying up the header --
-var blRemoveShoutbox = false;
-var blRemoveStyles = false;
-var blRemoveFooter = false;
-var blRemoveTopicicons = false;
 
 // -- Not to be Edited --
 var urlTopicBase = "https://elliquiy.com/forums/index.php?topic=";
@@ -117,9 +74,6 @@ var oSessionAuth = {};
 var userLists = {};
 var currentUserList = {};
 var strScriptAdmins = ['Ssieth', 'Outcast'];
-var blRemoveSsiethExtras_banner = false;
-var blRemoveSsiethExtras_donate = false;
-var blRemoveSsiethExtras_sbbutton = false;
 var intMailCount = -1;
 var intUnreadCount = GM_getValue("unreadReplies", 0);
 var permResult;
@@ -129,29 +83,6 @@ const urlImg = "https://cabbit.org.uk/eli/img/";
 var verDelDraft = ["1.37.4"];
 
 // CSS
-var strCSSConfigFrame = "bottom: 0; top: 0; left:0; right: 0; border: 1px solid rgb(0, 0, 0); height: 375px; margin: 0 auto; max-height: 95%; max-width: 95%; opacity: 1; overflow: auto; padding: 5px; position: fixed; top: 118px; width: 450px; z-index: 999; display: block; ";
-var strCSSConfig = [
-  "#e_config * { font-family: arial,tahoma,myriad pro,sans-serif; }",
-  "#e_config { background: #FFF; }",
-  "#e_config input[type='radio'] { margin-right: 8px; }",
-  "#e_config input[type='text'] { width: 95%; }",
-  "#e_config .indent40 { margin-left: 40%; }",
-  "#e_config .field_label { font-size: 12px; font-weight: bold; margin-right: 6px;}",
-  "#e_config .radio_label { font-size: 12px; }",
-  "#e_config .block { display: block; }",
-  "#e_config .saveclose_buttons { margin: 16px 10px 10px; padding: 2px 12px; }",
-  "#e_config .reset, #GM_config .reset a," +
-  " #e_config_buttons_holder { color: #000; text-align: right; }",
-  "#e_config .config_header { font-size: 14pt; padding: 5px; background-color: #eaeaea; margin-bottom: 3px;}",
-  "#e_config .config_desc, #GM_config .section_desc, #GM_config .reset { font-size: 9pt; }",
-  "#e_config .center { text-align: center; }",
-  "#e_config .section_header_holder { margin-top: 2px; }",
-  "#e_config .config_var { margin: 0 0 4px; }",
-  "#e_config input {width: auto; height: auto; display: inline;} ",
-  "#e_config label {width: auto; height: auto; display: inline;} ",
-  "#e_config .section_header { background: #eaeaea; color: #FFF; font-size: 10pt; margin: 0; text-align: left; color: black; border: 0px; border: 1px solid #CCC; padding: 2px;}",
-  "#e_config .section_desc { background: #eaeaea; border: 0px; color: #575757; font-size: 9pt; margin: 0 0 6px; text-align: left; display:none; }"
-].join('\n') + '\n';
 var strCSSTblSorterRemoved = [
   "table.tablesorter { font-family:arial; background-color: #CDCDCD; margin:10px 0pt 15px; font-size: 8pt; width: 100%;   text-align: left; }",
   "table.tablesorter thead tr th, table.tablesorter tfoot tr th { background-color: #e6EEEE; border: 1px solid #FFF; font-size: 8pt; padding: 4px;}",
@@ -169,9 +100,6 @@ var strCSSMenus = ".dropbox li lu { background-color: white; }";
 var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
 var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}";
-var strCSSFT_Hi = "background-color: yellow;";
-var strCSSFT_Mark = "background-color: lightgray; text-decoration: line-through;";
-var strCSSFT_Question = "background-color: cornsilk;";
 
 var sort_by = function (field, reverse, primer) {
 
@@ -367,6 +295,8 @@ function loadConfig(andThen) {
   return !blNewConfig;
 }
 
+
+
 function saveConfig(andThen) {
 	config.version = GM_info.script.version;
   config.savedWhen = new Date();
@@ -376,16 +306,27 @@ function saveConfig(andThen) {
   if (andThen) andThen();
 }
 
+function oldConf(objConf,varName, defaultVal) { 
+  if (objConf.hasOwnProperty(varName)) {
+    return objConf[varName];
+  } else {
+    return defaultVal;
+  }
+}
+
 function initConfig(andThen) {
-  var blNewConfig;
+  var strOldConf = GM_getValue("e_config","");
+  var objOldConf = {};
+  if (strOldConf !== "" ) {
+    objOldConf = JSON.parse(strOldConf); 
+  }
+  console.log("Old Conf");
+  console.log(objOldConf);
   var aryColourConfig = arySBColours;
 
   config = {};
   config_display = {};
-  blNewConfig = !loadConfig();
-  if (blNewConfig) {
-      initSettings();
-  }
+  loadConfig();
   // Settings categories
   initConfigCategory("general","General Settings");
   initConfigCategory("replies","Replies");
@@ -401,76 +342,66 @@ function initConfig(andThen) {
   initConfigCategory("admin","Admin",true);
   //initConfigCategory("importExport","Import / Export");
   // General Settings
-  initConfigItem("general","removePics", blRemovePics, {text: "Remove pictures?", type: "bool" });
-  initConfigItem("general","snippets", blSnippets, {text: "Snippets?", type: "bool" });
-  initConfigItem("general","userLists", blUserLists, {text: "User lists?", type: "bool" });
-  initConfigItem("general","wordCount", blWordCount, {text: "Show wordcounts?", type: "bool" });
-  initConfigItem("general","debugInfo", blDebugInfo, {text: "Debug information?", type: "bool" });
-  initConfigItem("general","ajaxButtons", blAjaxButtons, {text: "Make buttons AJAX?", type: "bool" });
+  initConfigItem("general","removePics", oldConf(objOldConf,"RemovePictures",false), {text: "Remove pictures?", type: "bool" });
+  initConfigItem("general","snippets", oldConf(objOldConf,"Snippets", false), {text: "Snippets?", type: "bool" });
+  initConfigItem("general","userLists", oldConf(objOldConf,"blUserLists",false), {text: "User lists?", type: "bool" });
+  initConfigItem("general","wordCount", oldConf(objOldConf,"WordCount",true), {text: "Show wordcounts?", type: "bool" });
+  initConfigItem("general","debugInfo", oldConf(objOldConf,"DebugInfo",false), {text: "Debug information?", type: "bool" });
+  initConfigItem("general","ajaxButtons", oldConf(objOldConf,"blAjaxButtons",true), {text: "Make buttons AJAX?", type: "bool" });
   // Replies
-  initConfigItem("replies","showCount", blUnreadReplies, {text: "Show unread replies count?", type: "bool" });
-  initConfigItem("replies","showMenu", blRepliesMenu, {text: "Show unread replies menu?", type: "bool" });
-  initConfigItem("replies","gotoNew", blRepliesNew, {text: "Replies links go to first new post?", type: "bool" });
+  initConfigItem("replies","showCount", oldConf(objOldConf,"UnreadReplies",false), {text: "Show unread replies count?", type: "bool" });
+  initConfigItem("replies","showMenu", oldConf(objOldConf,"RepliesMenu",true), {text: "Show unread replies menu?", type: "bool" });
+  initConfigItem("replies","gotoNew", oldConf(objOldConf,"blRepliesNew",false), {text: "Replies links go to first new post?", type: "bool" });
   // Topic Filters
-  initConfigItem("topicFilters","on", blFilterTopics, {text: "Topic Filters On?", type: "bool" });
-  initConfigItem("topicFilters","CSS_Hi", strCSSFT_Hi, {text: "Hilight Styling (CSS)", type: "text" });
-  initConfigItem("topicFilters","CSS_Mark", strCSSFT_Mark, {text: "Mark Styling (CSS)", type: "text" });
-  initConfigItem("topicFilters","CSS_Question", strCSSFT_Question, {text: "Question Styling (CSS)", type: "text" });
-  strCSSFT = ".FTMark { " + strCSSFT_Mark + " } .FTHi { " + strCSSFT_Hi + " }  .FTQ { " + strCSSFT_Question + "}";
-
+  initConfigItem("topicFilters","on", oldConf(objOldConf,"TopicFilters",false), {text: "Topic Filters On?", type: "bool" });
+  initConfigItem("topicFilters","CSS_Hi", oldConf(objOldConf,"strCSSFT_Hi","background-color: yellow;"), {text: "Hilight Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Mark", oldConf(objOldConf,"strCSSFT_Mark","background-color: lightgray; text-decoration: line-through;"), {text: "Mark Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Question", oldConf(objOldConf,"strCSSFT_Question","background-color: cornsilk;") , {text: "Question Styling (CSS)", type: "text" });
+  strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTQ { " + config.topicFilters.CSS_Question + "}";
   // Speech Styling
-  initConfigItem("speechStyling","on", blStyleSpeech, {text: "Style Speech?", type: "bool" });
-  initConfigItem("speechStyling","incQuote", blStyleSpeechIncQuote, {text: "Include quotes?", type: "bool" });
-  initConfigItem("speechStyling","CSS", strStyleSpeechCSS, {text: "Speech Styling (CSS)", type: "text" });
+  initConfigItem("speechStyling","on", oldConf(objOldConf,"blStyleSpeech",true) , {text: "Style Speech?", type: "bool" });
+  initConfigItem("speechStyling","incQuote", oldConf(objOldConf,"blStyleSpeechIncQuote",true) , {text: "Include quotes?", type: "bool" });
+  initConfigItem("speechStyling","CSS", oldConf(objOldConf,"strStyleSpeechCSS","color: blue;"), {text: "Speech Styling (CSS)", type: "text" });
   // User Notes
-  initConfigItem("userNotes","on", blNameNotes, {text: "User Notes?", type: "bool" });
-  initConfigItem("userNotes","style",strUserNoteOption, {text: "Note Style", type: "select", select: aryUserNoteOptions});
+  initConfigItem("userNotes","on", oldConf(objOldConf,"NameNotes", false), {text: "User Notes?", type: "bool" });
+  initConfigItem("userNotes","style", oldConf(objOldConf,"UserNoteOption", "Hover Over Name"), {text: "Note Style", type: "select", select: aryUserNoteOptions});
   // Quick Topics
-  initConfigItem("quickTopics","on", blQuickTopics, {text: "Quick topics?", type: "bool" });
-  initConfigItem("quickTopics","goLast", blQuickTopicsGoLast, {text: "Quick topics goes to last post?", type: "bool" });
-  initConfigItem("quickTopics","markNew", blMarkQTNew, {text: "Mark replies to quick topics?", type: "bool" });
+  initConfigItem("quickTopics","on",  oldConf(objOldConf,"QuickTopics",false), {text: "Quick topics?", type: "bool" });
+  initConfigItem("quickTopics","goLast", oldConf(objOldConf,"QuickTopicsGoLast",false), {text: "Quick topics goes to last post?", type: "bool" });
+  initConfigItem("quickTopics","markNew", oldConf(objOldConf,"MarkQTNew",true), {text: "Mark replies to quick topics?", type: "bool" });
   // Auto Updates
-  initConfigItem("autoUpdates","unreadMinutes", intUnreadMinutes, {text: "Update replies every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
-  initConfigItem("autoUpdates","mailMinutes", intMailMinutes, {text: "Update mail count every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
-  initConfigItem("autoUpdates","desktopNotifications", blNotifications, {text: "Desktop notifications?", type: "bool" });
+  initConfigItem("autoUpdates","unreadMinutes", oldConf(objOldConf,"RepliesMins",5), {text: "Update replies every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
+  initConfigItem("autoUpdates","mailMinutes", oldConf(objOldConf,"MailMins",5), {text: "Update mail count every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
+  initConfigItem("autoUpdates","desktopNotifications", oldConf(objOldConf,"blNotifications",false), {text: "Desktop notifications?", type: "bool" });
   // Removing Headers and Footers
-  initConfigItem("removeHeadFoot","shoutbox", blRemoveShoutbox, {text: "Remove shoutbox?", type: "bool" });
-  initConfigItem("removeHeadFoot","styles", blRemoveStyles, {text: "Remove styles?", type: "bool" });
-  initConfigItem("removeHeadFoot","topicIcons", blRemoveTopicicons, {text: "Remove topic icons?", type: "bool" });
-  initConfigItem("removeHeadFoot","footer", blRemoveFooter, {text: "Remove footer?", type: "bool" });
-  initConfigItem("removeHeadFoot","tidyMenus", blTidyMenus, {text: "Tidy Menus?", type: "bool" });
+  initConfigItem("removeHeadFoot","shoutbox", oldConf(objOldConf,"RemoveShoutbox",false), {text: "Remove shoutbox?", type: "bool" });
+  initConfigItem("removeHeadFoot","styles", oldConf(objOldConf,"RemoveStyles",false), {text: "Remove styles?", type: "bool" });
+  initConfigItem("removeHeadFoot","topicIcons", oldConf(objOldConf,"RemoveTopicicons",false), {text: "Remove topic icons?", type: "bool" });
+  initConfigItem("removeHeadFoot","footer", oldConf(objOldConf,"RemoveFooter",false), {text: "Remove footer?", type: "bool" });
+  initConfigItem("removeHeadFoot","tidyMenus", oldConf(objOldConf,"TidyMenus", true), {text: "Tidy Menus?", type: "bool" });
   // Shoutbox
-  initConfigItem("shoutbox","colourOn", blShoutboxColour, {text: "Colour Shoutbox Text?", type: "bool" });
-  initConfigItem("shoutbox","publicColour",strShoutboxColour, {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
-  initConfigItem("shoutbox","approvedColour",strShoutboxColourApproved, {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
+  initConfigItem("shoutbox","colourOn", oldConf(objOldConf,"blShoutboxColour",false), {text: "Colour Shoutbox Text?", type: "bool" });
+  initConfigItem("shoutbox","publicColour",oldConf(objOldConf,"strShoutboxColour","black"), {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
+  initConfigItem("shoutbox","approvedColour",oldConf(objOldConf,"strShoutboxColourApproved","black"), {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
   //initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
   //strShoutboxSubst = config.shoutbox.subst;
   // Drafts
-  initConfigItem("drafts","on", blDrafts, {text: "Drafts?", type: "bool" });
-  initConfigItem("drafts","autoLoad", blAutoLoadDraft, {text: "Auto-load draft?", type: "bool" });
-  initConfigItem("drafts","autoSave", intAutoSave, {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
-  initConfigItem("drafts","autoClear", blAutoClearDraft, {text: "Auto-clear draft when you post?", type: "bool" });
-  initConfigItem("drafts","historyCount", intDraftHistory, {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
+  initConfigItem("drafts","on", oldConf(objOldConf,"Drafts", true) , {text: "Drafts?", type: "bool" });
+  initConfigItem("drafts","autoLoad", oldConf(objOldConf,"AutoLoadDraft",true), {text: "Auto-load draft?", type: "bool" });
+  initConfigItem("drafts","autoSave", oldConf(objOldConf,"AutoSave",0), {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
+  initConfigItem("drafts","autoClear", oldConf(objOldConf,"AutoClearDraft",true), {text: "Auto-clear draft when you post?", type: "bool" });
+  initConfigItem("drafts","historyCount", oldConf(objOldConf,"DraftHistory",3), {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
   // Bookmarks
-  initConfigItem("bookmarks","tags", blBMTags, {text: "Bookmark Tags?", type: "bool" });
-  initConfigItem("bookmarks","allLink", blBMAllLinks, {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
-  initConfigItem("bookmarks","owedTag", blBMTagsOwed, {text: "Posts Owed Auto-Tag??", type: "bool" });
-  initConfigItem("bookmarks","tagOnBM", blTagOnBM, {text: "Add tags when bookmarking?", type: "bool" });
-  initConfigItem("bookmarks","repliesTag", blBMTagsReplies, {text: "Replies Auto-Tag?", type: "bool" });
-  initConfigItem("bookmarks","noTagsTag", blBMTagsNoTags, {text: "No Tags Auto-Tag?", type: "bool" });
-  blBMTags = config.bookmarks.tags;
-  blBMAllLinks = config.bookmarks.allLink;
-  blBMTagsOwed = config.bookmarks.owedTag;
-  blTagOnBM = config.bookmarks.tagOnBM;
-  blBMTagsReplies = config.bookmarks.repliesTag;
-  blBMTagsNoTags = config.bookmarks.noTagsTag;
+  initConfigItem("bookmarks","tags", oldConf(objOldConf,"BMTags",true), {text: "Bookmark Tags?", type: "bool" });
+  initConfigItem("bookmarks","allLink", oldConf(objOldConf,"BMAllLinks",true), {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
+  initConfigItem("bookmarks","owedTag", oldConf(objOldConf,"BMTagsOwed",true), {text: "Posts Owed Auto-Tag??", type: "bool" });
+  initConfigItem("bookmarks","tagOnBM", oldConf(objOldConf,"TagOnBM",true), {text: "Add tags when bookmarking?", type: "bool" });
+  initConfigItem("bookmarks","repliesTag", oldConf(objOldConf,"BMTagsReplies",true), {text: "Replies Auto-Tag?", type: "bool" });
+  initConfigItem("bookmarks","noTagsTag", oldConf(objOldConf,"BMTagsNoTags",true), {text: "No Tags Auto-Tag?", type: "bool" });
   // Admin
-  initConfigItem("admin","removeNewsbox", blRemoveSsiethExtras_banner, {text: "Remove Newsbox?", type: "bool" });
-  initConfigItem("admin","removeDonate", blRemoveSsiethExtras_donate, {text: "Remove Donate?", type: "bool" });
-  initConfigItem("admin","removeSsiethStuff", blRemoveSsiethExtras_sbbutton, {text: "Remove Ssieth Stuff?", type: "bool" });
-  blRemoveSsiethExtras_banner = config.admin.removeNewsbox;
-  blRemoveSsiethExtras_donate = config.admin.removeDonate;
-  blRemoveSsiethExtras_sbbutton = config.admin.removeSsiethStuff;
+  initConfigItem("admin","removeNewsbox", oldConf(objOldConf,"blRemoveSsiethExtras_banner",false), {text: "Remove Newsbox?", type: "bool" });
+  initConfigItem("admin","removeDonate", oldConf(objOldConf,"blRemoveSsiethExtras_donate",false), {text: "Remove Donate?", type: "bool" });
+  initConfigItem("admin","removeSsiethStuff", oldConf(objOldConf,"blRemoveSsiethExtras_sbbutton",false), {text: "Remove Ssieth Stuff?", type: "bool" });
 
   saveConfig();
   if (andThen) andThen();
@@ -586,155 +517,6 @@ function editConfig() {
 /* =========================== */
 /* Configuration Options       */
 /* =========================== */
-function initSettings() {
-  log("functiontrace", "Start Function");
-  var frame;
-  $('body').append("<div id='storium_config_frame' class='storium_config_frame'>");
-  frame = document.getElementById('storium_config_frame');
-  var aryColourConfig = arySBColours;
-  var fields = {
-    'RemovePictures': { 'label': 'Remove pictures?', 'type': 'checkbox', 'title': 'Avatars and images in posts', 'default': blRemovePics, 'section': ['General Features', 'Switch basic things on and off'] },
-    'Snippets': { 'label': 'Snippets?', 'type': 'checkbox', 'title': 'For storing/pasting', 'default': blSnippets },
-    'blUserLists': { 'label': 'User Lists?', 'type': 'checkbox', 'title': 'For quick PMs', 'default': blUserLists },
-    'WordCount': { 'label': 'Show wordcounts?', 'type': 'checkbox', 'title': 'Show wordcounts?', 'default': blWordCount },
-    'DebugInfo': { 'label': 'Debugging Information?', 'type': 'checkbox', 'title': 'Debugging Information?', 'default': blDebugInfo },
-    'blAjaxButtons': { 'label': 'Make buttons AJAX-based?', 'type': 'checkbox', 'title': 'Make buttons AJAX-based?', 'default': blAjaxButtons },
-    'UnreadReplies': { 'label': 'Show unread replies count?', 'type': 'checkbox', 'title': 'At the top of the page, on the right', 'default': blUnreadReplies, 'section': ['Replies', 'Replies']  },
-    'RepliesMenu': { 'label': 'Show unread replies menu?', 'type': 'checkbox', 'title': 'Show unread replies menu?', 'default': blRepliesMenu },
-    'blRepliesNew': { 'label': 'Replies links go to first new post?', 'type': 'checkbox', 'title': 'Replies links go to first new post?', 'default': blRepliesNew },
-    'TopicFilters': { 'label': 'Topic Filters On?', 'type': 'checkbox', 'title': 'Topic Filters On?', 'default': blFilterTopics, 'section': ['Topic Filters', 'Topic Filters'] },
-    'strCSSFT_Hi': { 'label': 'Hilight Styling (CSS)', 'type': 'text', 'title': 'Hilight Styling (CSS)', 'default': strCSSFT_Hi },
-    'strCSSFT_Mark': { 'label': 'Mark Styling (CSS)', 'type': 'text', 'title': 'Mark Styling (CSS)', 'default': strCSSFT_Mark },
-    'strCSSFT_Question': { 'label': 'Question Styling (CSS)', 'type': 'text', 'title': 'Question Styling (CSS)', 'default': strCSSFT_Question },
-    'blStyleSpeech': { 'label': 'Style Speech?', 'type': 'checkbox', 'title': 'Style Speech?', 'default': blStyleSpeech, 'section': ['Speech Styling', 'Speech Styling'] },
-    'blStyleSpeechIncQuote': { 'label': 'Include quotes?', 'type': 'checkbox', 'title': 'Include quotes?', 'default': blStyleSpeechIncQuote },
-    'strStyleSpeechCSS': { 'label': 'Speech Styling (CSS)', 'type': 'text', 'title': 'Speech Styling (CSS)', 'default': strStyleSpeechCSS },
-    'NameNotes': { 'label': 'User Notes?', 'type': 'checkbox', 'title': 'User Notes?', 'default': blNameNotes, 'section': ['User Notes', 'User Notes'] },
-    'UserNoteOption': { 'label': 'Note Style', 'type': 'select', 'options': aryUserNoteOptions, 'title': 'Note Style', 'default': strUserNoteOption, 'size': 10 },
-    'QuickTopics': { 'label': 'Quick topics?', 'type': 'checkbox', 'title': 'The bookmarks replacement', 'default': blQuickTopics, 'section': ['Quick Topics', 'Quick Topics'] },
-    'QuickTopicsGoLast': { 'label': 'Quick topics goes to last post?', 'type': 'checkbox', 'title': 'The bookmarks replacement', 'default': blQuickTopicsGoLast },
-    'MarkQTNew': { 'label': 'Mark replies to quick topics?', 'type': 'checkbox', 'title': 'Mark replies to quick topics', 'default': blMarkQTNew },
-    'RepliesMins': { 'label': 'Update replies every X minutes (0=no auto-update)', 'type': 'int', 'title': 'Update replies every X minutes (0=no auto-update)', 'min': 0, 'default': intUnreadMinutes, 'size': 10, 'section': ['Auto-Updates', 'Automatic updates'] },
-    'MailMins': { 'label': 'Update mail count every X minutes (0=no auto-update)', 'type': 'int', 'title': 'Update mail count every X minutes (0=no auto-update)', 'min': 0, 'default': intMailMinutes, 'size': 10 },
-    'blNotifications': { 'label': 'Desktop notifications?', 'type': 'checkbox', 'title': 'Desktop notifications', 'default': blNotifications },
-    'RemoveShoutbox': { 'label': 'Remove shoutbox?', 'type': 'checkbox', 'title': 'Remove shoutbox from header', 'default': blRemoveShoutbox, 'section': ['Remove Header and Footer Items', 'Remove Header and Footer Items'] },
-    'RemoveStyles': { 'label': 'Remove styles?', 'type': 'checkbox', 'title': 'Remvoe styles from header', 'default': blRemoveStyles },
-    'RemoveTopicicons': { 'label': 'Remove topic icons key?', 'type': 'checkbox', 'title': 'Remove topic icons key', 'default': blRemoveStyles },
-    'RemoveFooter': { 'label': 'Remove footer?', 'type': 'checkbox', 'title': 'Remvoe footer', 'default': blRemoveFooter },
-    'TidyMenus': { 'label': 'Tidy Menus?', 'type': 'checkbox', 'title': 'Tidy Menus', 'default': blTidyMenus },
-    'blShoutboxColour': { 'label': 'Colour Shoutbox Text?', 'type': 'checkbox', 'title': 'Colour Shoutbox Text?', 'default': blShoutboxColour, 'section': ['Shoutbox', 'Shoutbox'] },
-    'strShoutboxColour': { 'label': 'Shoutbox Colour','type': 'select','options': aryColourConfig, 'title': 'Shoutbox Colour', 'default': strShoutboxColour, 'size': 10 },
-    'strShoutboxColourApproved': { 'label': 'Shoutbox Colour (Approved Box)', 'type': 'select', 'options': aryColourConfig, 'title': 'Shoutbox Colour (Approved Box)', 'default': strShoutboxColourApproved, 'size': 10 },
-    'strShoutboxSubst': { 'label': 'Shoutbox Substitutions (use | to separate, leave blank for no substs)', 'type': 'textarea', 'title': 'Use the | character to seperate command and substitution', 'default': strShoutboxSubst, 'size': 10 },
-    'Drafts': { 'label': 'Drafts?', 'type': 'checkbox', 'title': 'Drafts?', 'default': blDrafts, 'section': ['Drafts', 'Drafts'] },
-    'AutoLoadDraft': { 'label': 'Auto-load draft?', 'type': 'checkbox', 'title': 'Auto-load draft?', 'default': blAutoLoadDraft },
-    'AutoSave': { 'label': 'Auto-save draft every X minutes (0=no auto-save)', 'type': 'int', 'title': 'Auto-save draft every X minutes (0=no auto-save)', 'min': 0, 'default': intAutoSave, 'size': 10 },
-    'AutoClearDraft': { 'label': 'Auto-clear draft when you post', 'type': 'checkbox', 'title': 'Auto-clear draft when you post', 'default': blAutoClearDraft },
-    'DraftHistory': { 'label': '# of manual drafts to keep (0 = no history kept)', 'type': 'int', 'title': '# of manual drafts to keep (0 = no history kept)', 'min': 0, 'default': intDraftHistory, 'size': 10 },
-    'BMTags': { 'label': 'Bookmark Tags?', 'type': 'checkbox', 'title': 'Bookmark Tags', 'default': blBMTags, 'section': ['Bookmarks', 'Bookmarks'] },
-    'BMAllLinks': { 'label': 'Add &apos;All&apos; link to bookmarks?', 'type': 'checkbox', 'title': 'Add &apos;All&apos; link to bookmarks?', 'default': blBMAllLinks },
-    'BMTagsOwed': { 'label': 'Posts Owed Auto-Tag?', 'type': 'checkbox', 'title': 'Posts Owed Auto-Tag', 'default': blBMTagsOwed },
-    'TagOnBM': { 'label': 'Add tags when bookmarking?', 'type': 'checkbox', 'title': 'Add tags when bookmarking', 'default': blTagOnBM },
-    'BMTagsReplies': { 'label': 'Replies Auto-Tag?', 'type': 'checkbox', 'title': 'Replies Auto-Tag', 'default': blBMTagsReplies },
-    'BMTagsNoTags': { 'label': 'No Tags Auto-Tag?', 'type': 'checkbox', 'title': 'No Tags Auto-Tag', 'default': blBMTagsNoTags },
-    'strExportKey': { 'label': 'Export Key?', 'type': 'text', 'title': 'Export Key', 'default': strExportKey, 'section': ['Import / Export', 'Import / Export'] }
-  };
-
-  if (strScriptAdmins.indexOf(user.id) > -1) {
-    fields.blRemoveSsiethExtras_banner = { 'label': 'Remove Newsbox?', 'type': 'checkbox', 'title': 'Remove Newsbox', 'default': blRemoveSsiethExtras_banner, 'section': ['Ssieth', 'Ssieth'] };
-    fields.blRemoveSsiethExtras_donate = { 'label': 'Remove Donate?', 'type': 'checkbox', 'title': 'Remove Donate', 'default': blRemoveSsiethExtras_donate };
-    fields.blRemoveSsiethExtras_sbbutton = { 'label': 'Remove Ssieth Stuff?', 'type': 'checkbox', 'title': 'Remove Ssieth Stuff', 'default': blRemoveSsiethExtras_sbbutton };
-  }
-
-  GM_config.init({
-    'id': 'e_config',
-    'title': 'Settings',
-    'fields': fields,
-    'events': {
-      'save': function () {
-        configSave();
-      },
-      'open': function () {
-        $('#e_config .section_header_holder .config_var').hide();
-        $('#e_config .section_header').click(function () {
-          $(this).parent().find('.config_var').slideToggle();
-        });
-      }
-    },
-    'css': strCSSConfig,
-    'frame': frame
-  });
-
-  blRemoveShoutbox = GM_config.get("RemoveShoutbox");
-  blRemoveStyles = GM_config.get("RemoveStyles");
-  blRemoveFooter = GM_config.get("RemoveFooter");
-  blRemoveTopicicons = GM_config.get("RemoveTopicicons");
-  blBMTags = GM_config.get("BMTags");
-  blBMTagsOwed = GM_config.get("BMTagsOwed");
-  blWordCount = GM_config.get("WordCount");
-  blBMTagsReplies = GM_config.get("BMTagsReplies");
-  blBMTagsNoTags = GM_config.get("BMTagsNoTags");
-  blTagOnBM = GM_config.get("TagOnBM");
-  blBMAllLinks = GM_config.get("BMAllLinks");
-  blTidyMenus = GM_config.get("TidyMenus");
-  blDebugInfo = GM_config.get("DebugInfo");
-  blFilterTopics = GM_config.get("TopicFilters");
-  blDrafts = GM_config.get("Drafts");
-  blAutoLoadDraft = GM_config.get("AutoLoadDraft");
-  intAutoSave = GM_config.get("AutoSave");
-  blAutoClearDraft = GM_config.get("AutoClearDraft");
-  intDraftHistory = GM_config.get("DraftHistory");
-  blNameNotes = GM_config.get("NameNotes");
-  blRepliesMenu = GM_config.get("RepliesMenu");
-  blRepliesNew = GM_config.get("blRepliesNew");
-  strUserNoteOption = GM_config.get("UserNoteOption");
-  strCSSFT_Mark = GM_config.get("strCSSFT_Mark");
-  strCSSFT_Hi = GM_config.get("strCSSFT_Hi");
-  strCSSFT_Question = GM_config.get("strCSSFT_Question");
-  strCSSFT = ".FTMark { " + strCSSFT_Mark + " } .FTHi { " + strCSSFT_Hi + " }  .FTQ { " + strCSSFT_Question + "}";
-
-  if (strScriptAdmins.indexOf(user.id) > -1) {
-    blRemoveSsiethExtras_banner = GM_config.get("blRemoveSsiethExtras_banner");
-    blRemoveSsiethExtras_donate = GM_config.get("blRemoveSsiethExtras_donate");
-    blRemoveSsiethExtras_sbbutton = GM_config.get("blRemoveSsiethExtras_sbbutton");
-  }
-  else {
-    blRemoveSsiethExtras_banner = false;
-    blRemoveSsiethExtras_donate = false;
-    blRemoveSsiethExtras_sbbutton = false;
-  }
-
-  blRemovePics = GM_config.get("RemovePictures");
-  blQuickTopics = GM_config.get("QuickTopics");
-  blQuickTopicsGoLast = GM_config.get("QuickTopicsGoLast");
-  blMarkQTNew = GM_config.get("MarkQTNew");
-  blSnippets = GM_config.get("Snippets");
-  blUnreadReplies = GM_config.get("UnreadReplies");
-  intUnreadMinutes = GM_config.get("RepliesMins");
-  intMailMinutes = GM_config.get("MailMins");
-
-  blShoutboxColour = GM_config.get("blShoutboxColour");
-  strShoutboxColour = GM_config.get("strShoutboxColour");
-  strShoutboxColourApproved = GM_config.get("strShoutboxColourApproved");
-  blAjaxButtons = GM_config.get("blAjaxButtons");
-  blUserLists = GM_config.get("blUserLists");
-  blNotifications = GM_config.get("blNotifications");
-
-  strShoutboxSubst = GM_config.get("strShoutboxSubst");
-//  buildSBSubst();
-
-  blStyleSpeech = GM_config.get("blStyleSpeech");
-  blStyleSpeechIncQuote = GM_config.get("blStyleSpeechIncQuote");
-  strStyleSpeechCSS = GM_config.get("strStyleSpeechCSS");
-  strExportKey = GM_config.get("strExportKey");
-}
-
-function configSave() {
-  log("functiontrace", "Start Function");
-  GM_config.close();
-  location.reload();
-}
-
 function displaySettings() {
   log("functiontrace", "Start Function");
 
@@ -790,14 +572,6 @@ function displaySettings() {
       e.preventDefault();
       frmImport();
     });
-
-    /*
-    $menuQ.find("#script_version").click(function (e) {
-      e.preventDefault();
-      GM_config.open();
-      GM_config.frame.setAttribute('style', strCSSConfigFrame);
-    });
-    */
   }
   $menunav.append($menuQ);
 }
@@ -2447,7 +2221,7 @@ function userDep() {
   // Remove header stuff that is dependent on user level
   //removeHeaderStuff(true);
 
-  if (blBMTags && page.type == "bookmarks") {
+  if (config.bookmarks.tags && page.type == "bookmarks") {
     reformatBMs();
   }
 
@@ -2651,13 +2425,13 @@ function displayBMMenu() {
   var $menuQ = $('li#button_bookmarks');
   var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
 
-  if (blBMTagsOwed) {
+  if (config.bookmarks.owedTag) {
     $menuQ_ul.append("<li><a href='" + strBase + "&tag=owe' id='bm-owe'><span class='bm_link'>Posts Owed</span></a></li>");
   }
-  if (blBMTagsReplies) {
+  if (config.bookmarks.repliesTag) {
     $menuQ_ul.append("<li><a href='" + strBase + "&tag=replies' id='bm-replies'><span class='bm_link'>Replies</span></a></li>");
   }
-  if (blBMTagsNoTags) {
+  if (config.bookmarks.noTagsTag) {
     $menuQ_ul.append("<li><a href='" + strBase + "&tag=no-tags' id='bm-no-tags'><span class='bm_link'>No Tags</span></a></li>");
   }
   for (counter = 0; counter < aryBMTags.length; counter++) {
@@ -2728,13 +2502,13 @@ function loadBMTags() {
     strTag = aryBMTags[counter];
     aryBMTagsLower.push(strTag.trim().toLowerCase());
   }
-  if (blBMTagsOwed) {
+  if (config.bookmarks.owedTag) {
     if ($.inArray("notowed", aryBMTagsLower) == -1) {
       aryBMTagsLower.push("notowed");
       aryBMTags.push("NotOwed");
     }
   }
-  if (blBMTagsReplies) {
+  if (config.bookmarks.repliesTag) {
     if ($.inArray("notreplied", aryBMTagsLower) == -1) {
       aryBMTagsLower.push("notreplied");
       aryBMTags.push("NotReplied");
@@ -3602,13 +3376,13 @@ function main() {
     removeHeaderStuff(false);
 
     if (user.id == "Ssieth") {
-      if (blRemoveSsiethExtras_banner) {
+      if (config.admin.removeNewsbox) {
         $("div.main_newsbox").remove();
       }
-      if (blRemoveSsiethExtras_donate) {
+      if (config.admin.removeDonate) {
         $(".main_header .donorbanner").remove(); // Disable donorbanner
       }
-      if (blRemoveSsiethExtras_sbbutton) {
+      if (config.admin.removeSsiethStuff) {
         $(".main_header .floatright:eq(2)").remove(); // Disable shoutbox button
       }
     }
@@ -3703,7 +3477,7 @@ function main() {
       getUnreadReplies();
     }
 
-    if (blBMTags) {
+    if (config.bookmarks.tags) {
       loadBMTags();
       if (page.type == "board") {
         quickFT();
@@ -3715,7 +3489,7 @@ function main() {
       setWordCount();
     }
 
-    if (blTagOnBM && (page.type == "topic")) {
+    if (config.bookmarks.tagOnBM && (page.type == "topic")) {
       tagOnBM();
     }
 
@@ -3725,7 +3499,7 @@ function main() {
       }
     }
 
-    if (blBMAllLinks && page.type == "bookmarks") {
+    if (config.bookmarks.allLink && page.type == "bookmarks") {
       BMAllLinks();
     }
 
