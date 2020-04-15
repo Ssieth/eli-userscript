@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.42.3
+// @version     1.42.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -442,7 +442,7 @@ function editConfig() {
   GM_addStyle(".gm-settings-cat-title { font-weight: bold; font-size: 120%; margin-bottom: 10px; }");
   GM_addStyle(".gm-settings-cat-settings { margin-left: 10px; }");
   GM_addStyle(".gm-settings-setting { margin-bottom: 15px; border-bottom: thin solid gray; width: auto; padding-bottom: 5px; }");
-  GM_addStyle(".gm-settings-setting-label { margin-right: 10px; display: inline; font-weight: bold; }");
+  GM_addStyle(".gm-settings-setting-label { margin-right: 10px; display: inline; font-weight: bold; color: black;}");
   GM_addStyle(".gm-settings-control-int { width: 4rem; }");
   GM_addStyle(".gm-settings-setting-label { max-width: 15rem; display: inline-block; }");
   var $page = $("div#helpmain");
@@ -2779,7 +2779,7 @@ function tidyMenus() {
 /* =========================== */
 function createNewVer() {
   log("functiontrace", "Start Function");
-  $("div.navigate_section").after("<div style='padding: 10px; background-color: cornsilk; margin-left: auto; margin-right: auto; width: 90%; margin-bottom: 10px;' id='newVer'><p style='font-size: 120%; font-weight: bold;'>Elliquiy Improver Script - New Version</p></div>");
+  $("div.navigate_section").after("<div style='padding: 10px; background-color: cornsilk; margin-left: auto; margin-right: auto; width: 90%; margin-bottom: 10px; color: black;' id='newVer'><p style='font-size: 120%; font-weight: bold;'>Elliquiy Improver Script - New Version</p></div>");
 }
 
 function newVerInfo() {
