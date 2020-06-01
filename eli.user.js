@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.42.5
+// @version     1.42.6
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2300,6 +2300,10 @@ function shoutBoxColor() {
 /* =========================== */
 /* Bookmarks                   */
 /* =========================== */
+function rawBMs() {
+  return JSON.stringify(BMTags);
+}
+
 function BMAllLinks() {
   // Show an 'all' link against each BM
   log("functiontrace", "Start Function");
@@ -2830,6 +2834,8 @@ function debugUserInfo() {
   var $userInfo_ul = $userInfo.find("ul");
   var $snippets = $("<li>Snippets: <ul></ul></li>");
   var $snippets_ul = $snippets.find("ul");
+  var $bms = $("<li>Bookmarks: <ul></ul></li>");
+  var $bms_ul = $bms.find("ul");
   $userInfo_ul.append("<li>ID: " + user.id + "</li>");
   $userInfo_ul.append("<li>UserName: " + user.name + "</li>");
   $userInfo_ul.append("<li>Position: " + user.position + "</li>");
@@ -2837,6 +2843,8 @@ function debugUserInfo() {
   $displayAt.append($userInfo);
   $snippets_ul.append("<li><pre>" + rawSnippets() + "</pre></li>");
   $displayAt.append($snippets);
+  $bms_ul.append("<li><pre>" + rawBMs() + "</pre></li>");
+  $displayAt.append($bms);
 }
 /* =========================== */
 

@@ -5,6 +5,8 @@ This script is designed to add some extra functionality to Elliquiy.com
 The specific features are listed below:
 
 ## In the last version
+1.42.6 Added bookmark data to debug info
+
 1.42.5 Added speech-styling support for smart quotes.
 
 1.42.4 settings page CSS improved for other themes
