@@ -5,7 +5,19 @@ This script is designed to add some extra functionality to Elliquiy.com
 The specific features are listed below:
 
 ## In the last version
-1.42.5: Added speech-styling support for smart quotes.
+1.42.5 Added speech-styling support for smart quotes.
+
+1.42.4 settings page CSS improved for other themes
+
+1.42.3 Removed gm_config and fully moved over to the new config system
+
+1.42.1 a little bugfix around new config stuff. Removed SB substitutions
+
+1.42.0 changes to settings to usher out GM_config
+
+1.41.1 Added code to remove colons from snippet names and IDs
+
+1.41.0 replies settings split into own settings section, added option to head to first new item in replies topics
 
 1.40.0: Moved hosting of the script to github to allow for easier collaboration. Not necessarily live.
 
