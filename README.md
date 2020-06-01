@@ -5,6 +5,8 @@ This script is designed to add some extra functionality to Elliquiy.com
 The specific features are listed below:
 
 ## In the last version
+1.42.5: Added speech-styling support for smart quotes.
+
 1.40.0: Moved hosting of the script to github to allow for easier collaboration. Not necessarily live.
 
 1.39.0: A fix for those users who have changed their display name.
