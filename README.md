@@ -2,6 +2,8 @@
 
 This script is designed to add some extra functionality to Elliquiy.com
 
+It requires a userscript plugin for your browser.  I use TamperMonkey (https://www.tampermonkey.net/) but there are other alternatives.
+
 The specific features are listed below:
 
 ## In the last version
