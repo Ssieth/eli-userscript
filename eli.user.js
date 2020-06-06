@@ -411,7 +411,7 @@ function initConfig(andThen) {
   // Repagination
   initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
   initConfigItem("repage","maxpage", 10, {text: "Max pages (0=no max)?", type: "int", min: 1, max: 100 });
-  initConfigItem("repage","infinity", false, {text: "Ininity paging?", type: "bool" });
+  initConfigItem("repage","infinity", false, {text: "Infinity paging?", type: "bool" });
   // Admin
   initConfigItem("admin","removeNewsbox", oldConf(objOldConf,"blRemoveSsiethExtras_banner",false), {text: "Remove Newsbox?", type: "bool" });
   initConfigItem("admin","removeDonate", oldConf(objOldConf,"blRemoveSsiethExtras_donate",false), {text: "Remove Donate?", type: "bool" });
