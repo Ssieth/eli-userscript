@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.42.6
+// @version     1.43.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -78,6 +78,15 @@ var intMailCount = -1;
 var intUnreadCount = GM_getValue("unreadReplies", 0);
 var permResult;
 const urlImg = "https://cabbit.org.uk/eli/img/";
+
+// For Scroll events
+let last_known_scroll_position = 0;
+let ticking = false;
+
+// For infinity-scroll
+let lastPageLoaded = -1;
+let loadingPage = false;
+let nextURL = "";
 
 // Version control stuff
 var verDelDraft = ["1.37.4"];
@@ -339,6 +348,7 @@ function initConfig(andThen) {
   initConfigCategory("shoutbox","Shoutbox");
   initConfigCategory("drafts","Drafts");
   initConfigCategory("bookmarks","Bookmarks");
+  initConfigCategory("repage","Repagination");
   initConfigCategory("admin","Admin",true);
   //initConfigCategory("importExport","Import / Export");
   // General Settings
@@ -398,6 +408,10 @@ function initConfig(andThen) {
   initConfigItem("bookmarks","tagOnBM", oldConf(objOldConf,"TagOnBM",true), {text: "Add tags when bookmarking?", type: "bool" });
   initConfigItem("bookmarks","repliesTag", oldConf(objOldConf,"BMTagsReplies",true), {text: "Replies Auto-Tag?", type: "bool" });
   initConfigItem("bookmarks","noTagsTag", oldConf(objOldConf,"BMTagsNoTags",true), {text: "No Tags Auto-Tag?", type: "bool" });
+  // Repagination
+  initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
+  initConfigItem("repage","maxpage", 10, {text: "Max pages (0=no max)?", type: "int", min: 1, max: 100 });
+  initConfigItem("repage","infinity", false, {text: "Ininity paging?", type: "bool" });
   // Admin
   initConfigItem("admin","removeNewsbox", oldConf(objOldConf,"blRemoveSsiethExtras_banner",false), {text: "Remove Newsbox?", type: "bool" });
   initConfigItem("admin","removeDonate", oldConf(objOldConf,"blRemoveSsiethExtras_donate",false), {text: "Remove Donate?", type: "bool" });
@@ -576,6 +590,84 @@ function displaySettings() {
   $menunav.append($menuQ);
 }
 /* =========================== */
+
+/* =========================== */
+/* Repaginate                  */
+/* =========================== */
+function repage_getPage($pageBody0, strURL, stopAt) {
+  let strPageBody = 'form#quickModForm';
+  loadingPage = true;
+  GM_xmlhttpRequest({
+    method: "GET",
+    url: strURL,
+    onload: function (response) {
+      loadingPage = false;
+      let $page = $(response.responseText);
+      let $pageBody = $page.find(strPageBody);
+      let iPage = parseInt($page.find("div.pagelinks strong").text());
+      let strURLNext = getNextURL($page,iPage);
+      if (strURLNext === "") {
+        nextURL = "-end-";
+      } else {
+        nextURL = strURLNext;
+      }
+      console.log("repage_gp: page " + iPage + ", stopping at " + stopAt);
+      if ($pageBody.length > 0) {
+          $pageBody0.append($pageBody.html());
+      }
+      if (iPage >= stopAt) {
+        console.log("repate: We reached the limit, stopping!")
+        return;
+      }
+      if (strURLNext === "") {
+        console.log("repage: No next, last page?");
+      } else {
+        // Don't spam too hard
+        setTimeout(function() {
+          repage_getPage($pageBody0,strURLNext, stopAt);
+        },500);
+      }
+    }
+  });
+}
+
+function getNextURL($page,iPage) {
+  let strNext = 'div.pagelinks a';
+  let strPage = "" + (iPage+1);
+  console.log("Looking for " + strPage)
+  let $next = $page.find(strNext).filter(function() {return $(this).text() == strPage;})
+  if ($next.length > 0) {
+    return $next.attr("href");
+  } else {
+    return "";
+  }
+}
+
+function repaginate() {
+  if (page.type === "topic") {
+    if (config.repage.on) {
+      let strPageBody = 'form#quickModForm';
+      let $pageBody0 = $(strPageBody);
+      let iPage = parseInt($("div.pagelinks strong").text());
+      let stopAt = iPage + config.repage.maxpage;
+      let strURL = getNextURL($("body"),iPage);
+      console.log("repage: page " + iPage);
+      if (strURL === "") {
+        console.log("repage: No next, last page?");
+        return;
+      }
+      if ($pageBody0.length <= 0) {
+        console.log("repage: No page body? That's odd... what are you doing?");
+        return;        
+      }
+      repage_getPage($pageBody0,strURL, stopAt);
+    } else if (config.repage.infinity) {
+      let iPage = parseInt($("div.pagelinks strong").text());
+      lastPageLoaded = iPage;
+      loadingPage = false;
+    }  
+  }
+}
 
 /* =========================== */
 /* Filter Topics               */
@@ -2672,6 +2764,7 @@ function getPageDetails() {
   page.url.page = window.location.pathname.split('/')[2].replace(".php", "").toLowerCase();
   page.url.query = window.location.search;
   page.url.hash = window.location.hash;
+  page.scroll = -1;
   page.type = "other";
   if (page.url.full.toLowerCase().indexOf("action=bookmarks") > 0) {
     page.type = "bookmarks";
@@ -3375,6 +3468,39 @@ function cabbitLoadSettings(callback) {
 }
 /* =========================== */
 
+function scrollEvents(scroll) {
+  // Scroll events here
+
+  // Infinity paging
+  if (config.repage.infinity && page.type === 'topic') {
+    var element = $("div.post_wrapper").last()[0]; //document.getElementById("lastPost");
+    var rect = element.getBoundingClientRect();
+    if ($(window).height() > rect.top && !loadingPage) {
+      let strPageBody = 'form#quickModForm';
+      let $pageBody0 = $(strPageBody);
+      let iPage = lastPageLoaded;
+      let stopAt = iPage + config.repage.maxpage;
+      let strURL;
+      if (nextURL === "") {
+        strURL = getNextURL($("body"),iPage);            
+      } else if (nextURL === "-end-") {
+        console.log("infiPage: end!");
+      } else {
+        strURL = nextURL;
+      }
+      if (strURL === "") {
+        console.log("infiPage: No next, last page?");
+        return;
+      }
+      if ($pageBody0.length <= 0) {
+        console.log("infiPage: No page body? That's odd... what are you doing?");
+        return;        
+      }
+      repage_getPage($pageBody0,strURL, iPage+1);      
+    }
+  }
+}
+
 function main() {
   log("functiontrace", "Start Function");
   log("startup", "Starting " + GM_info.script.name + " v" + GM_info.script.version);
@@ -3526,7 +3652,22 @@ function main() {
       editConfig();
     }
 
+    repaginate();
+
     newVerInfo();
+
+    window.addEventListener('scroll', function(e) {
+      last_known_scroll_position = window.scrollY;
+
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          scrollEvents(last_known_scroll_position);
+          ticking = false;
+        });
+
+        ticking = true;
+      }
+    });
 
     log("startup", "Completed load " + GM_info.script.name + " v" + GM_info.script.version);
   });
