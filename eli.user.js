@@ -1178,12 +1178,7 @@ function cleanSnippets() {
 
 function sortedSnippetKeys() {
   log("functiontrace", "Start Function");
-  var keys = [];
-  for (var key in snippets) {
-    keys.push(key);
-  }
-  keys.sort();
-  return keys;
+  return Object.keys(snippets).sort();
 }
 
 function setSnippet() {
@@ -1346,7 +1341,6 @@ function displaySnippets() {
   log("functiontrace", "Start Function");
   $("li#button_snip ul").remove();
   var $copyTo = $('div#bbcBox_message div:eq(0)');
-  var key;
   if ($copyTo.length > 0) {
     var $menuQ = $('li#button_snip');
     var newMenu = false;
@@ -1361,9 +1355,7 @@ function displaySnippets() {
     });
     var counter;
     var keys = sortedSnippetKeys();
-    for (counter = 0; counter < keys.length; counter++) {
-      //for (key in sortedSnippetKeys) {
-      key = keys[counter];
+    for (const key of keys) {
       var snippet = snippets[key];
       if (snippet.body !== "") {
         $menuQ_ul.append("<li><a href='javascript:void(0);' class='snippet_link_outer' id='snip-" + snippet.id + "'><span class='snippet_link'>" + snippet.name + "</span></a></li>");
@@ -1692,17 +1684,12 @@ function hasQuickTopic(intTopicID) {
 }
 
 function addQuickTopic(strName, intID) {
-  log("functiontrace", "Start Function");
-  var qForum = {};
-  qForum.name = strName;
-  qForum.url = urlTopicBase + intID;
-  qForum.id = intID;
-  quickTopics.push(qForum);
+  log("functiontrace", "Start Function");  
+  quickTopics.push({"name": strName, "url": urlTopicBase + intID, "id": intID});
 }
 
 function displayQuickTopics() {
   log("functiontrace", "Start Function");
-  var counter;
   $("li#button_q ul").remove();
   var $menunav = $('ul#menu_nav');
   var $menuQ = $('li#button_q');
@@ -1725,8 +1712,7 @@ function displayQuickTopics() {
   else {
     strGoLast = "";
   }
-  for (counter = 0; counter < quickTopics.length; counter++) {
-    var qForum = quickTopics[counter];
+  for (qForum of quickTopics) {
     if (qForum === undefined) {}
     else {
       $menuQ_ul.append("<li id='qTopic_" + qForum.id + "'><a href='" + qForum.url + strGoLast + "'><span>" + qForum.name + "</span></a></li>");
