@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.43.1
+// @version     1.43.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -397,7 +397,8 @@ function initConfig(andThen) {
   //strShoutboxSubst = config.shoutbox.subst;
   // Drafts
   initConfigItem("drafts","on", oldConf(objOldConf,"Drafts", true) , {text: "Drafts?", type: "bool" });
-  initConfigItem("drafts","autoLoad", oldConf(objOldConf,"AutoLoadDraft",true), {text: "Auto-load draft?", type: "bool" });
+  //initConfigItem("drafts","autoLoad", oldConf(objOldConf,"AutoLoadDraft",true), {text: "Auto-load draft?", type: "bool" });
+  config.drafts.autoLoad = false; // too many issues with this atm...
   initConfigItem("drafts","autoSave", oldConf(objOldConf,"AutoSave",0), {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
   initConfigItem("drafts","autoClear", oldConf(objOldConf,"AutoClearDraft",true), {text: "Auto-clear draft when you post?", type: "bool" });
   initConfigItem("drafts","historyCount", oldConf(objOldConf,"DraftHistory",3), {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
@@ -2630,20 +2631,25 @@ function deleteTag(strTag) {
   }
 }
 
-function frmBMTags() {
-  log("functiontrace", "Start Function");
-  var strBody = frmBMTagsBody();
-  throwModal("Tags", strBody);
+function frmBMTagsActivate() {
   $('#modalpop span.BMTagClick').click(function (e) {
     var strVal = $(this).text();
     if (confirm("Delete '" + strVal + "' tag?")) {
       deleteTag(strVal);
       saveBMTags();
       loadBMTags();
-      strBody = frmBMTagsBody();
+      let strBody = frmBMTagsBody();
       $("#modalpop").html(strBody);
+      frmBMTagsActivate();
     }
   });
+}
+
+function frmBMTags() {
+  log("functiontrace", "Start Function");
+  var strBody = frmBMTagsBody();
+  throwModal("Tags", strBody);
+  frmBMTagsActivate();
 }
 
 function frmBMsBody(strID) {

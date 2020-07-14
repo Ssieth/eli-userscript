@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.43.3 Remove autoload draft option (it causes too many problems)
+
 1.43.2 A little bit of tidy-up of some array processing.
 
 1.43.1 Added repagination and infinity paging options for topic pages
