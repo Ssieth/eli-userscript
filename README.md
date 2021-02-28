@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.43.5 Slight tweak to topic filters to make the labels for the radio buttons actual labels.
+
 1.43.4 Usernotes should now work for users with spaces in their usernames
 
 1.43.3 Remove autoload draft option (it causes too many problems)

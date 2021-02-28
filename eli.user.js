@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.43.4
+// @version     1.43.5
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -694,37 +694,37 @@ function frmFTBody(strID, strText, strType) {
   if (strType == "hide") {
     strBody += "checked='checked' ";
   }
-  strBody += "/>: Hide";
+  strBody += "/><label for='filterTypeHide'>: Hide<label>";
   strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='mark' ";
   if (strType == "mark") {
     strBody += "checked='checked' ";
   }
-  strBody += "/>: General Mark";
+  strBody += "/><label for='filterTypeMark'>: General Mark</label>";
   strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='mark-genre' ";
+  strBody += "<input type='radio' name='filterType' id='filterTypeGenre' value='mark-genre' ";
   if (strType == "mark-genre") {
     strBody += "checked='checked' ";
   }
-  strBody += "/>: Genre";
+  strBody += "/><label for='filterTypeGenre'>: Genre</label>";
   strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='mark-gender' ";
+  strBody += "<input type='radio' name='filterType' id='filterTypeGender' value='mark-gender' ";
   if (strType == "mark-gender") {
     strBody += "checked='checked' ";
   }
-  strBody += "/>: Gender";
+  strBody += "/><label for='filterTypeGender'>: Gender</label>";
   strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='question' ";
+  strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
   if (strType == "question") {
     strBody += "checked='checked' ";
   }
-  strBody += "/>: Question";
+  strBody += "/><label for='filterTypeQuestion'>: Question</label>";
   strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='hi' ";
+  strBody += "<input type='radio' name='filterType' id='filterTypeHilight' value='hi' ";
   if (strType == "hi") {
     strBody += "checked='checked' ";
   }
-  strBody += "/>: Hilight";
+  strBody += "/><label for='filterTypeHilight'>: Hilight</label>";
   strBody += "</td>";
   strBody += "</tr>";
   strBody += "<tr>";
