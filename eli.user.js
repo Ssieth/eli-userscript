@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.43.3
+// @version     1.43.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -3068,7 +3068,14 @@ function annotateNames() {
     case "profile":
       var $basicInfo = $("div#basicinfo");
       var $detailedInfo = $("div#detailedinfo");
-      var strUserID = $basicInfo.find("div.username h4").text().split(" ")[0].trim();
+      var strUserBlock = $basicInfo.find("div.username h4").html();
+      var userBlockEnd = strUserBlock.indexOf(" <");
+      var strUserID = "";
+      if (userBlockEnd == -1) {
+        strUserID = $basicInfo.find("div.username h4").text().trim();
+      } else {
+        strUserID = $basicInfo.find("div.username h4").html().substr(0,userBlockEnd);
+      }
       var $nameNotes = $("<div class='nameNotes'></div>");
       var strNote = "";
       if (nameNotes[strUserID] !== undefined) {
