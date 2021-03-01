@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.43.5
+// @version     1.44.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -315,7 +315,7 @@ function saveConfig(andThen) {
   if (andThen) andThen();
 }
 
-function oldConf(objConf,varName, defaultVal) { 
+function oldConf(objConf,varName, defaultVal) {
   if (objConf.hasOwnProperty(varName)) {
     return objConf[varName];
   } else {
@@ -327,7 +327,7 @@ function initConfig(andThen) {
   var strOldConf = GM_getValue("e_config","");
   var objOldConf = {};
   if (strOldConf !== "" ) {
-    objOldConf = JSON.parse(strOldConf); 
+    objOldConf = JSON.parse(strOldConf);
   }
   console.log("Old Conf");
   console.log(objOldConf);
@@ -513,7 +513,7 @@ function editConfig() {
       $newcat.append($newSettings);
       if (!confd.isAdmin || strScriptAdmins.indexOf(user.id) > -1) {
         $page.append($newcat);
-      }    
+      }
   }
   $page.append("<div style='clear: both;'>&nbsp;</div>");
   $page.find(".gm-settings-control").change($.debounce(500, function(e) {
@@ -659,14 +659,14 @@ function repaginate() {
       }
       if ($pageBody0.length <= 0) {
         console.log("repage: No page body? That's odd... what are you doing?");
-        return;        
+        return;
       }
       repage_getPage($pageBody0,strURL, stopAt);
     } else if (config.repage.infinity) {
       let iPage = parseInt($("div.pagelinks strong").text());
       lastPageLoaded = iPage;
       loadingPage = false;
-    }  
+    }
   }
 }
 
@@ -1338,11 +1338,34 @@ function pasteSnippet($this) {
   return false;
 }
 
+function replaceSnippetsTags() {
+  var aryKeys = sortedSnippetKeys();
+  var textArea = $(strLastFocus);
+  if (textArea.length > 0) {
+    console.log("RST: Got textarea");
+    //textArea = textArea[0];
+    var strText = textArea.val();
+    for (var i = 0; i < aryKeys.length; i++) {
+      var strKey = aryKeys[i];
+      strText = strText.replaceAll("\\[" + i + "\\]", snippets[strKey].body);
+      console.log("RST: replaced: " + strKey);
+    }
+    textArea.val(strText);
+  }
+}
+
 function displaySnippets() {
   log("functiontrace", "Start Function");
   $("li#button_snip ul").remove();
   var $copyTo = $('div#bbcBox_message div:eq(0)');
   if ($copyTo.length > 0) {
+    $(strLastFocus).keydown(function(event) {
+      if (event.originalEvent.key == 's' && event.originalEvent.ctrlKey) {
+        event.preventDefault();
+        console.log(event.originalEvent);
+        replaceSnippetsTags();
+      }
+    });
     var $menuQ = $('li#button_snip');
     var newMenu = false;
     if ($menuQ.length === 0) {
@@ -1356,10 +1379,12 @@ function displaySnippets() {
     });
     var counter;
     var keys = sortedSnippetKeys();
+    var scount = 0;
     for (const key of keys) {
       var snippet = snippets[key];
       if (snippet.body !== "") {
-        $menuQ_ul.append("<li><a href='javascript:void(0);' class='snippet_link_outer' id='snip-" + snippet.id + "'><span class='snippet_link'>" + snippet.name + "</span></a></li>");
+        $menuQ_ul.append("<li><a href='javascript:void(0);' class='snippet_link_outer' id='snip-" + snippet.id + "'><span class='snippet_link'>" + scount + ": " + snippet.name + "</span></a></li>");
+        scount++;
         $menuQ_ul.find('#snip-' + snippet.id).click(function (e) {
           pasteSnippet($(this));
           stopDefaultAction(e);
@@ -1685,7 +1710,7 @@ function hasQuickTopic(intTopicID) {
 }
 
 function addQuickTopic(strName, intID) {
-  log("functiontrace", "Start Function");  
+  log("functiontrace", "Start Function");
   quickTopics.push({"name": strName, "url": urlTopicBase + intID, "id": intID});
 }
 
@@ -3181,7 +3206,7 @@ function StyleSpeechElement($el) {
   for (var i = 0; i < html.length; i++) {
     switch (html.charAt(i)) {
       case "“":
-      case "”": 
+      case "”":
       case '"':
       case '"':
       case '"':
@@ -3481,7 +3506,7 @@ function scrollEvents(scroll) {
       let stopAt = iPage + config.repage.maxpage;
       let strURL;
       if (nextURL === "") {
-        strURL = getNextURL($("body"),iPage);            
+        strURL = getNextURL($("body"),iPage);
       } else if (nextURL === "-end-") {
         console.log("infiPage: end!");
       } else {
@@ -3493,9 +3518,9 @@ function scrollEvents(scroll) {
       }
       if ($pageBody0.length <= 0) {
         console.log("infiPage: No page body? That's odd... what are you doing?");
-        return;        
+        return;
       }
-      repage_getPage($pageBody0,strURL, iPage+1);      
+      repage_getPage($pageBody0,strURL, iPage+1);
     }
   }
 }
