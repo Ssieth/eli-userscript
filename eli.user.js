@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.44.0
+// @version     1.44.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -714,6 +714,12 @@ function frmFTBody(strID, strText, strType) {
   }
   strBody += "/><label for='filterTypeGender'>: Gender</label>";
   strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeCanon' value='mark-canon' ";
+  if (strType == "mark-canon") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeCanon'>: Canon</label>";
+  strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
   if (strType == "question") {
     strBody += "checked='checked' ";
@@ -852,7 +858,7 @@ function addFilterTopicButton() {
 }
 
 function filterTopicsSetIcon($row,iconName) {
-	var srcImg = urlImg + iconName + ".png";
+	var srcImg = urlImg + iconName;
 	$row.find("td:eq(0) img").attr({
 		src: srcImg,
 		width: "20px"
@@ -882,17 +888,21 @@ function filterTopics() {
           case "mark":
             $row.find("td").addClass("FTMark");
             break;
-		  case "mark-genre":
+          case "mark-genre":
             $row.find("td").addClass("FTMark");
-			filterTopicsSetIcon($row,"drama");
+            filterTopicsSetIcon($row,"drama.png");
             break;
-		  case "mark-gender":
+          case "mark-gender":
             $row.find("td").addClass("FTMark");
-			filterTopicsSetIcon($row,"manwoman");
+            filterTopicsSetIcon($row,"manwoman.png");
             break;
-		  case "question":
+          case "mark-canon":
+            $row.find("td").addClass("FTMark");
+            filterTopicsSetIcon($row,"canon.webp");
+            break;
+          case "question":
             $row.find("td").addClass("FTQ");
-			filterTopicsSetIcon($row,"question");
+            filterTopicsSetIcon($row,"question.png");
             break;
           case "hi":
             $row.find("td").addClass("FTHi");

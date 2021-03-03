@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.44.1 Added canon to filter topics selection.
+
 1.44.0 Added snippet replacement so that [0], [1] etc can be replaced by snippets in the editor
 
 1.43.5 Slight tweak to topic filters to make the labels for the radio buttons actual labels.
