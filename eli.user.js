@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.44.1
+// @version     1.44.2
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -364,6 +364,7 @@ function initConfig(andThen) {
   initConfigItem("replies","gotoNew", oldConf(objOldConf,"blRepliesNew",false), {text: "Replies links go to first new post?", type: "bool" });
   // Topic Filters
   initConfigItem("topicFilters","on", oldConf(objOldConf,"TopicFilters",false), {text: "Topic Filters On?", type: "bool" });
+  initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
   initConfigItem("topicFilters","CSS_Hi", oldConf(objOldConf,"strCSSFT_Hi","background-color: yellow;"), {text: "Hilight Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Mark", oldConf(objOldConf,"strCSSFT_Mark","background-color: lightgray; text-decoration: line-through;"), {text: "Mark Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Question", oldConf(objOldConf,"strCSSFT_Question","background-color: cornsilk;") , {text: "Question Styling (CSS)", type: "text" });
@@ -677,6 +678,10 @@ function frmFTBody(strID, strText, strType) {
   log("functiontrace", "Start Function");
   var strBody = "";
   var key;
+  var objFT = objFilterTopics[strID];
+  if (objFT) {
+    strType = objFT.filterType;
+  }
   strBody = "<p><strong>Add Topic Filter</strong></p>";
   strBody += "<table>";
   strBody += "<tr>";
@@ -701,30 +706,32 @@ function frmFTBody(strID, strText, strType) {
     strBody += "checked='checked' ";
   }
   strBody += "/><label for='filterTypeMark'>: General Mark</label>";
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeGenre' value='mark-genre' ";
-  if (strType == "mark-genre") {
-    strBody += "checked='checked' ";
+  if (config.topicFilters.requestMarks) {
+    strBody += "<br />";
+    strBody += "<input type='radio' name='filterType' id='filterTypeGenre' value='mark-genre' ";
+    if (strType == "mark-genre") {
+      strBody += "checked='checked' ";
+    }
+    strBody += "/><label for='filterTypeGenre'>: Genre</label>";
+    strBody += "<br />";
+    strBody += "<input type='radio' name='filterType' id='filterTypeGender' value='mark-gender' ";
+    if (strType == "mark-gender") {
+      strBody += "checked='checked' ";
+    }
+    strBody += "/><label for='filterTypeGender'>: Gender</label>";
+    strBody += "<br />";
+    strBody += "<input type='radio' name='filterType' id='filterTypeCanon' value='mark-canon' ";
+    if (strType == "mark-canon") {
+      strBody += "checked='checked' ";
+    }
+    strBody += "/><label for='filterTypeCanon'>: Canon</label>";
+    strBody += "<br />";
+    strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
+    if (strType == "question") {
+      strBody += "checked='checked' ";
+    }
+    strBody += "/><label for='filterTypeQuestion'>: Question</label>";  
   }
-  strBody += "/><label for='filterTypeGenre'>: Genre</label>";
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeGender' value='mark-gender' ";
-  if (strType == "mark-gender") {
-    strBody += "checked='checked' ";
-  }
-  strBody += "/><label for='filterTypeGender'>: Gender</label>";
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeCanon' value='mark-canon' ";
-  if (strType == "mark-canon") {
-    strBody += "checked='checked' ";
-  }
-  strBody += "/><label for='filterTypeCanon'>: Canon</label>";
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
-  if (strType == "question") {
-    strBody += "checked='checked' ";
-  }
-  strBody += "/><label for='filterTypeQuestion'>: Question</label>";
   strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeHilight' value='hi' ";
   if (strType == "hi") {
