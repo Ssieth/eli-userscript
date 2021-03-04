@@ -68,7 +68,7 @@ var blTickStarted = false;
 var nameNotes = {};
 var strPIN = rInt(1000, 9999);
 var objSBSubst = {};
-var urlScriptThread = 'https://elliquiy.com/forums/index.php?topic=230790.0';
+var urlScriptThread = 'https://elliquiy.com/forums/index.php?topic=230790.new#new';
 var lastVer = '';
 var oSessionAuth = {};
 var userLists = {};

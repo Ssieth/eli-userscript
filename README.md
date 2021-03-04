@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.44.3 New script notifications should go to new posts
+
 1.44.2 Fixed code that identifies the type of topic filter when editing one.
 
 1.44.1 Added canon to filter topics selection.
