@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.44.4
+// @version     1.45.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -554,6 +554,7 @@ function displaySettings() {
     }
 
     $menuQ.find("ul").append("<li><a href='#' id='snippets_link_settings'><span class='setting_export_link'>Snippets</span></a></li>");
+    $menuQ.find("ul").append("<li><a href='https://elliquiy.com/forums/index.php?action=help#sortsnippets' id='snippets_link_settings_sort'><span class='setting_export_link'>Sort Snippets</span></a></li>");
     $menuQ.find("a#snippets_link_settings").click(function (e) {
       e.preventDefault();
       frmSnippet();
@@ -1183,6 +1184,72 @@ function displayUserLists() {
 /* =========================== */
 /* Snippets                    */
 /* =========================== */
+function sortSnippets_enableCustom() {
+  switch (config.snippets.sortType) {
+    case "alpha":
+      $("#sortable").hide();
+      break;
+    default:
+      $("#sortable").show();
+  }
+}
+
+function sortSnippets() {
+  if (!config.snippets) {
+    config.snippets = {}
+  }
+  if (!config.snippets.sortType) {
+    config.snippets.sortType = "alpha";
+    saveConfig();
+  }
+  var $page = $("div#helpmain");
+  $page.css("max-width","initial");
+  $("h3.catbg").html("<h2>Sort Snippets</h2>");
+  document.title = "Sort Snippets";
+  var $help = $("<p>Just grab the snippet and drag it where you want it in the ordering.</p>");
+  var $sortOptions = $("<p></p>");
+  var $snippetList = $("<ul id='sortable'></ul>");
+  $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeAlpha' value='alpha' " + ((config.snippets.sortType == "alpha") ? " checked='checked'" : "") + "/>: <label for='sortTypeAlpha'>Alphabetical</label><br />");
+  $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeCustom' value='custom' " + ((config.snippets.sortType == "custom") ? " checked='checked'" : "") + "/>: <label for='sortTypeCustom'>Custom</label><br />");
+  GM_addStyle("#sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; list-style-type:none; }");
+  GM_addStyle("#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; cursor: pointer; border: thin solid black;}");
+  GM_addStyle("#sortable li span { position: absolute; margin-left: -1.3em; }");
+  var aryKeys = sortedSnippetKeys();
+  console.log(aryKeys);
+  console.log(snippets);
+  for (var i = 0; i < aryKeys.length; i++) {
+    var key = aryKeys[i];
+    console.log("KEY: " + key);
+    var snippet = snippets[key];
+    if (snippet.body.trim() === "") {
+      delete snippets[key];
+    }
+    $snippetList.append($("<li id='" + key + "'>" +  snippets[key].name + "</li>"));    
+  }
+  $page.html("");
+  $page.append($help);
+  $page.append($sortOptions);
+  $page.append($snippetList);
+  sortSnippets_enableCustom();
+  $(".sortType").change(function() {
+    config.snippets.sortType = $('.sortType:checked').val();
+    saveConfig();
+    sortSnippets_enableCustom();
+  });
+  $( "#sortable" ).sortable({
+    cursor: "move",
+    deactivate: function( event, ui ) {
+      var arySorted = $( "#sortable" ).sortable( "toArray" );
+      for (var i = 0; i < arySorted.length; i++) {
+        snippets[arySorted[i]].ordinal = i;
+      }
+      console.log(snippets);
+      saveSnippets();
+    }
+  });
+  $( "#sortable" ).disableSelection();
+}
+
 function cleanSnippets() {
   log("functiontrace", "Start Function");
   var key;
@@ -1196,7 +1263,27 @@ function cleanSnippets() {
 
 function sortedSnippetKeys() {
   log("functiontrace", "Start Function");
-  return Object.keys(snippets).sort();
+  var sortType = "alpha";
+  if (config.snippets && config.snippets.sortType) {
+    sortType = config.snippets.sortType;
+  }
+  console.log("SortType:" + sortType);
+  switch (sortType) {
+    case "alpha":
+      return Object.keys(snippets).sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase());  });
+    case "custom":
+      return Object.keys(snippets).sort(function compare(aKey, bKey) {
+        var a = snippets[aKey];
+        var b = snippets[bKey];
+        if (a.ordinal < b.ordinal) {
+          return -1;
+        }
+        if (a.ordinal > b.ordinal) {
+          return 1;
+        }
+        return 0;
+      });
+  }
 }
 
 function setSnippet() {
@@ -1209,6 +1296,7 @@ function setSnippet() {
   snippet.id = strID.replaceAll(":","");
   snippet.body = strBody;
   snippet.name = strName.replaceAll(":","");
+  snippet.ordinal = Object.keys(snippets).length;
   snippets[strID] = snippet;
 
   displaySnippets();
@@ -1388,6 +1476,8 @@ function displaySnippets() {
     if ($menuQ.length === 0) {
       newMenu = true;
       $menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets</span></a></li>");
+      $menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets Sorting</span></a></li>");
+      //
     }
     var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
     $menuQ.find('a.firstlevel').click(function (e) {
@@ -2810,11 +2900,23 @@ function getPageDetails() {
     page.type = "profile";
   }
   else if (page.url.full.toLowerCase().indexOf("action=help") > 0) {
+    switch (page.url.hash.toLowerCase()) {
+      case  "#scriptsettings":
+        page.type = "scriptsettings";
+        break;
+      case "#sortsnippets":
+        page.type = "sortsnippets";
+        break;
+      default:
+        page.type = "help";
+    }
+/*
     if (page.url.hash.toLowerCase() == "#scriptsettings") {
       page.type = "scriptsettings";
     } else {
       page.type = "help";
     }
+*/
   }
   else if (page.url.full.toLowerCase().indexOf("?topic=") > 0) {
     page.type = "topic";
@@ -3691,6 +3793,9 @@ function main() {
     if (page.type == "scriptsettings") {
       console.log("Editing config");
       editConfig();
+    } else if (page.type == "sortsnippets") {
+      console.log("Sorting snippets");
+      sortSnippets();
     }
 
     repaginate();
