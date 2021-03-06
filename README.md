@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.45.1 Fixed snippets label on editor
+
 1.45.0 Custom sorting now available for snippets
 
 1.44.4 Corrected text for setting Repagination / Max Pages

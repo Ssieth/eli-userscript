@@ -1476,7 +1476,7 @@ function displaySnippets() {
     if ($menuQ.length === 0) {
       newMenu = true;
       $menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets</span></a></li>");
-      $menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets Sorting</span></a></li>");
+      //$menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets Sorting</span></a></li>");
       //
     }
     var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
