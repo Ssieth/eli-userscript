@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.45.2
+// @version     1.45.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1297,6 +1297,8 @@ function setSnippet() {
   var strID = strName.replace(/ /g, "-");
   var snippet = {};
 
+  strID = strID.replaceAll("\'","");
+  strID = strID.replaceAll('\"',"");
   snippet.id = strID.replaceAll(":","");
   snippet.body = strBody;
   snippet.name = strName.replaceAll(":","");
@@ -1395,11 +1397,26 @@ function frmSnippet() {
   frmSnippetButtons();
 }
 
+function cleanSnippetKeys() {
+  var tmp = {};
+  for (var key in snippets) {
+    var snip = snippets[key];
+    var newKey = key;
+    newKey = newKey.replaceAll("\'","");
+    newKey = newKey.replaceAll("\&","");
+    newKey = newKey.replaceAll('\"',"");
+    snip.id = newKey;
+    tmp[newKey] = snip;
+  }
+  snippets = tmp;
+}
+
 function loadSnippets() {
   log("functiontrace", "Start Function");
   var strSnippets = GM_getValue("snippets", "");
   if (strSnippets !== "") {
     snippets = JSON.parse(strSnippets);
+    cleanSnippetKeys();
   }
 }
 
@@ -1409,6 +1426,7 @@ function rawSnippets() {
 
 function saveSnippets() {
   log("functiontrace", "Start Function");
+  cleanSnippetKeys();
   GM_setValue("snippets", JSON.stringify(snippets));
 }
 
