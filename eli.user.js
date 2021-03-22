@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.45.3
+// @version     1.46.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -358,6 +358,8 @@ function initConfig(andThen) {
   initConfigItem("general","wordCount", oldConf(objOldConf,"WordCount",true), {text: "Show wordcounts?", type: "bool" });
   initConfigItem("general","debugInfo", oldConf(objOldConf,"DebugInfo",false), {text: "Debug information?", type: "bool" });
   initConfigItem("general","ajaxButtons", oldConf(objOldConf,"blAjaxButtons",true), {text: "Make buttons AJAX?", type: "bool" });
+  initConfigItem("general","freezeGifs", false, {text: "Freeze GIFs ?", type: "bool" });
+  initConfigItem("general","freezeGifsDelay", 15, {text: "Play auto-frozen GIFs for (secs):", type: "int", min: 0, max: 9999 });
   // Replies
   initConfigItem("replies","showCount", oldConf(objOldConf,"UnreadReplies",false), {text: "Show unread replies count?", type: "bool" });
   initConfigItem("replies","showMenu", oldConf(objOldConf,"RepliesMenu",true), {text: "Show unread replies menu?", type: "bool" });
@@ -544,7 +546,7 @@ function displaySettings() {
   $menuQ.append($menuSet);
   if (GM_info.script === undefined) {}
   else {
-    $menuQ.append("<ul><li><a href='" + settingsURL + "' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
+    $menuQ.append("<ul style='background-color: white'><li><a href='" + settingsURL + "' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
     if (config.topicFilters.on) {
       $menuQ.find("ul").append("<li><a href='#' id='TF_link'><span class='TF_link'>Topic Filters</span></a></li>");
       $menuQ.find("a#TF_link").click(function (e) {
@@ -588,6 +590,12 @@ function displaySettings() {
     $menuQ.find("a#setting_import_link").click(function (e) {
       e.preventDefault();
       frmImport();
+    });
+
+   $menuQ.find("ul").append("<li><a href='#' id='setting_freeze_gif'><span class='setting_freeze_gif'>Freeze GIFs</span></a></li>");
+    $menuQ.find("a#setting_freeze_gif").click(function (e) {
+      e.preventDefault();
+      window.stop();
     });
   }
   $menunav.append($menuQ);
@@ -731,7 +739,7 @@ function frmFTBody(strID, strText, strType) {
     if (strType == "question") {
       strBody += "checked='checked' ";
     }
-    strBody += "/><label for='filterTypeQuestion'>: Question</label>";  
+    strBody += "/><label for='filterTypeQuestion'>: Question</label>";
   }
   strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeHilight' value='hi' ";
@@ -1224,7 +1232,7 @@ function sortSnippets() {
     if (snippet.body.trim() === "") {
       delete snippets[key];
     }
-    $snippetList.append($("<li id='" + key + "'>" +  snippets[key].name + "</li>"));    
+    $snippetList.append($("<li id='" + key + "'>" +  snippets[key].name + "</li>"));
   }
   $page.html("");
   $page.append($help);
@@ -3836,6 +3844,13 @@ function main() {
         ticking = true;
       }
     });
+
+    // GIF Freezing
+    if (config.general.freezeGifs) {
+        setTimeout(function() {
+            window.stop();
+        },config.general.freezeGifsDelay * 1000);
+    }
 
     log("startup", "Completed load " + GM_info.script.name + " v" + GM_info.script.version);
   });
