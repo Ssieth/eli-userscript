@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.46.2 Fixed an error where blank bookmark tags cause visual weirdness in BMs menu
+
 1.46.1 Fixed GIF-freezing by using HTML5 canvas
 
 1.46.0 Added GIF-freezing options
