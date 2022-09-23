@@ -3273,30 +3273,35 @@ function annotateNames() {
       var $basicInfo = $("div#basicinfo");
       var $detailedInfo = $("div#detailedinfo");
       var strUserBlock = $basicInfo.find("div.username h4").html();
-      var userBlockEnd = strUserBlock.indexOf(" <");
-      var strUserID = "";
-      if (userBlockEnd == -1) {
-        strUserID = $basicInfo.find("div.username h4").text().trim();
-      } else {
-        strUserID = $basicInfo.find("div.username h4").html().substr(0,userBlockEnd);
+      var $basicInfo = $("div#basicinfo");
+      var $detailedInfo = $("div#detailedinfo");
+      var strUserBlock = $basicInfo.find("div.username h4").html();
+      if (strUserBlock) {
+        var userBlockEnd = strUserBlock.indexOf(" <");
+        var strUserID = "";
+        if (userBlockEnd == -1) {
+          strUserID = $basicInfo.find("div.username h4").text().trim();
+        } else {
+          strUserID = $basicInfo.find("div.username h4").html().substr(0,userBlockEnd);
+        }
+        var $nameNotes = $("<div class='nameNotes'></div>");
+        var strNote = "";
+        if (nameNotes[strUserID] !== undefined) {
+          strNote = nameNotes[strUserID].note;
+        }
+        $nameNotes.append("<p style='font-weight: bold;'>Notes for this user:</p>");
+        $nameNotes.append("<textarea id='nameNotesText' cols='60' rows='5'>" + strNote + "</textArea>");
+        $nameNotes.append("<br />");
+        $nameNotes.append("<button type='button' value='Update Notes' id='btnNameNotes'>Update Notes</button>");
+        $nameNotes.append("<p id='nameNotesMsg' style='display: none;'></p>");
+        $("div#detailedinfo dl:last").after($nameNotes);
+        $('button#btnNameNotes').click(function (e) {
+          e.preventDefault();
+          addNameNote(strUserID, $('textarea#nameNotesText').val());
+          $('p#nameNotesMsg').text("Notes saved at " + (new Date()).toLocaleString()).show();
+          saveNameNotes();
+        });
       }
-      var $nameNotes = $("<div class='nameNotes'></div>");
-      var strNote = "";
-      if (nameNotes[strUserID] !== undefined) {
-        strNote = nameNotes[strUserID].note;
-      }
-      $nameNotes.append("<p style='font-weight: bold;'>Notes for this user:</p>");
-      $nameNotes.append("<textarea id='nameNotesText' cols='60' rows='5'>" + strNote + "</textArea>");
-      $nameNotes.append("<br />");
-      $nameNotes.append("<button type='button' value='Update Notes' id='btnNameNotes'>Update Notes</button>");
-      $nameNotes.append("<p id='nameNotesMsg' style='display: none;'></p>");
-      $("div#detailedinfo dl:last").after($nameNotes);
-      $('button#btnNameNotes').click(function (e) {
-        e.preventDefault();
-        addNameNote(strUserID, $('textarea#nameNotesText').val());
-        $('p#nameNotesMsg').text("Notes saved at " + (new Date()).toLocaleString()).show();
-        saveNameNotes();
-      });
       break;
     default:
       break;
