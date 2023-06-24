@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.47.0
+// @version     1.47.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2675,10 +2675,11 @@ function getBMsFromTable(bmType) {
   return $tNew;
 }
 
-function showBMTable($t,title) {
+function showBMTable($t,title,id) {
   if ($t.find("tr").length > 1) {
-    $("div.main_content form").prepend($t);
-    $("div.main_content form").prepend("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
+    $t.attr("id","tblBM" + id.toLowerCase() );
+    $("table:last").after("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
+    $("div.cat_bar:last").after($t);
   }
 }
 
@@ -2695,17 +2696,23 @@ function reformatBMsCollapse() {
 
   $("div.main_content form").prepend("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>All Bookmarks</h3></div>")
   $("table:first").addClass("bmHideable");
+  $("table:first").attr("id","tblBM")
   $("h3:first").parent().remove();
 
-  showBMTable($tRep,"Replies");
-  showBMTable($tOwe,"Post Owed");
-  showBMTable($tNoTags,"No Tags");
-  showBMTable($tRep,"Replies");
+  showBMTable($tRep,"Replies","replies");
+  showBMTable($tOwe,"Post Owed","owe");
+  showBMTable($tNoTags,"No Tags","no-tags");
   for (counter = 0; counter < aryBMTags.length; counter++) {
     let strTag = aryBMTags[counter];
-    showBMTable($tTags[strTag],strTag);
+    showBMTable($tTags[strTag],strTag,strTag);
   }
   $(".bmHideable").hide();
+  setTimeout(function() {
+    console.log("Showing: #tblBM" + page.url.tag);
+    console.log($("#tblBM" + page.url.tag));
+    $("#tblBM" + page.url.tag).show();
+  },1000);
+
   $(".bmCatName").click(function() {
     $(".bmHideable").hide();
     $(this).next().show();
