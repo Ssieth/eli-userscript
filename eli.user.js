@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.46.6
+// @version     1.47.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -18,7 +18,6 @@
 // @license     MIT
 // @copyright   2018, Ssieth (https://openuserjs.org//users/Ssieth)
 // ==/UserScript==
-//
 
 /*jshint esversion: 6 */
 /* jshint -W083 */
@@ -409,6 +408,7 @@ function initConfig(andThen) {
   initConfigItem("drafts","historyCount", oldConf(objOldConf,"DraftHistory",3), {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
   // Bookmarks
   initConfigItem("bookmarks","tags", oldConf(objOldConf,"BMTags",true), {text: "Bookmark Tags?", type: "bool" });
+  initConfigItem("bookmarks","collapse", oldConf(objOldConf,"BMTagsCollapse",true), {text: "Collapsable View?", type: "bool" });
   initConfigItem("bookmarks","allLink", oldConf(objOldConf,"BMAllLinks",true), {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
   initConfigItem("bookmarks","owedTag", oldConf(objOldConf,"BMTagsOwed",true), {text: "Posts Owed Auto-Tag??", type: "bool" });
   initConfigItem("bookmarks","tagOnBM", oldConf(objOldConf,"TagOnBM",true), {text: "Add tags when bookmarking?", type: "bool" });
@@ -2607,7 +2607,126 @@ function addTBody(strTableSel, ignoreFirstRow) {
   var trs = $table[0].getElementsByTagName("tr");
 }
 
+function getBMsFromTable(bmType) {
+  log("getBMsFromTable", "Start Function");
+  var intRow = 0;
+
+  console.log("===== getBMsFromTable:" + bmType + "=====")
+  var $tNew = $("table").clone();
+
+  switch (bmType) {
+    case "replies":
+      $tNew.find("tr").each(function () {
+        intRow++;
+        if (intRow > 1) {
+          var strTopicURL = $(this).find("td:eq(1) a:eq(0)").attr("href");
+          var strTopicID = strTopicURL.match(/\d+/)[0];
+          if (objReplies[strTopicID] === undefined || hasTag(strTopicID, "notreplied")) {
+            $(this).remove();
+          }
+        }
+      });
+      break;
+      //          blBMTagsReplies
+    case "owe":
+      $tNew.find("tr").each(function () {
+        intRow++;
+        if (intRow > 1) {
+          var strTopicURL = $(this).find("td:eq(1) a:eq(0)").attr("href");
+          var strTopicID = strTopicURL.match(/\d+/)[0];
+          var strLastUser = $(this).find("td:eq(5) a:eq(1)").html();
+          if (strLastUser == user.name || hasTag(strTopicID, "notowed")) {
+            $(this).remove();
+          }
+        }
+      });
+      break;
+    case "no-tags":
+      $tNew.find("tr").each(function () {
+        intRow++;
+        if (intRow > 1) {
+          var strTopicURL = $(this).find("td:eq(1) a:eq(0)").attr("href");
+          var strTopicID = strTopicURL.match(/\d+/)[0];
+          var aryTags = BMTags[strTopicID];
+          if (aryTags !== undefined) {
+            if (aryTags.length > 0) {
+              $(this).remove();
+            }
+          }
+        }
+      });
+      break;
+    default:
+      $tNew.find("tr").each(function () {
+        intRow++;
+        if (intRow > 1) {
+          var strTopicURL = $(this).find("td:eq(1) a:eq(0)").attr("href");
+          var strTopicID = strTopicURL.match(/\d+/)[0];
+
+          if (!hasTag(strTopicID, bmType)) {
+            $(this).remove();
+          }
+        }
+      });
+      break;
+  }
+  console.log("/===== getBMsFromTable 2 =====")
+  $tNew.addClass("bmHideable");
+  return $tNew;
+}
+
+function showBMTable($t,title) {
+  if ($t.find("tr").length > 1) {
+    $("div.main_content form").prepend($t);
+    $("div.main_content form").prepend("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
+  }
+}
+
+function reformatBMsCollapse() {
+  let $tRep = getBMsFromTable("replies");
+  let $tOwe = getBMsFromTable("owe");
+  let $tNoTags = getBMsFromTable("no-tags");
+  let $tTags = {};
+  for (counter = 0; counter < aryBMTags.length; counter++) {
+    let strTag = aryBMTags[counter];
+    console.log("=> Tag: " + strTag);
+    $tTags[strTag] = getBMsFromTable(strTag);
+  }
+
+  $("div.main_content form").prepend("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>All Bookmarks</h3></div>")
+  $("table:first").addClass("bmHideable");
+  $("h3:first").parent().remove();
+
+  showBMTable($tRep,"Replies");
+  showBMTable($tOwe,"Post Owed");
+  showBMTable($tNoTags,"No Tags");
+  showBMTable($tRep,"Replies");
+  for (counter = 0; counter < aryBMTags.length; counter++) {
+    let strTag = aryBMTags[counter];
+    showBMTable($tTags[strTag],strTag);
+  }
+  $(".bmHideable").hide();
+  $(".bmCatName").click(function() {
+    $(".bmHideable").hide();
+    $(this).next().show();
+    console.log($(this).next());
+  });
+
+  $("form table tr").each(function () {
+      $(this).find("td:eq(0) img").click(function (e) {
+        var strTopicURL = $(this).parent().parent().find("td:eq(1) a:eq(0)").attr("href");
+        var strTopicID = strTopicURL.match(/\d+/)[0];
+        frmBMs(strTopicID, "");
+      }).addClass('pointer');
+  });
+}
+
 function reformatBMs() {
+  if (config.bookmarks.collapse) {
+    reformatBMsCollapse();
+    return;
+  }
+
   log("functiontrace", "Start Function");
   var intRow = 0;
 
