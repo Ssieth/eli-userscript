@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.46.3
+// @version     1.46.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -108,7 +108,7 @@ var strCSSTblSorter = [
 var strCSSMenus = ".dropbox li lu { background-color: white; }";
 var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
-var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}";
+var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;}";
 
 var sort_by = function (field, reverse, primer) {
 
@@ -368,9 +368,10 @@ function initConfig(andThen) {
   initConfigItem("topicFilters","on", oldConf(objOldConf,"TopicFilters",false), {text: "Topic Filters On?", type: "bool" });
   initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
   initConfigItem("topicFilters","CSS_Hi", oldConf(objOldConf,"strCSSFT_Hi","background-color: yellow;"), {text: "Hilight Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_HiSoft", oldConf(objOldConf,"strCSSFT_HiSoft","background-color: #BBE4BB;"), {text: "Soft Hilight Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Mark", oldConf(objOldConf,"strCSSFT_Mark","background-color: lightgray; text-decoration: line-through;"), {text: "Mark Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Question", oldConf(objOldConf,"strCSSFT_Question","background-color: cornsilk;") , {text: "Question Styling (CSS)", type: "text" });
-  strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTQ { " + config.topicFilters.CSS_Question + "}";
+  strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
   // Speech Styling
   initConfigItem("speechStyling","on", oldConf(objOldConf,"blStyleSpeech",true) , {text: "Style Speech?", type: "bool" });
   initConfigItem("speechStyling","incQuote", oldConf(objOldConf,"blStyleSpeechIncQuote",true) , {text: "Include quotes?", type: "bool" });
@@ -774,6 +775,12 @@ function frmFTBody(strID, strText, strType) {
     strBody += "checked='checked' ";
   }
   strBody += "/><label for='filterTypeHilight'>: Hilight</label>";
+  strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeHilightSoft' value='hisoft' ";
+  if (strType == "hisoft") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeHilight'>: Soft Hilight</label>";
   strBody += "</td>";
   strBody += "</tr>";
   strBody += "<tr>";
@@ -949,6 +956,9 @@ function filterTopics() {
             break;
           case "hi":
             $row.find("td").addClass("FTHi");
+            break;
+          case "hisoft":
+            $row.find("td").addClass("FTHiSoft");
             break;
           case "hide":
             $row.hide();
