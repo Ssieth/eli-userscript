@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.47.2
+// @version     1.47.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -315,22 +315,7 @@ function saveConfig(andThen) {
   if (andThen) andThen();
 }
 
-function oldConf(objConf,varName, defaultVal) {
-  if (objConf.hasOwnProperty(varName)) {
-    return objConf[varName];
-  } else {
-    return defaultVal;
-  }
-}
-
 function initConfig(andThen) {
-  var strOldConf = GM_getValue("e_config","");
-  var objOldConf = {};
-  if (strOldConf !== "" ) {
-    objOldConf = JSON.parse(strOldConf);
-  }
-  console.log("Old Conf");
-  console.log(objOldConf);
   var aryColourConfig = arySBColours;
 
   config = {};
@@ -352,76 +337,78 @@ function initConfig(andThen) {
   initConfigCategory("admin","Admin",true);
   //initConfigCategory("importExport","Import / Export");
   // General Settings
-  initConfigItem("general","removePics", oldConf(objOldConf,"RemovePictures",false), {text: "Remove pictures?", type: "bool" });
-  initConfigItem("general","snippets", oldConf(objOldConf,"Snippets", false), {text: "Snippets?", type: "bool" });
-  initConfigItem("general","userLists", oldConf(objOldConf,"blUserLists",false), {text: "User lists?", type: "bool" });
-  initConfigItem("general","wordCount", oldConf(objOldConf,"WordCount",true), {text: "Show wordcounts?", type: "bool" });
-  initConfigItem("general","debugInfo", oldConf(objOldConf,"DebugInfo",false), {text: "Debug information?", type: "bool" });
-  initConfigItem("general","ajaxButtons", oldConf(objOldConf,"blAjaxButtons",true), {text: "Make buttons AJAX?", type: "bool" });
+  initConfigItem("general","removePics", false, {text: "Remove pictures?", type: "bool" });
+  initConfigItem("general","snippets", false, {text: "Snippets?", type: "bool" });
+  initConfigItem("general","userLists", false, {text: "User lists?", type: "bool" });
+  initConfigItem("general","wordCount", true, {text: "Show wordcounts?", type: "bool" });
+  initConfigItem("general","debugInfo", false, {text: "Debug information?", type: "bool" });
+  initConfigItem("general","ajaxButtons", true, {text: "Make buttons AJAX?", type: "bool" });
   initConfigItem("general","freezeGifs", false, {text: "Freeze GIFs ?", type: "bool" });
   initConfigItem("general","freezeGifsDelay", 15, {text: "Play auto-frozen GIFs for (secs):", type: "int", min: 0, max: 9999 });
   // Replies
-  initConfigItem("replies","showCount", oldConf(objOldConf,"UnreadReplies",false), {text: "Show unread replies count?", type: "bool" });
-  initConfigItem("replies","showMenu", oldConf(objOldConf,"RepliesMenu",true), {text: "Show unread replies menu?", type: "bool" });
-  initConfigItem("replies","gotoNew", oldConf(objOldConf,"blRepliesNew",false), {text: "Replies links go to first new post?", type: "bool" });
+  initConfigItem("replies","showCount", false, {text: "Show unread replies count?", type: "bool" });
+  initConfigItem("replies","showMenu", false, {text: "Show unread replies menu?", type: "bool" });
+  initConfigItem("replies","gotoNew", false, {text: "Replies links go to first new post?", type: "bool" });
   // Topic Filters
-  initConfigItem("topicFilters","on", oldConf(objOldConf,"TopicFilters",false), {text: "Topic Filters On?", type: "bool" });
+  initConfigItem("topicFilters","on", false, {text: "Topic Filters On?", type: "bool" });
   initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
-  initConfigItem("topicFilters","CSS_Hi", oldConf(objOldConf,"strCSSFT_Hi","background-color: yellow;"), {text: "Hilight Styling (CSS)", type: "text" });
-  initConfigItem("topicFilters","CSS_HiSoft", oldConf(objOldConf,"strCSSFT_HiSoft","background-color: #BBE4BB;"), {text: "Soft Hilight Styling (CSS)", type: "text" });
-  initConfigItem("topicFilters","CSS_Mark", oldConf(objOldConf,"strCSSFT_Mark","background-color: lightgray; text-decoration: line-through;"), {text: "Mark Styling (CSS)", type: "text" });
-  initConfigItem("topicFilters","CSS_Question", oldConf(objOldConf,"strCSSFT_Question","background-color: cornsilk;") , {text: "Question Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Hi", "background-color: yellow;", {text: "Hilight Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_HiSoft", "background-color: #BBE4BB;", {text: "Soft Hilight Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Mark", "background-color: lightgray; text-decoration: line-through;", {text: "Mark Styling (CSS)", type: "text" });
+  initConfigItem("topicFilters","CSS_Question", "background-color: cornsilk;" , {text: "Question Styling (CSS)", type: "text" });
   strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
   // Speech Styling
-  initConfigItem("speechStyling","on", oldConf(objOldConf,"blStyleSpeech",true) , {text: "Style Speech?", type: "bool" });
-  initConfigItem("speechStyling","incQuote", oldConf(objOldConf,"blStyleSpeechIncQuote",true) , {text: "Include quotes?", type: "bool" });
-  initConfigItem("speechStyling","CSS", oldConf(objOldConf,"strStyleSpeechCSS","color: blue;"), {text: "Speech Styling (CSS)", type: "text" });
+  initConfigItem("speechStyling","on", true, {text: "Style Speech?", type: "bool" });
+  initConfigItem("speechStyling","incQuote", true , {text: "Include quotes?", type: "bool" });
+  initConfigItem("speechStyling","CSS", "color: blue;", {text: "Speech Styling (CSS)", type: "text" });
   // User Notes
-  initConfigItem("userNotes","on", oldConf(objOldConf,"NameNotes", false), {text: "User Notes?", type: "bool" });
-  initConfigItem("userNotes","style", oldConf(objOldConf,"UserNoteOption", "Hover Over Name"), {text: "Note Style", type: "select", select: aryUserNoteOptions});
+  initConfigItem("userNotes","on", false, {text: "User Notes?", type: "bool" });
+  initConfigItem("userNotes","style", "Hover Over Name", {text: "Note Style", type: "select", select: aryUserNoteOptions});
   // Quick Topics
-  initConfigItem("quickTopics","on",  oldConf(objOldConf,"QuickTopics",false), {text: "Quick topics?", type: "bool" });
-  initConfigItem("quickTopics","goLast", oldConf(objOldConf,"QuickTopicsGoLast",false), {text: "Quick topics goes to last post?", type: "bool" });
-  initConfigItem("quickTopics","markNew", oldConf(objOldConf,"MarkQTNew",true), {text: "Mark replies to quick topics?", type: "bool" });
+  initConfigItem("quickTopics","on",  false, {text: "Quick topics?", type: "bool" });
+  initConfigItem("quickTopics","goLast", false, {text: "Quick topics goes to last post?", type: "bool" });
+  initConfigItem("quickTopics","markNew", true, {text: "Mark replies to quick topics?", type: "bool" });
   // Auto Updates
-  initConfigItem("autoUpdates","unreadMinutes", oldConf(objOldConf,"RepliesMins",5), {text: "Update replies every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
-  initConfigItem("autoUpdates","mailMinutes", oldConf(objOldConf,"MailMins",5), {text: "Update mail count every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
-  initConfigItem("autoUpdates","desktopNotifications", oldConf(objOldConf,"blNotifications",false), {text: "Desktop notifications?", type: "bool" });
+  initConfigItem("autoUpdates","unreadMinutes", 5, {text: "Update replies every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
+  initConfigItem("autoUpdates","mailMinutes", 5, {text: "Update mail count every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
+  initConfigItem("autoUpdates","desktopNotifications", false, {text: "Desktop notifications?", type: "bool" });
   // Removing Headers and Footers
-  initConfigItem("removeHeadFoot","shoutbox", oldConf(objOldConf,"RemoveShoutbox",false), {text: "Remove shoutbox?", type: "bool" });
-  initConfigItem("removeHeadFoot","styles", oldConf(objOldConf,"RemoveStyles",false), {text: "Remove styles?", type: "bool" });
-  initConfigItem("removeHeadFoot","topicIcons", oldConf(objOldConf,"RemoveTopicicons",false), {text: "Remove topic icons?", type: "bool" });
-  initConfigItem("removeHeadFoot","footer", oldConf(objOldConf,"RemoveFooter",false), {text: "Remove footer?", type: "bool" });
-  initConfigItem("removeHeadFoot","tidyMenus", oldConf(objOldConf,"TidyMenus", true), {text: "Tidy Menus?", type: "bool" });
+  initConfigItem("removeHeadFoot","shoutbox", false, {text: "Remove shoutbox?", type: "bool" });
+  initConfigItem("removeHeadFoot","styles", false, {text: "Remove styles?", type: "bool" });
+  initConfigItem("removeHeadFoot","topicIcons", false, {text: "Remove topic icons?", type: "bool" });
+  initConfigItem("removeHeadFoot","footer", false, {text: "Remove footer?", type: "bool" });
+  initConfigItem("removeHeadFoot","tidyMenus", true, {text: "Tidy Menus?", type: "bool" });
   // Shoutbox
-  initConfigItem("shoutbox","colourOn", oldConf(objOldConf,"blShoutboxColour",false), {text: "Colour Shoutbox Text?", type: "bool" });
-  initConfigItem("shoutbox","publicColour",oldConf(objOldConf,"strShoutboxColour","black"), {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
-  initConfigItem("shoutbox","approvedColour",oldConf(objOldConf,"strShoutboxColourApproved","black"), {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
+  initConfigItem("shoutbox","colourOn", false, {text: "Colour Shoutbox Text?", type: "bool" });
+  initConfigItem("shoutbox","publicColour","black", {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
+  initConfigItem("shoutbox","approvedColour","black", {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
   //initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
   //strShoutboxSubst = config.shoutbox.subst;
   // Drafts
-  initConfigItem("drafts","on", oldConf(objOldConf,"Drafts", true) , {text: "Drafts?", type: "bool" });
+  initConfigItem("drafts","on", true , {text: "Drafts?", type: "bool" });
   //initConfigItem("drafts","autoLoad", oldConf(objOldConf,"AutoLoadDraft",true), {text: "Auto-load draft?", type: "bool" });
   config.drafts.autoLoad = false; // too many issues with this atm...
-  initConfigItem("drafts","autoSave", oldConf(objOldConf,"AutoSave",0), {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
-  initConfigItem("drafts","autoClear", oldConf(objOldConf,"AutoClearDraft",true), {text: "Auto-clear draft when you post?", type: "bool" });
-  initConfigItem("drafts","historyCount", oldConf(objOldConf,"DraftHistory",3), {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
+  initConfigItem("drafts","autoSave", 0, {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
+  initConfigItem("drafts","autoClear", true, {text: "Auto-clear draft when you post?", type: "bool" });
+  initConfigItem("drafts","historyCount", 3, {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
   // Bookmarks
-  initConfigItem("bookmarks","tags", oldConf(objOldConf,"BMTags",true), {text: "Bookmark Tags?", type: "bool" });
-  initConfigItem("bookmarks","collapse", oldConf(objOldConf,"BMTagsCollapse",true), {text: "Collapsable View?", type: "bool" });
-  initConfigItem("bookmarks","allLink", oldConf(objOldConf,"BMAllLinks",true), {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
-  initConfigItem("bookmarks","owedTag", oldConf(objOldConf,"BMTagsOwed",true), {text: "Posts Owed Auto-Tag??", type: "bool" });
-  initConfigItem("bookmarks","tagOnBM", oldConf(objOldConf,"TagOnBM",true), {text: "Add tags when bookmarking?", type: "bool" });
-  initConfigItem("bookmarks","repliesTag", oldConf(objOldConf,"BMTagsReplies",true), {text: "Replies Auto-Tag?", type: "bool" });
-  initConfigItem("bookmarks","noTagsTag", oldConf(objOldConf,"BMTagsNoTags",true), {text: "No Tags Auto-Tag?", type: "bool" });
+  initConfigItem("bookmarks","tags", true, {text: "Bookmark Tags?", type: "bool" });
+  initConfigItem("bookmarks","collapse", true, {text: "Collapsable View?", type: "bool" });
+  initConfigItem("bookmarks","collapseOrder", "All,Tags,Autos", {text: "Order of collapsable BM categories?", type: "select", select: ["All,Tags,Autos","Tags,Autos,All"]});
+  initConfigItem("bookmarks","collapseOpen", true, {text: "Open selected collapsed category?", type: "bool" });
+  initConfigItem("bookmarks","allLink", true, {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
+  initConfigItem("bookmarks","owedTag", true, {text: "Posts Owed Auto-Tag??", type: "bool" });
+  initConfigItem("bookmarks","tagOnBM", true, {text: "Add tags when bookmarking?", type: "bool" });
+  initConfigItem("bookmarks","repliesTag", true, {text: "Replies Auto-Tag?", type: "bool" });
+  initConfigItem("bookmarks","noTagsTag", true, {text: "No Tags Auto-Tag?", type: "bool" });
   // Repagination
   initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
   initConfigItem("repage","maxpage", 10, {text: "Max pages (1-100)?", type: "int", min: 1, max: 100 });
   initConfigItem("repage","infinity", false, {text: "Infinity paging?", type: "bool" });
   // Admin
-  initConfigItem("admin","removeNewsbox", oldConf(objOldConf,"blRemoveSsiethExtras_banner",false), {text: "Remove Newsbox?", type: "bool" });
-  initConfigItem("admin","removeDonate", oldConf(objOldConf,"blRemoveSsiethExtras_donate",false), {text: "Remove Donate?", type: "bool" });
-  initConfigItem("admin","removeSsiethStuff", oldConf(objOldConf,"blRemoveSsiethExtras_sbbutton",false), {text: "Remove Ssieth Stuff?", type: "bool" });
+  initConfigItem("admin","removeNewsbox", false, {text: "Remove Newsbox?", type: "bool" });
+  initConfigItem("admin","removeDonate", false, {text: "Remove Donate?", type: "bool" });
+  initConfigItem("admin","removeSsiethStuff", false, {text: "Remove Ssieth Stuff?", type: "bool" });
 
   saveConfig();
   if (andThen) andThen();
@@ -2611,10 +2598,13 @@ function getBMsFromTable(bmType) {
   log("getBMsFromTable", "Start Function");
   var intRow = 0;
 
-  console.log("===== getBMsFromTable:" + bmType + "=====")
+  //console.log("===== getBMsFromTable:" + bmType + "=====")
   var $tNew = $("table").clone();
 
   switch (bmType) {
+    case "all":
+      // Don't do any trimming
+      break;
     case "replies":
       $tNew.find("tr").each(function () {
         intRow++;
@@ -2670,20 +2660,22 @@ function getBMsFromTable(bmType) {
       });
       break;
   }
-  console.log("/===== getBMsFromTable 2 =====")
+  //console.log("/===== getBMsFromTable 2 =====")
   $tNew.addClass("bmHideable");
   return $tNew;
 }
 
-function showBMTable($t,title,id) {
+function showBMTable($t,title,id, allFirst) {
   if ($t.find("tr").length > 1) {
     $t.attr("id","tblBM" + id.toLowerCase() );
-    $("table:last").after("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
-    $("div.cat_bar:last").after($t);
+    $("div.main_content form").append("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
+    $("div.main_content form").append($t);
   }
 }
 
 function reformatBMsCollapse() {
+  // Lood up all of the possible BM tables
+  let $tAll = getBMsFromTable("all");
   let $tRep = getBMsFromTable("replies");
   let $tOwe = getBMsFromTable("owe");
   let $tNoTags = getBMsFromTable("no-tags");
@@ -2694,24 +2686,45 @@ function reformatBMsCollapse() {
     $tTags[strTag] = getBMsFromTable(strTag);
   }
 
-  $("div.main_content form").prepend("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>All Bookmarks</h3></div>")
-  $("table:first").addClass("bmHideable");
-  $("table:first").attr("id","tblBM")
+  // Remove the old 'all table' and title
   $("h3:first").parent().remove();
+  $("table:first").remove();
 
-  showBMTable($tRep,"Replies","replies");
-  showBMTable($tOwe,"Post Owed","owe");
-  showBMTable($tNoTags,"No Tags","no-tags");
-  for (counter = 0; counter < aryBMTags.length; counter++) {
-    let strTag = aryBMTags[counter];
-    showBMTable($tTags[strTag],strTag,strTag);
+  let aryOrder = config.bookmarks.collapseOrder.split(",");
+  for (i = 0; i < aryOrder.length; i++) {
+    switch (aryOrder[i].toLowerCase()) {
+      case "all":
+        showBMTable($tAll,"All Bookmarks","");
+        break;
+      case "autos":
+        if (config.bookmarks.noTagsTag) {
+          showBMTable($tNoTags,"Auto: No Tags","no-tags");
+        }
+        if (config.bookmarks.owedTag) {
+          showBMTable($tOwe,"Auto: Post Owed","owe");
+        }
+        if (config.bookmarks.repliesTag) {
+          showBMTable($tRep,"Auto: Replies","replies");
+        }
+        break;
+      case "tags":
+        for (counter = 0; counter < aryBMTags.length; counter++) {
+          let strTag = aryBMTags[counter];
+          showBMTable($tTags[strTag],"Tagged: " + strTag,strTag);
+        }
+        break;
+    }
   }
+
+
   $(".bmHideable").hide();
-  setTimeout(function() {
-    console.log("Showing: #tblBM" + page.url.tag);
-    console.log($("#tblBM" + page.url.tag));
-    $("#tblBM" + page.url.tag).show();
-  },1000);
+  if (config.bookmarks.collapseOpen) {
+    setTimeout(function() {
+      console.log("Showing: #tblBM" + page.url.tag);
+      console.log($("#tblBM" + page.url.tag));
+      $("#tblBM" + page.url.tag).show();
+    },100);
+  }
 
   $(".bmCatName").click(function() {
     $(".bmHideable").hide();
