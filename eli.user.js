@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.47.4
+// @version     1.48.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -3559,6 +3559,16 @@ function StyleSpeechElement($el) {
         break;
       case "<":
         blInTag = true;
+        if ((i+3)<html.length) {
+          if (blInSpeech && html.charAt(i+1) == "/" && html.charAt(i+2) == "p") {
+            htmlOut += "</span>";
+            blInSpeech = false;
+          }
+          if (blInSpeech && html.charAt(i+1) == "b" && html.charAt(i+2) == "r"  && html.charAt(i+3) == ">") {
+            htmlOut += "</span>";
+            blInSpeech = false;
+          }
+        }
         htmlOut += "<";
         break;
       case ">":
