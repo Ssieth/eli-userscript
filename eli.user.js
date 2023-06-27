@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.48.0
+// @version     1.48.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -396,6 +396,7 @@ function initConfig(andThen) {
   initConfigItem("bookmarks","collapse", true, {text: "Collapsable View?", type: "bool" });
   initConfigItem("bookmarks","collapseOrder", "All,Tags,Autos", {text: "Order of collapsable BM categories?", type: "select", select: ["All,Tags,Autos","Tags,Autos,All"]});
   initConfigItem("bookmarks","collapseOpen", true, {text: "Open selected collapsed category?", type: "bool" });
+  initConfigItem("bookmarks","collapseToggle", true, {text: "Clicks toggle collapsed categories?", type: "bool" });
   initConfigItem("bookmarks","allLink", true, {text: "Add &apos;All&apos; link to bookmarks?", type: "bool" });
   initConfigItem("bookmarks","owedTag", true, {text: "Posts Owed Auto-Tag??", type: "bool" });
   initConfigItem("bookmarks","tagOnBM", true, {text: "Add tags when bookmarking?", type: "bool" });
@@ -2727,9 +2728,12 @@ function reformatBMsCollapse() {
   }
 
   $(".bmCatName").click(function() {
-    $(".bmHideable").hide();
-    $(this).next().show();
-    console.log($(this).next());
+    if (config.bookmarks.collapseToggle) {
+      $(this).next().toggle();
+    } else {
+      $(".bmHideable").hide();
+      $(this).next().show();
+    }
   });
 
   $("form table tr").each(function () {
