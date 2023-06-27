@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.48.1 OK - idiot that I am, I have been forgetting to update this file.  Changes since last version:
+
+* Added new view of bookmarks as a set of collapsible lists.  Works with the current bookmark tags.
+* Tidied up speech styling to make it a bit more smart about spotting paragraph ends
+
 1.46.2 Fixed an error where blank bookmark tags cause visual weirdness in BMs menu
 
 1.46.1 Fixed GIF-freezing by using HTML5 canvas
