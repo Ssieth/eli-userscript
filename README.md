@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.48.2 Fixed a small bug with the label for the new soft highlight for topic filters not being linked to its respective radio button.
+
 1.48.1 OK - idiot that I am, I have been forgetting to update this file.  Changes since last version:
 
 * Added new view of bookmarks as a set of collapsible lists.  Works with the current bookmark tags.
