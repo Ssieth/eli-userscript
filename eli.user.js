@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.48.2
+// @version     1.49.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2671,6 +2671,16 @@ function showBMTable($t,title,id, allFirst) {
     $t.attr("id","tblBM" + id.toLowerCase() );
     $("div.main_content form").append("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
     $("div.main_content form").append($t);
+    let $tog = $t.find('input:checkbox:first');
+
+    // Make the toggle-all checkboxes work only on their own tables.
+    $tog.attr("onclick","");
+    $tog.click(function(){
+      let checked = $(this).is(':checked');
+      $(this).parents("table").find("input:checkbox").each(function() {
+        $(this).prop('checked', checked);
+      });
+    });
   }
 }
 
@@ -2721,9 +2731,11 @@ function reformatBMsCollapse() {
   $(".bmHideable").hide();
   if (config.bookmarks.collapseOpen) {
     setTimeout(function() {
-      console.log("Showing: #tblBM" + page.url.tag);
-      console.log($("#tblBM" + page.url.tag));
-      $("#tblBM" + page.url.tag).show();
+      let tags = page.url.tag.split(",");
+      tags.forEach(function(tag) {
+        console.log("Showing: #tblBM" + tag.trim());
+        $("#tblBM" + tag.trim()).show();
+      });
     },100);
   }
 
@@ -2734,6 +2746,15 @@ function reformatBMsCollapse() {
       $(".bmHideable").hide();
       $(this).next().show();
     }
+    let tags = [];
+    $(".bmHideable:visible").each(function(){
+      let tag = $(this).prop("id").replace("tblBM","");
+      tags.push(tag);
+    });
+    let $form = $(this).parents("form:first");
+    let url = $form.prop("action").split("&")[0];
+    url = url + "&tag=" + tags.toString();
+    $form.prop("action",url);
   });
 
   $("form table tr").each(function () {

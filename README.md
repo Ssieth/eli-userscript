@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.49.0 A couple of improvements to deleting bookmarks:
+
+* Ticking the toggle-all checkbox on a given list of BMs now only toggles the checkboxes for that list, not all of the lists.
+* When deleting bookmarks, the page should remember which lists you had open and keep those open.
+
 1.48.2 Fixed a small bug with the label for the new soft highlight for topic filters not being linked to its respective radio button.
 
 1.48.1 OK - idiot that I am, I have been forgetting to update this file.  Changes since last version:
