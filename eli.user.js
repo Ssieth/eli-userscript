@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.50.1
+// @version     1.50.2
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2625,8 +2625,8 @@ function getBMsFromTable(bmType) {
       break;
     case "replies":
       getUnreadReplies(function() {
-        console.log("=== Replies ===")
-        console.log(objReplies);
+        //console.log("=== Replies ===")
+        //console.log(objReplies);
         $tNew.find("tr").each(function () {
           intRow++;
           if (intRow > 1) {
