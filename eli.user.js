@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.49.0
+// @version     1.50.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -349,6 +349,7 @@ function initConfig(andThen) {
   initConfigItem("replies","showCount", false, {text: "Show unread replies count?", type: "bool" });
   initConfigItem("replies","showMenu", false, {text: "Show unread replies menu?", type: "bool" });
   initConfigItem("replies","gotoNew", false, {text: "Replies links go to first new post?", type: "bool" });
+  initConfigItem("replies","hideUnwatched", true, {text: "Hide unwatched replies in list?", type: "bool" });
   // Topic Filters
   initConfigItem("topicFilters","on", false, {text: "Topic Filters On?", type: "bool" });
   initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
@@ -2606,6 +2607,19 @@ function getBMsFromTable(bmType) {
     case "all":
       // Don't do any trimming
       break;
+    case "unwatch":
+      $tNew.find("tr").each(function () {
+        intRow++;
+        if (intRow > 1) {
+          let strTopicURL = $(this).find("td:eq(2) a:eq(0)").attr("href");
+          let strTopicID = strTopicURL.match(/\d+/)[0];
+          let intTopicID = parseInt(strTopicID);
+          if (objIgnoreReplies[intTopicID]) {
+            $(this).remove();
+          }
+        }
+      });
+      break;
     case "replies":
       $tNew.find("tr").each(function () {
         intRow++;
@@ -3125,6 +3139,9 @@ function getPageDetails() {
   page.url.hash = window.location.hash;
   page.scroll = -1;
   page.type = "other";
+  if (page.url.full.toLowerCase().indexOf("action=unreadreplies") > 0) {
+    page.type = "replies";
+  }
   if (page.url.full.toLowerCase().indexOf("action=bookmarks") > 0) {
     page.type = "bookmarks";
   }
@@ -4038,6 +4055,14 @@ function main() {
 
     if (page.type == 'pm-send') {
       //frmUserList();
+    }
+
+    if (page.type == 'replies') {
+      console.log(objReplies);
+      if (config.replies.hideUnwatched) {
+        let $tNew = getBMsFromTable("unwatch");
+        $("table").replaceWith($tNew);
+      }
     }
 
     if (page.type == "scriptsettings") {
