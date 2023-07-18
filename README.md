@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.51.1 Fixed a problem with the replies auto-tag not functioning correctly due to a race condition
+
 1.50.0 Added a new option to replies (on by default): "Hide unwatched replies in list".  This, as it suggests hides unwatched replies in the replies list.
 
 1.49.0 A couple of improvements to deleting bookmarks:
