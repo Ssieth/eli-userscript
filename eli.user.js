@@ -7,7 +7,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.50.2
+// @version     1.52.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1500,6 +1500,13 @@ function pasteSnippet($this) {
   return false;
 }
 
+function pasteSnippetNew($this) {
+  log("functiontrace", "Start Function");
+  var strID = $this.attr("id").replace("snipNew-", "");
+  pasteToDesc(snippets[strID].body, false);
+  return false;
+}
+
 function replaceSnippetsTags() {
   var aryKeys = sortedSnippetKeys();
   var textArea = $(strLastFocus);
@@ -1516,10 +1523,72 @@ function replaceSnippetsTags() {
   }
 }
 
+function getSnipCats() {
+  let keys = sortedSnippetKeys();
+  let cats = [];
+  for (const key of keys) {
+    let iPos = key.indexOf("__");
+    if (iPos > -1) {
+      let strCat = key.substring(0,iPos);
+      if (!cats.includes(strCat)) {
+        cats.push(strCat);
+      }
+    }
+  }
+  return cats;
+}
+
+function buildSnipMenu() {
+  let $snipNew = $("<ul id='snipMenu' style='width: 8rem; float: right; margin-right: 15rem'><li><div id='snipNewTop'>Snippets</div><ul id='snipMenuInner' style='width: 10rem'></ul></li></ul>")
+  let $snipInner = $snipNew.find("#snipMenuInner");
+  $snipNew.find('#snipNewTop').click(function (e) {
+    e.preventDefault();
+    frmSnippet();
+  });
+  var keys = sortedSnippetKeys();
+  let cats = getSnipCats();
+  for (const catName of cats) {
+    let $catLi = $("<li><div>" + catName + "</div><ul style='width: 10rem' id='snipCat-" + catName + "'></ul></li>");
+    $snipInner.append($catLi);
+  }
+  for (const key of keys) {
+    var snippet = snippets[key];
+    var snipName = "";
+    let iPos = key.indexOf("__");
+    if (snippet.body !== "") {
+      if (iPos > -1) {
+        snipName = snippet.name.substring(iPos+2);
+      } else {
+        snipName = snippet.name;
+      }
+      let $snip = $("<li id='snipNew-" + snippet.id + "'><div>" + snipName + "</div></li>");
+      $snip.click(function (e) {
+        pasteSnippetNew($(this));
+        stopDefaultAction(e);
+        return false;
+      });
+      if (iPos > -1) {
+        let strCat = key.substring(0,iPos);
+        $snipInner.find("#snipCat-" + strCat).append($snip);
+      } else {
+        $snipInner.append($snip);
+      }
+    }
+  }
+
+  $snipNew.menu();
+  return $snipNew;
+}
+
 function displaySnippets() {
   log("functiontrace", "Start Function");
-  $("li#button_snip ul").remove();
+  // $("li#button_snip ul").remove();
   var $copyTo = $('div#bbcBox_message div:eq(0)');
+  if ($copyTo.length > 0) {
+    $copyTo.find("#snipMenu").remove();
+    $copyTo.append(buildSnipMenu());
+  }
+  /*
   if ($copyTo.length > 0) {
     $(strLastFocus).keydown(function(event) {
       if (event.originalEvent.key == 's' && event.originalEvent.ctrlKey) {
@@ -1565,6 +1634,7 @@ function displaySnippets() {
       $copyTo.append($menunav);
     }
   }
+    */
 }
 /* =========================== */
 

@@ -7,6 +7,8 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.52.0 Reworked snippets menu to allow categories to be added.
+
 1.51.2 Removed redundant console.log stuff.
 
 1.51.1 Fixed a problem with the replies auto-tag not functioning correctly due to a race condition
