@@ -7,7 +7,8 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
-// @version     1.52.0
+// @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
+// @version     1.53.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -334,11 +335,13 @@ function initConfig(andThen) {
   initConfigCategory("drafts","Drafts");
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
+  initConfigCategory("image","Images");
   initConfigCategory("admin","Admin",true);
   //initConfigCategory("importExport","Import / Export");
   // General Settings
   initConfigItem("general","removePics", false, {text: "Remove pictures?", type: "bool" });
   initConfigItem("general","snippets", false, {text: "Snippets?", type: "bool" });
+  initConfigItem("general","snippetscontext", false, {text: "Snippets context menu?", type: "bool" });
   initConfigItem("general","userLists", false, {text: "User lists?", type: "bool" });
   initConfigItem("general","wordCount", true, {text: "Show wordcounts?", type: "bool" });
   initConfigItem("general","debugInfo", false, {text: "Debug information?", type: "bool" });
@@ -407,6 +410,8 @@ function initConfig(andThen) {
   initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
   initConfigItem("repage","maxpage", 10, {text: "Max pages (1-100)?", type: "int", min: 1, max: 100 });
   initConfigItem("repage","infinity", false, {text: "Infinity paging?", type: "bool" });
+  // Images
+  initConfigItem("image","enlarge", true, {text: "Click to Enlarge?", type: "bool" });
   // Admin
   initConfigItem("admin","removeNewsbox", false, {text: "Remove Newsbox?", type: "bool" });
   initConfigItem("admin","removeDonate", false, {text: "Remove Donate?", type: "bool" });
@@ -1542,8 +1547,11 @@ function buildSnipMenu() {
   let $snipNew = $("<ul id='snipMenu' style='width: 8rem; float: right; margin-right: 15rem'><li><div id='snipNewTop'>Snippets</div><ul id='snipMenuInner' style='width: 10rem'></ul></li></ul>")
   let $snipInner = $snipNew.find("#snipMenuInner");
   $snipNew.find('#snipNewTop').click(function (e) {
-    e.preventDefault();
+    //e.preventDefault();
     frmSnippet();
+    if (config.general.snippetscontext) {
+      $("#snipMenu").hide();
+    }
   });
   var keys = sortedSnippetKeys();
   let cats = getSnipCats();
@@ -1564,7 +1572,10 @@ function buildSnipMenu() {
       let $snip = $("<li id='snipNew-" + snippet.id + "'><div>" + snipName + "</div></li>");
       $snip.click(function (e) {
         pasteSnippetNew($(this));
-        stopDefaultAction(e);
+        if (config.general.snippetscontext) {
+          $("#snipMenu").hide();
+        }
+        //stopDefaultAction(e);
         return false;
       });
       if (iPos > -1) {
@@ -1582,59 +1593,26 @@ function buildSnipMenu() {
 
 function displaySnippets() {
   log("functiontrace", "Start Function");
-  // $("li#button_snip ul").remove();
   var $copyTo = $('div#bbcBox_message div:eq(0)');
   if ($copyTo.length > 0) {
     $copyTo.find("#snipMenu").remove();
     $copyTo.append(buildSnipMenu());
   }
-  /*
-  if ($copyTo.length > 0) {
-    $(strLastFocus).keydown(function(event) {
-      if (event.originalEvent.key == 's' && event.originalEvent.ctrlKey) {
-        event.preventDefault();
-        console.log(event.originalEvent);
-        replaceSnippetsTags();
+
+  if (config.general.snippetscontext) {
+     $(document).contextmenu({
+      delegate: "#message",
+      closeOnWindowBlur: false,
+      menu: "#snipMenu",
+      select: function(event, ui) {
+        alert("select " );
       }
     });
-    var $menuQ = $('li#button_snip');
-    var newMenu = false;
-    if ($menuQ.length === 0) {
-      newMenu = true;
-      $menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets</span></a></li>");
-      //$menuQ = $("<li id='button_snip'><a class='firstlevel' href='#'><span class='firstlevel'>Snippets Sorting</span></a></li>");
-      //
-    }
-    var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
-    $menuQ.find('a.firstlevel').click(function (e) {
-      e.preventDefault();
-      frmSnippet();
-    });
-    var counter;
-    var keys = sortedSnippetKeys();
-    var scount = 0;
-    for (const key of keys) {
-      var snippet = snippets[key];
-      if (snippet.body !== "") {
-        $menuQ_ul.append("<li><a href='javascript:void(0);' class='snippet_link_outer' id='snip-" + snippet.id + "'><span class='snippet_link'>" + scount + ": " + snippet.name + "</span></a></li>");
-        scount++;
-        $menuQ_ul.find('#snip-' + snippet.id).click(function (e) {
-          pasteSnippet($(this));
-          stopDefaultAction(e);
-          return false;
-        });
-      }
-    }
-    $menuQ.append($menuQ_ul);
-    if (newMenu) {
-      var $menunav = $("<ul id='bbcBox_snip' class='dropmenu' style='display: inline !important; float: right; z-index: 999 |important; display: inline-block;'></ul>");
-      // This should resolve issues with only a limited number of snippets being displayed.
-      $copyTo.parents("form").first().removeClass("flow_hidden");
-      $menunav.append($menuQ);
-      $copyTo.append($menunav);
-    }
+
+    $( document.body ).click( function() {
+      $("#snipMenu").hide();
+    } );
   }
-    */
 }
 /* =========================== */
 
@@ -3861,6 +3839,41 @@ function handleMemberListVariant() {
   }
 }
 
+
+/* =========================== */
+/* Image Stuff                 */
+/* =========================== */
+function setupImageEnlarge() {
+  let $toEnlarge = $("img.resized");
+  $toEnlarge.each(function () {
+    let $img = $(this);
+    let imgWidth = $img.attr("width");
+    let imgHeight = $img.attr("height");
+    if (imgWidth) {
+      $img.attr("orig-width",imgWidth);
+    }
+    if (imgHeight) {
+      $img.attr("orig-height",imgHeight);
+    }
+    $(this).click(function(){
+      if ($(this).hasClass("enlarged")) {
+        if ($img.attr("orig-width")) {
+          $img.attr("width",$img.attr("orig-width"));
+        }
+        if ($img.attr("orig-height")) {
+          $img.attr("height",$img.attr("orig-height"));
+        }
+        $img.removeClass("enlarged");
+      } else {
+        $(this).removeAttr("height").removeAttr("width");
+        $img.addClass("enlarged");
+      }
+    });
+  });
+}
+
+/* =========================== */
+
 /* =========================== */
 /* Settings on cabbit          */
 /* =========================== */
@@ -4140,6 +4153,11 @@ function main() {
         let $tNew = getBMsFromTable("unwatch");
         $("table").replaceWith($tNew);
       }
+    }
+
+    // images
+    if (config.image.enlarge) {
+      setupImageEnlarge();
     }
 
     if (page.type == "scriptsettings") {

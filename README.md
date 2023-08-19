@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.53.0 A couple of new things:
+
+* Added image resize toggling.
+* Added option for context menu for snippts (only for code view of editing, not rich text. At the moment) 
+
 1.52.0 Reworked snippets menu to allow categories to be added.
 
 1.51.2 Removed redundant console.log stuff.
