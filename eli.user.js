@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     1.53.0
+// @version     1.53.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -3234,6 +3234,9 @@ function getPageDetails() {
   else if (page.url.full.toLowerCase().indexOf("?action=pm;sa=send") > 0) {
     page.type = "pm-send";
   }
+  else if (page.url.full.toLowerCase().indexOf("?action=pm") > 0) {
+    page.type = "pm";
+  }
   else if (page.url.full.toLowerCase().indexOf("?action=mlist;sa=search") > 0) {
     page.type = "member-search";
   }
@@ -3496,8 +3499,13 @@ function annotateNames() {
   // addNameNote("Nowherewoman","Storium: Ev");
   switch (page.type) {
     case "topic":
+    case "pm":
       $("div.poster h4").each(function () {
-        $name = $(this).find("a:eq(1)");
+        if (page.type=="pm") {
+          $name = $(this).find("a:eq(0)");
+        } else {
+          $name = $(this).find("a:eq(1)");
+        }
         strName = $name.text();
         if (nameNotes[strName] !== undefined) {
           switch (config.userNotes.style.toLowerCase()) {
