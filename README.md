@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+1.54.0 
+
+* Stopped editing of snippets updating the snippets menu sas it is bugged.  Will fix it properly later.
+* Added code to allow a %sel% selection replacement in snippets
+
 1.53.1 Fixed a minor bug so that user notes now appear correctly in PM page.
 
 1.53.0 A couple of new things:

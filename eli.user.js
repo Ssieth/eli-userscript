@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     1.53.1
+// @version     1.54.0 
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1345,10 +1345,11 @@ function setSnippet() {
   snippet.ordinal = Object.keys(snippets).length;
   snippets[strID] = snippet;
 
-  displaySnippets();
-  //$('#modalpop').dialog( "close" );
   cleanSnippets();
   saveSnippets();
+  //displaySnippets();
+  //$('#modalpop').dialog( "close" );
+
   return false;
 }
 
@@ -1422,7 +1423,7 @@ function frmSnippetButtons() {
     strID = strID.replace("snipEdit_delete_", "");
     delete snippets[strID];
     saveSnippets();
-    displaySnippets();
+    //displaySnippets();
     strBody = frmSnippetBody();
     $("#modalpop").html(strBody);
     frmSnippetButtons();
@@ -1490,6 +1491,16 @@ function pasteToDesc(snippet, moveToEnd) {
   if (textArea.length > 0) {
     var start = textArea[0].selectionStart;
     var end = textArea[0].selectionEnd;
+    let iPos = snippet.indexOf("%sel%");
+
+    if (iPos > -1) {
+      let strSel = "";
+      if (end > start) {
+        strSel = textArea.val().substring(start, end);
+      }
+      snippet = snippet.replace("%sel%",strSel);
+    }
+
     var replacement = snippet;
     textArea.val(textArea.val().substring(0, start) + replacement + textArea.val().substring(end, textArea.val().length));
     if (moveToEnd) {
