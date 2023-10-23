@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     1.54.0 
+// @version     2.0.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -28,7 +28,6 @@ var logTags = {};
 logTags.startup = true;
 logTags.tickfires = false;
 logTags.tickactions = false;
-logTags.drafts = false;
 logTags.functiontrace = false;
 logTags.userdetails = false;
 logTags.richtext = true;
@@ -48,7 +47,6 @@ var $forumposts;
 var quickTopics = [];
 var strModal = '<div id="modalpop" title="title"></div>';
 var snippets = {};
-var drafts = {};
 var draftHistory = {};
 var strLastFocus = "textarea#message";
 var datUnread = new Date();
@@ -332,7 +330,6 @@ function initConfig(andThen) {
   initConfigCategory("autoUpdates","Auto-Updates");
   initConfigCategory("removeHeadFoot","Remove Head and Footer Items");
   initConfigCategory("shoutbox","Shoutbox");
-  initConfigCategory("drafts","Drafts");
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
   initConfigCategory("image","Images");
@@ -388,13 +385,6 @@ function initConfig(andThen) {
   initConfigItem("shoutbox","approvedColour","black", {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
   //initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
   //strShoutboxSubst = config.shoutbox.subst;
-  // Drafts
-  initConfigItem("drafts","on", true , {text: "Drafts?", type: "bool" });
-  //initConfigItem("drafts","autoLoad", oldConf(objOldConf,"AutoLoadDraft",true), {text: "Auto-load draft?", type: "bool" });
-  config.drafts.autoLoad = false; // too many issues with this atm...
-  initConfigItem("drafts","autoSave", 0, {text: "Auto-save draft every X minutes (0=no auto-save)", type: "int", min: 0, max: 999 });
-  initConfigItem("drafts","autoClear", true, {text: "Auto-clear draft when you post?", type: "bool" });
-  initConfigItem("drafts","historyCount", 3, {text: "# of manual drafts to keep (0 = no history kept)", type: "int", min: 0, max: 999 });
   // Bookmarks
   initConfigItem("bookmarks","tags", true, {text: "Bookmark Tags?", type: "bool" });
   initConfigItem("bookmarks","collapse", true, {text: "Collapsable View?", type: "bool" });
@@ -535,67 +525,69 @@ function displaySettings() {
   log("functiontrace", "Start Function");
 
   $("li#button_settings").remove();
-  var settingsURL = "https://elliquiy.com/forums/index.php?action=help#scriptsettings";
-  var $menunav = $('ul#menu_nav');
-  var $menuQ = $("<li id='button_settings'></li>");
-  var $menuSet = $("<a class='firstlevel' href='" + settingsURL + "'><span class='firstlevel'>Script Settings</span></a>");
-  $menuQ.append($menuSet);
+  let settingsURL = "https://elliquiy.com/forums/index.php?action=help#scriptsettings";
+  let $menunav = $('ul#top_info');
+  let $menuQOuter = $("<li><a href='#' id='script_menu_top'><span class='main_icons maintain'></span> <span class='textmenu'>Script</span></a><div id='script_menu' class='top_menu' style='display: hidden'><div class='profile_user_links'><ol></ol></div><!-- .profile_user_links --></div></li>");
+  let $menuQ = $menuQOuter.find("ol");
   if (GM_info.script === undefined) {}
   else {
-    $menuQ.append("<ul style='background-color: white'><li><a href='" + settingsURL + "' id='script_version'><span class='snippet_link'>Current version: v" + GM_info.script.version + "</span></a></li><li><a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='script_home'><span class='snippet_link'>Get Latest Version</span></a></li></</ul>");
+    $menuQ.append("<li><span class='main_icons maintain'></span> <a href='" + settingsURL + "'>Settings (v" + GM_info.script.version + ")</a></li>")
     if (config.topicFilters.on) {
-      $menuQ.find("ul").append("<li><a href='#' id='TF_link'><span class='TF_link'>Topic Filters</span></a></li>");
+      $menuQ.append("<li><span class='main_icons frenemy'></span> <a href='#' id='TF_link'>Topic Filters</a></li>")
       $menuQ.find("a#TF_link").click(function (e) {
         e.preventDefault();
         frmFT("", "", "");
       });
     }
 
-    $menuQ.find("ul").append("<li><a href='#' id='snippets_link_settings'><span class='setting_export_link'>Snippets</span></a></li>");
-    $menuQ.find("ul").append("<li><a href='https://elliquiy.com/forums/index.php?action=help#sortsnippets' id='snippets_link_settings_sort'><span class='setting_export_link'>Sort Snippets</span></a></li>");
+    $menuQ.append("<li><span class='main_icons drafts'></span> <a href='#' id='snippets_link_settings'>Snippets</a></li>")
+    $menuQ.append("<li><span class='main_icons drafts'></span> <a href='https://elliquiy.com/forums/index.php?action=help#sortsnippets' id='snippets_sort_settings'>Sort Snippets</a></li>")
     $menuQ.find("a#snippets_link_settings").click(function (e) {
       e.preventDefault();
       frmSnippet();
     });
 
-    $menuQ.find("ul").append("<li><a href='#' id='userLists_link_settings'><span class='setting_export_link'>User Lists</span></a></li>");
+    $menuQ.append("<li><span class='main_icons people'></span> <a href='#' id='userLists_link_settings'>User Lists</a></li>")
     $menuQ.find("a#userLists_link_settings").click(function (e) {
       e.preventDefault();
       frmUserLists();
     });
 
-    $menuQ.find("ul").append("<li><a href='#' id='setting_managetags_link'><span class='setting_managetags_link'>Manage Tags</span></a></li>");
+    $menuQ.append("<li><span class='main_icons maintain'></span> <a href='#' id='setting_managetags_link'>Manage Tags</a></li>")
     $menuQ.find("a#setting_managetags_link").click(function (e) {
       e.preventDefault();
       frmBMTags();
     });
 
-    $menuQ.find("ul").append("<li><a href='#' id='setting_cleardrafts_link'><span class='setting_cleardrafts_link'>Clear Drafts</span></a></li>");
-    $menuQ.find("a#setting_cleardrafts_link").click(function (e) {
-      e.preventDefault();
-      checkClearDrafts();
-    });
-
-    $menuQ.find("ul").append("<li><a href='#' id='setting_export_link'><span class='setting_export_link'>Export Settings</span></a></li>");
+    $menuQ.append("<li><span class='main_icons features'></span> <a href='#' id='setting_export_link'>Export Settings</a></li>")
     $menuQ.find("a#setting_export_link").click(function (e) {
       e.preventDefault();
       exportValues();
     });
 
-    $menuQ.find("ul").append("<li><a href='#' id='setting_import_link'><span class='setting_import_link'>Import Settings</span></a></li>");
+    $menuQ.append("<li><span class='main_icons features'></span> <a href='#' id='setting_import_link'>Import Settings</a></li>")
     $menuQ.find("a#setting_import_link").click(function (e) {
       e.preventDefault();
       frmImport();
     });
 
+
+    $menuQ.append("<li><span class='main_icons alerts'></span> <a href='#' id='setting_freeze_gif'>Freeze GIFs</a></li>")
    $menuQ.find("ul").append("<li><a href='#' id='setting_freeze_gif'><span class='setting_freeze_gif'>Freeze GIFs</span></a></li>");
     $menuQ.find("a#setting_freeze_gif").click(function (e) {
       e.preventDefault();
       //window.stop();
       freezeGifs();
     });
+
+
+    $menuQ.append("<li><span class='main_icons maintain'></span> <a href='https://github.com/Ssieth/eli-userscript/raw/master/eli.user.js' id='setting_getlatest'>Get Latest Version</a></li>")
+
   }
-  $menunav.append($menuQ);
+  $menunav.append($menuQOuter);
+  $menuQOuter.click(function() {
+    $menuQOuter.find("#script_menu").toggle();
+  });
 }
 /* =========================== */
 
@@ -1252,7 +1244,7 @@ function sortSnippets() {
   $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeAlpha' value='alpha' " + ((config.snippets.sortType == "alpha") ? " checked='checked'" : "") + "/>: <label for='sortTypeAlpha'>Alphabetical</label><br />");
   $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeCustom' value='custom' " + ((config.snippets.sortType == "custom") ? " checked='checked'" : "") + "/>: <label for='sortTypeCustom'>Custom</label><br />");
   GM_addStyle("#sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; list-style-type:none; }");
-  GM_addStyle("#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; cursor: pointer; border: thin solid black;}");
+  GM_addStyle("#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; cursor: pointer; border: thin solid black;}");
   GM_addStyle("#sortable li span { position: absolute; margin-left: -1.3em; }");
   var aryKeys = sortedSnippetKeys();
   console.log(aryKeys);
@@ -1555,7 +1547,7 @@ function getSnipCats() {
 }
 
 function buildSnipMenu() {
-  let $snipNew = $("<ul id='snipMenu' style='width: 8rem; float: right; margin-right: 15rem'><li><div id='snipNewTop'>Snippets</div><ul id='snipMenuInner' style='width: 10rem'></ul></li></ul>")
+  let $snipNew = $("<ul id='snipMenu' style='width: 8rem; float: right; margin-right: 15rem; z-index: 999; margin-top: 9px;'><li><div id='snipNewTop'>Snippets</div><ul id='snipMenuInner' style='width: 10rem'></ul></li></ul>")
   let $snipInner = $snipNew.find("#snipMenuInner");
   $snipNew.find('#snipNewTop').click(function (e) {
     //e.preventDefault();
@@ -1604,15 +1596,16 @@ function buildSnipMenu() {
 
 function displaySnippets() {
   log("functiontrace", "Start Function");
-  var $copyTo = $('div#bbcBox_message div:eq(0)');
+  console.log("Display Snippets");
+  var $copyTo = $('#post_header');
   if ($copyTo.length > 0) {
     $copyTo.find("#snipMenu").remove();
-    $copyTo.append(buildSnipMenu());
+    $copyTo.before(buildSnipMenu());
   }
 
   if (config.general.snippetscontext) {
      $(document).contextmenu({
-      delegate: "#message",
+      delegate: "#post_area textarea",
       closeOnWindowBlur: false,
       menu: "#snipMenu",
       select: function(event, ui) {
@@ -1627,271 +1620,6 @@ function displaySnippets() {
 }
 /* =========================== */
 
-/* =========================== */
-/* Drafts                      */
-/* =========================== */
-function draftMenu(strID) {
-  log("functiontrace", "Start Function");
-  var $copyTo;
-  var draft;
-  $("li#button_drafts").remove();
-  if (config.drafts.historyCount > 0) {
-    var draftsCol = draftHistory[strID];
-    if (draftsCol !== undefined) {
-      switch (page.type) {
-        case "post":
-        case "pm-send":
-          $copyTo = $('div#bbcBox_message div:eq(0)');
-          break;
-        case "topic":
-          $copyTo = $('div#quickReplyOptions p:eq(0)');
-          break;
-        default:
-          break;
-      }
-      var key;
-      if ($copyTo.length > 0) {
-        var $menuQ = $('li#button_drafts');
-        var newMenu = false;
-        if ($menuQ.length === 0) {
-          newMenu = true;
-          $menuQ = $("<li id='button_drafts'><a class='firstlevel' href='#'><span class='firstlevel'>Drafts</span></a></li>");
-        }
-        var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
-        if (drafts[strID] !== undefined && draftsCol[draftsCol.length - 1].when != drafts[strID].when) {
-          draft = drafts[strID];
-          if (draft.body !== "") {
-            $menuQ_ul.append("<li><a href='#' class='draft_link_outer' id='drafts-as'><span class='draft_link'>" + draft.when + " (Auto)</span></a></li>");
-            $menuQ_ul.find('#drafts-as').click(function (e) {
-              e.preventDefault();
-              pasteDraft($(this));
-            });
-          }
-        }
-        for (var counter = draftsCol.length - 1; counter >= 0; counter--) {
-          draft = draftsCol[counter];
-          if (draft.body !== "") {
-            $menuQ_ul.append("<li><a href='#' class='draft_link_outer' id='drafts-" + counter + "'><span class='draft_link'>" + draft.when + "</span></a></li>");
-            $menuQ_ul.find('#drafts-' + counter).click(function (e) {
-              e.preventDefault();
-              pasteDraft($(this));
-            });
-          }
-        }
-        $menuQ.append($menuQ_ul);
-        if (newMenu) {
-          var $menunav = $("<ul id='bbcBox_drafts' class='dropmenu' style='display: inline !important; float: right;'></ul>");
-          $menunav.append($menuQ);
-          $copyTo.append($menunav);
-        }
-      }
-    }
-  }
-}
-
-function pasteDraft($this) {
-  log("functiontrace", "Start Function");
-  var strNo = $this.prop("id").replace("drafts-", "");
-  var strDraft = "";
-  var $topicForm = $('form#search_form');
-  var strID = $topicForm.find('input[name="topic"]').val();
-  if (strNo == "as") {
-    strDraft = drafts[strID].body;
-  }
-  else {
-    var draftCol = draftHistory[strID];
-    strDraft = draftCol[parseInt(strNo, 10)].body;
-  }
-  switch (page.type) {
-    case "post":
-    case "pm-send":
-      $('textarea#message').val(strDraft);
-      $('iframe#html_message').contents().find('body.rich_editor').html(strDraft);
-      break;
-    case "topic":
-      $('div#quickReplyOptions textarea').val(strDraft);
-      $('iframe#html_message').contents().find('body.rich_editor').html(strDraft);
-      break;
-    default:
-      break;
-  }
-}
-
-function autoLoadDraft() {
-  log("functiontrace", "Start Function");
-  var $topicForm;
-  var strID;
-  if (page.type == 'post' || page.type == 'pm-send') {
-    $topicForm = $('form#search_form');
-    strID = $topicForm.find('input[name="topic"]').val();
-    if (drafts[strID] && drafts[strID].body && drafts[strID].body !== "undefined") {
-      $('textarea#message').val(drafts[strID].body);
-      $('iframe#html_message').contents().find('body.rich_editor').html(drafts[strID].body);
-    }
-  }
-}
-
-function displayDrafts() {
-  log("functiontrace", "Start Function");
-  var $topicForm;
-  var strID;
-  var $buttons;
-  if (page.type == 'post' || page.type == 'topic' || page.type == 'pm-send') {
-    $topicForm = $('form#search_form');
-    strID = $topicForm.find('input[name="topic"]').val();
-    draftMenu(strID);
-    switch (page.type) {
-      case "post":
-        $buttons = $('p#post_confirm_buttons');
-        break;
-      case "pm-send":
-        $buttons = $('p#post_confirm_strip');
-        break;
-      case "topic":
-        $buttons = $('div#quickReplyOptions div.righttext');
-        break;
-      default:
-        break;
-    }
-    $buttons.find('button#savedraft').remove();
-    $buttons.find('button#loaddraft').remove();
-    $buttons.find('button#cleardraft').remove();
-    if (drafts[strID] === undefined) {
-      $buttons.append("<button id='savedraft' value='Save Draft' class='button_submit'>Save Draft</button>");
-    }
-    else {
-      $buttons.append("<button id='savedraft' value='Save Draft' class='button_submit'>Save Draft</button> ");
-      $buttons.append("<button id='cleardraft' value='Clear Draft' class='button_submit'>Clear Draft</button> ");
-      $buttons.append("<button id='loaddraft' value='Load Draft' class='button_submit'>Load Draft</button>");
-    }
-    $buttons.find("button#savedraft").click(function (e) {
-      e.preventDefault();
-      setDraft(true);
-      displayDrafts();
-    });
-    $buttons.find("button#loaddraft").click(function (e) {
-      e.preventDefault();
-      switch (page.type) {
-        case "post":
-        case "pm-send":
-          $('textarea#message').val(drafts[strID].body);
-          $('iframe#html_message').contents().find('body.rich_editor').html(drafts[strID].body);
-          break;
-        case "topic":
-          $('div#quickReplyOptions textarea').val(drafts[strID].body);
-          $('iframe#html_message').contents().find('body.rich_editor').html(drafts[strID].body);
-          break;
-        default:
-          break;
-      }
-    });
-    $buttons.find("button#cleardraft").click(function (e) {
-      e.preventDefault();
-      delete drafts[strID];
-      delete draftHistory[strID];
-      saveDrafts();
-      displayDrafts();
-    });
-    if (config.drafts.autoClear) {
-      $("p#post_confirm_buttons input:eq(0)").click(function (e) {
-        if (drafts[strID]) {
-          delete drafts[strID];
-          saveDrafts();
-        }
-      });
-    }
-  }
-}
-
-function loadDrafts() {
-  log("functiontrace", "Start Function");
-  var strDrafts = GM_getValue("drafts", "");
-  if (strDrafts !== "") {
-    drafts = JSON.parse(strDrafts);
-  }
-  var strHistory = GM_getValue("draftHistory", "");
-  if (strHistory !== "") {
-    draftHistory = JSON.parse(strHistory);
-  }
-  log("drafts", drafts);
-}
-
-function saveDrafts() {
-  log("functiontrace", "Start Function");
-  log("drafts", "Saving drafts");
-  log("drafts", drafts);
-  GM_setValue("drafts", JSON.stringify(drafts));
-  GM_setValue("draftHistory", JSON.stringify(draftHistory));
-}
-
-function setDraft(blHistory) {
-  log("functiontrace", "Start Function");
-  var $topicForm;
-  var strID;
-  var draftsCol;
-  var strBody;
-  var strMessageMode = "0";
-  if (page.type == "post" || page.type == "topic" || page.type == "pm-send") {
-    $topicForm = $('form#search_form');
-    strID = $topicForm.find('input[name="topic"]').val();
-  }
-  switch (page.type) {
-    case "post":
-    case "pm-send":
-	  strMessageMode = $('input#message_mode').val();
-	  if (strMessageMode === "0") {
-		strBody = "" + $('textarea#message').val();
-	  } else {
-		strBody = "" + $('iframe#html_message').contents().find('body.rich_editor').html();
-	  }
-      break;
-    case "topic":
-      strBody = "" + $('div#quickReplyOptions textarea').val();
-      break;
-    default:
-      break;
-  }
-  var draft = {};
-
-  if (strBody && strBody.trim() !== "" && strBody.trim() !== "undefined") {
-    draft.id = strID;
-    draft.body = strBody;
-    draft.when = (new Date()).toLocaleString();
-    log("drafts", draft);
-    drafts[draft.id] = draft;
-    // Save manual draft history if we need to
-    if (blHistory && config.drafts.historyCount > 0) {
-      if (draftHistory[strID] === undefined) {
-        draftsCol = [];
-      }
-      else {
-        draftsCol = draftHistory[strID];
-      }
-      draftsCol.push(draft);
-      if (draftsCol.length > config.drafts.historyCount) {
-        draftsCol.remove(0, (draftsCol.length - config.drafts.historyCount) - 1);
-      }
-      draftHistory[strID] = draftsCol;
-    }
-    saveDrafts();
-    displayDrafts();
-  }
-  return false;
-}
-
-function clearDrafts() {
-	drafts ={};
-	draftHistory = {};
-	saveDrafts();
-}
-
-function checkClearDrafts() {
-    if (confirm("Clear all drafts?")) {
-		clearDrafts();
-		alert("Done!");
-	}
-}
-/* =========================== */
 
 /* =========================== */
 /* Quick Topics                */
@@ -2268,6 +1996,7 @@ function registerLastFocus(strSelect) {
 
 function registerFocuses() {
   log("functiontrace", "Start Function");
+  registerLastFocus("#post_area textarea");
   registerLastFocus("textarea#message");
   registerLastFocus("input#to_control");
   registerLastFocus("input[name='subject']");
@@ -2378,14 +2107,6 @@ function tick() {
       updateMailCount();
     }
   }
-  if (config.drafts.autoSave > 0) {
-    if (intSpanSave > 1000 * 60 * config.drafts.autoSave) {
-      datAutoSave = new Date();
-      log("tickactions", "  Tick: Auto-save");
-      setDraft(false);
-      displayDrafts();
-    }
-  }
   if (blUserDepReady) {
     blUserDepReady = false;
     log("tickactions", "  Tick: User-dependent stuff");
@@ -2405,6 +2126,7 @@ function tick() {
 /* Mail Counts                 */
 /* =========================== */
 function getUnreadMailCount() {
+    return 0;
   var $ele = $("span.greeting a");
   var txt = $ele.text();
   var ary = txt.split(",");
@@ -2662,7 +2384,7 @@ function getBMsFromTable(bmType) {
   log("getBMsFromTable", "Start Function");
   var intRow = 0;
 
-  //console.log("===== getBMsFromTable:" + bmType + "=====")
+  console.log("===== getBMsFromTable:" + bmType + "=====")
   var $tNew = $("table").clone();
 
   switch (bmType) {
@@ -2741,7 +2463,8 @@ function getBMsFromTable(bmType) {
       });
       break;
   }
-  //console.log("/===== getBMsFromTable 2 =====")
+  console.log($tNew);
+  console.log("/===== getBMsFromTable 2 =====")
   $tNew.addClass("bmHideable");
   return $tNew;
 }
@@ -2749,8 +2472,8 @@ function getBMsFromTable(bmType) {
 function showBMTable($t,title,id, allFirst) {
   if ($t.find("tr").length > 1) {
     $t.attr("id","tblBM" + id.toLowerCase() );
-    $("div.main_content form").append("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
-    $("div.main_content form").append($t);
+    $("#main_content_section").append("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
+    $("#main_content_section").append($t);
     let $tog = $t.find('input:checkbox:first');
 
     // Make the toggle-all checkboxes work only on their own tables.
@@ -3403,6 +3126,7 @@ function debugUserInfo() {
 /* =========================== */
 function getSettingsForExport(excludeDrafts) {
   log("functiontrace", "Start Function");
+  excludeDrafts = true;
   var strVals = "";
   var objExport = {};
   var lstValues = GM_listValues();
@@ -3580,7 +3304,6 @@ function loadNameNotes() {
   if (strSnippets !== "") {
     nameNotes = JSON.parse(strSnippets);
   }
-  log("drafts", drafts);
 }
 
 function saveNameNotes() {
@@ -3784,15 +3507,23 @@ function getMemberSearch(auth, strSearch) {
 
 function getSessionAuth() {
   log("functiontrace", "Start Function");
-
   var auth = {};
-  var $butLog = $("#button_logout a");
+
+    /*
+    console.log(unsafeWindow.smf_member_id);
+    console.log(unsafeWindow.smf_session_id);
+
+  var $profileMenu = $("#profile_menu");
+  console.log($profileMenu);
+  var $butLog =  $profileMenu.find("span.logout a");
+  console.log($butLog);
   var href = $butLog.prop("href");
   var aryHref = href.split(";");
   var aryHref2 = aryHref[1].split("=");
+*/
 
-  auth.sId = aryHref2[1];
-  auth.sVar = aryHref2[0];
+  auth.sId = unsafeWindow.smf_member_id; //aryHref2[1];
+  auth.sVar = unsafeWindow.smf_session_id; //aryHref2[0];
   auth.memberSearchURL = "/forums/index.php?action=suggest;suggest_type=member;search=%search%;" + auth.sVar + "=" + auth.sId + ";xml;";
   return auth;
 }
@@ -4099,11 +3830,12 @@ function main() {
       ajaxButtons();
     }
 
-    if (config.general.snippets || config.drafts.on) {
+    if (config.general.snippets) {
       registerFocuses();
     }
 
     if (config.general.snippets) {
+        console.log("Snips");
       loadSnippets();
       displaySnippets();
     }
@@ -4116,14 +3848,6 @@ function main() {
           handleMemberListVariant();
         }
       }
-    }
-
-    if (config.drafts.on) {
-      loadDrafts();
-      if (config.drafts.autoLoad) {
-        autoLoadDraft();
-      }
-      displayDrafts();
     }
 
     if (config.replies.showCount || config.quickTopics.markNew) {

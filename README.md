@@ -7,6 +7,13 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.0.0: Post Elli-Crash
+
+* Drafts are gone entirely from the script as this functionality looks like it will be suppported natively by Elli
+* Bookmarks tags are back and working as best I can tell.  I can't test creation as Elli doesn't have that back, yet.
+* Snippets are back and working as best I can tell.
+* The script settings menu is back and at the very top of the screen: "Scripts".  I think everything on it should be working.
+
 1.54.0 
 
 * Stopped editing of snippets updating the snippets menu sas it is bugged.  Will fix it properly later.
