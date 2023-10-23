@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.0.1: 
+
+* Minor bug fix to allow snippets to be used in PMs
+
 2.0.0: Post Elli-Crash
 
 * Drafts are gone entirely from the script as this functionality looks like it will be suppported natively by Elli

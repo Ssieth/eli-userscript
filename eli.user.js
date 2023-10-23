@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.0
+// @version     2.0.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1997,6 +1997,7 @@ function registerLastFocus(strSelect) {
 function registerFocuses() {
   log("functiontrace", "Start Function");
   registerLastFocus("#post_area textarea");
+  registerLastFocus("#postmodify textarea");
   registerLastFocus("textarea#message");
   registerLastFocus("input#to_control");
   registerLastFocus("input[name='subject']");
