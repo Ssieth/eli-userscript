@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.0.5:
+
+* Word counts should now be fixed.
+
 2.0.1: 
 
 * Minor bug fix to allow snippets to be used in PMs

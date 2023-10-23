@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.1
+// @version     2.0.5
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -3005,21 +3005,21 @@ function setWordCount() {
   log("functiontrace", "Start Function");
   switch (page.type) {
     case "post":
-      $('div.content').each(function () {
-        var $wcLoc = $(this).find('div:eq(0)');
+      $('#recent div.windowbg').each(function () {
+        var $wcLoc = $(this).find('span.smalltext');
         var strText = $(this).find('div.list_posts').text();
-        $wcLoc.append(" <span class='wordcountExt' style='font-size: 80%; margin-left: 10px;'>(<span class='wordcountInt'>Word count: " + getWordCount(strText) + "</span>)</span>");
+        $wcLoc.append(" <span class='wordcountExt' style='float: right; margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + getWordCount(strText) + "</span>)</span>");
       });
-      $("p#shortcuts").after("<div id='wordcountPost' style='font-size: 80%;'>Wordcount: <span id='wordcountPostCount'>0</span></div>");
-      $("textarea#message").keypress(function (event) {
-        $("span#wordcountPostCount").text(getWordCount($("textarea#message").val()));
+      $("#post_confirm_buttons span.smalltext").after("<div id='wordcountPost' style='margin-right: 10px;'>Wordcount: <span id='wordcountPostCount'>0</span></div>");
+      $("textarea").keypress(function (event) {
+        $("span#wordcountPostCount").text(getWordCount($("textarea").val()));
       });
       break;
     case "topic":
       $('div.postarea').each(function () {
         var $wcLoc = $(this).find('div.keyinfo');
         var strText = $(this).find('div.post').text();
-        $wcLoc.find("div.smalltext").append(" <span class='wordcountExt' style='font-size: 80%; margin-left: 10px;'>(<span class='wordcountInt'>Word count: " + getWordCount(strText) + "</span>)</span>");
+        $wcLoc.find("div.postinfo").append(" <span class='wordcountExt' style='margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + getWordCount(strText) + "</span>)</span>");
       });
       break;
     default:
