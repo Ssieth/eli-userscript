@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.5
+// @version     2.0.7
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -630,7 +630,7 @@ function repage_getPage($pageBody0, strURL, stopAt) {
       loadingPage = false;
       let $page = $(response.responseText);
       let $pageBody = $page.find(strPageBody);
-      let iPage = parseInt($page.find("div.pagelinks strong").text());
+      let iPage = parseInt($page.find("div.pagelinks span.current_page:eq(0)").text());
       let strURLNext = getNextURL($page,iPage);
       if (strURLNext === "") {
         nextURL = "-end-";
@@ -672,9 +672,12 @@ function getNextURL($page,iPage) {
 function repaginate() {
   if (page.type === "topic") {
     if (config.repage.on) {
+      console.log("===== Repaginate =====")
       let strPageBody = 'form#quickModForm';
       let $pageBody0 = $(strPageBody);
-      let iPage = parseInt($("div.pagelinks strong").text());
+      let iPage = parseInt($("div.pagelinks span.current_page:eq(0)").text());
+      console.log("iPage = " + iPage);
+      console.log($("div.pagelinks span.current_page"));
       let stopAt = iPage + config.repage.maxpage;
       let strURL = getNextURL($("body"),iPage);
       console.log("repage: page " + iPage);
@@ -692,6 +695,7 @@ function repaginate() {
       lastPageLoaded = iPage;
       loadingPage = false;
     }
+    console.log("/===== Repaginate =====")
   }
 }
 
