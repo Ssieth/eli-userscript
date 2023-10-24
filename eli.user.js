@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.1.0
+// @version     2.1.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2066,7 +2066,7 @@ function reformatBMsCollapse() {
     $form.prop("action",url);
   });
 
-  $("form table tr").each(function () {
+  $("table tr").each(function () {
       $(this).find("td:eq(0) img").click(function (e) {
         var strTopicURL = $(this).parent().parent().find("td:eq(1) a:eq(0)").attr("href");
         var strTopicID = strTopicURL.match(/\d+/)[0];
