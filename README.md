@@ -7,7 +7,12 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
-2.0.9: 
+2.0.17: 
+
+* Removed unsupported settings
+* Fixed User Notes
+
+2.0.15: 
 
 * Topic filters are back.
 

@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.12
+// @version     2.0.17
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -36,15 +36,12 @@ logTags.richtext = true;
 var config = {};
 var config_display = {};
 
-var strShoutboxSubst = ":h|Hello everyone\n:g|Goodbye all!";
-var arySBColours = ['gray', 'silver', 'white', 'red', 'fuchsia', 'purple', 'navy', 'blue', 'aqua', 'teal', 'green', 'olive', 'maroon', 'black'];
 var aryUserNoteOptions = ['Hover Over Name', 'Above Avatar'];
 var strExportKey = "";
 
 // -- Not to be Edited --
 var urlTopicBase = "https://elliquiy.com/forums/index.php?topic=";
 var $forumposts;
-var quickTopics = [];
 var strModal = '<div id="modalpop" title="title"></div>';
 var snippets = {};
 var draftHistory = {};
@@ -73,8 +70,6 @@ var oSessionAuth = {};
 var userLists = {};
 var currentUserList = {};
 var strScriptAdmins = ['Ssieth', 'Outcast'];
-var intMailCount = -1;
-var intUnreadCount = GM_getValue("unreadReplies", 0);
 var permResult;
 const urlImg = "https://cabbit.org.uk/eli/img/";
 
@@ -315,25 +310,19 @@ function saveConfig(andThen) {
 }
 
 function initConfig(andThen) {
-  var aryColourConfig = arySBColours;
-
   config = {};
   config_display = {};
   loadConfig();
   // Settings categories
   initConfigCategory("general","General Settings");
-  initConfigCategory("replies","Replies");
   initConfigCategory("topicFilters","Topic Filters");
   initConfigCategory("speechStyling","Speech Styling");
   initConfigCategory("userNotes","User Notes");
-  initConfigCategory("quickTopics","Quick Topics");
-  initConfigCategory("autoUpdates","Auto-Updates");
-  initConfigCategory("removeHeadFoot","Remove Head and Footer Items");
-  initConfigCategory("shoutbox","Shoutbox");
+  //initConfigCategory("quickTopics","Quick Topics");
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
   initConfigCategory("image","Images");
-  initConfigCategory("admin","Admin",true);
+  //initConfigCategory("admin","Admin",true);
   //initConfigCategory("importExport","Import / Export");
   // General Settings
   initConfigItem("general","removePics", false, {text: "Remove pictures?", type: "bool" });
@@ -345,11 +334,6 @@ function initConfig(andThen) {
   initConfigItem("general","ajaxButtons", true, {text: "Make buttons AJAX?", type: "bool" });
   initConfigItem("general","freezeGifs", false, {text: "Freeze GIFs ?", type: "bool" });
   initConfigItem("general","freezeGifsDelay", 15, {text: "Play auto-frozen GIFs for (secs):", type: "int", min: 0, max: 9999 });
-  // Replies
-  initConfigItem("replies","showCount", false, {text: "Show unread replies count?", type: "bool" });
-  initConfigItem("replies","showMenu", false, {text: "Show unread replies menu?", type: "bool" });
-  initConfigItem("replies","gotoNew", false, {text: "Replies links go to first new post?", type: "bool" });
-  initConfigItem("replies","hideUnwatched", true, {text: "Hide unwatched replies in list?", type: "bool" });
   // Topic Filters
   initConfigItem("topicFilters","on", false, {text: "Topic Filters On?", type: "bool" });
   initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
@@ -366,26 +350,6 @@ function initConfig(andThen) {
   // User Notes
   initConfigItem("userNotes","on", false, {text: "User Notes?", type: "bool" });
   initConfigItem("userNotes","style", "Hover Over Name", {text: "Note Style", type: "select", select: aryUserNoteOptions});
-  // Quick Topics
-  initConfigItem("quickTopics","on",  false, {text: "Quick topics?", type: "bool" });
-  initConfigItem("quickTopics","goLast", false, {text: "Quick topics goes to last post?", type: "bool" });
-  initConfigItem("quickTopics","markNew", true, {text: "Mark replies to quick topics?", type: "bool" });
-  // Auto Updates
-  initConfigItem("autoUpdates","unreadMinutes", 5, {text: "Update replies every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
-  initConfigItem("autoUpdates","mailMinutes", 5, {text: "Update mail count every X minutes (0=no auto-update)", type: "int", min: 0, max: 999 });
-  initConfigItem("autoUpdates","desktopNotifications", false, {text: "Desktop notifications?", type: "bool" });
-  // Removing Headers and Footers
-  initConfigItem("removeHeadFoot","shoutbox", false, {text: "Remove shoutbox?", type: "bool" });
-  initConfigItem("removeHeadFoot","styles", false, {text: "Remove styles?", type: "bool" });
-  initConfigItem("removeHeadFoot","topicIcons", false, {text: "Remove topic icons?", type: "bool" });
-  initConfigItem("removeHeadFoot","footer", false, {text: "Remove footer?", type: "bool" });
-  initConfigItem("removeHeadFoot","tidyMenus", true, {text: "Tidy Menus?", type: "bool" });
-  // Shoutbox
-  initConfigItem("shoutbox","colourOn", false, {text: "Colour Shoutbox Text?", type: "bool" });
-  initConfigItem("shoutbox","publicColour","black", {text: "Shoutbox Colour (Public)", type: "select", select: aryColourConfig});
-  initConfigItem("shoutbox","approvedColour","black", {text: "Shoutbox Colour (Approved)", type: "select", select: aryColourConfig});
-  //initConfigItem("shoutbox","subst", strShoutboxSubst, {text: "Shoutbox Substitutions (use | to separate, leave blank for no substs)", type: "text" });
-  //strShoutboxSubst = config.shoutbox.subst;
   // Bookmarks
   initConfigItem("bookmarks","tags", true, {text: "Bookmark Tags?", type: "bool" });
   initConfigItem("bookmarks","collapse", true, {text: "Collapsable View?", type: "bool" });
@@ -403,11 +367,6 @@ function initConfig(andThen) {
   initConfigItem("repage","infinity", false, {text: "Infinity paging?", type: "bool" });
   // Images
   initConfigItem("image","enlarge", true, {text: "Click to Enlarge?", type: "bool" });
-  // Admin
-  initConfigItem("admin","removeNewsbox", false, {text: "Remove Newsbox?", type: "bool" });
-  initConfigItem("admin","removeDonate", false, {text: "Remove Donate?", type: "bool" });
-  initConfigItem("admin","removeSsiethStuff", false, {text: "Remove Ssieth Stuff?", type: "bool" });
-
   saveConfig();
   if (andThen) andThen();
 }
@@ -671,26 +630,7 @@ function getNextURL($page,iPage) {
 
 function repaginate() {
   if (page.type === "topic") {
-    if (config.repage.on) {
-      console.log("===== Repaginate =====")
-      let strPageBody = 'form#quickModForm';
-      let $pageBody0 = $(strPageBody);
-      let iPage = parseInt($("div.pagelinks span.current_page:eq(0)").text());
-      console.log("iPage = " + iPage);
-      console.log($("div.pagelinks span.current_page"));
-      let stopAt = iPage + config.repage.maxpage;
-      let strURL = getNextURL($("body"),iPage);
-      console.log("repage: page " + iPage);
-      if (strURL === "") {
-        console.log("repage: No next, last page?");
-        return;
-      }
-      if ($pageBody0.length <= 0) {
-        console.log("repage: No page body? That's odd... what are you doing?");
-        return;
-      }
-      repage_getPage($pageBody0,strURL, stopAt);
-    } else if (config.repage.infinity) {
+    if (config.repage.infinity) {
       let iPage = parseInt($("div.pagelinks strong").text());
       lastPageLoaded = iPage;
       loadingPage = false;
@@ -1617,200 +1557,6 @@ function displaySnippets() {
 }
 /* =========================== */
 
-
-/* =========================== */
-/* Quick Topics                */
-/* =========================== */
-function sortQuickTopics() {
-  log("functiontrace", "Start Function");
-  quickTopics.sort(sort_by('name', false, function (a) {
-    return a.toUpperCase();
-  }));
-}
-
-function loadQuickTopics() {
-  log("functiontrace", "Start Function");
-  var strQTopics = GM_getValue("qTopics", "");
-  if (strQTopics !== "") {
-    quickTopics = JSON.parse(strQTopics);
-    sortQuickTopics();
-  }
-}
-
-function saveQuickTopics() {
-  log("functiontrace", "Start Function");
-  sortQuickTopics();
-  GM_setValue("qTopics", JSON.stringify(quickTopics));
-}
-
-function hasQuickTopic(intTopicID) {
-  log("functiontrace", "Start Function");
-  var hasIt = -1;
-  var counter;
-  forloop: for (counter = 0; counter < quickTopics.length; counter++) {
-    var qForum = quickTopics[counter];
-    if (qForum.id == intTopicID) {
-      hasIt = counter;
-      break forloop;
-    }
-  }
-  return hasIt;
-}
-
-function addQuickTopic(strName, intID) {
-  log("functiontrace", "Start Function");
-  quickTopics.push({"name": strName, "url": urlTopicBase + intID, "id": intID});
-}
-
-function displayQuickTopics() {
-  log("functiontrace", "Start Function");
-  $("li#button_q ul").remove();
-  var $menunav = $('ul#menu_nav');
-  var $menuQ = $('li#button_q');
-  var newMenu = false;
-  if ($menuQ.length === 0) {
-    newMenu = true;
-    $menuQ = $("<li id='button_q'><a class='firstlevel' href='#'><span class='firstlevel'>Quick Topics</span></a></li>");
-  }
-
-  $menuQ.find("a").click(function (e) {
-    e.preventDefault();
-    frmQuickTopics();
-  });
-
-  var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
-  var strGoLast;
-  if (config.quickTopics.goLast) {
-    strGoLast = ";all#lastPost";
-  }
-  else {
-    strGoLast = "";
-  }
-  for (qForum of quickTopics) {
-    if (qForum === undefined) {}
-    else {
-      $menuQ_ul.append("<li id='qTopic_" + qForum.id + "'><a href='" + qForum.url + strGoLast + "'><span>" + qForum.name + "</span></a></li>");
-    }
-  }
-  $menuQ.append($menuQ_ul);
-  if (newMenu) {
-    $menunav.append($menuQ);
-  }
-}
-
-function addQuickTopicButton() {
-  log("functiontrace", "Start Function");
-  var $buttonLists = $('div.buttonlist ul');
-  var $topicForm = $('form#search_form');
-  var intTopicID = -1;
-  var strTopicName = $("title").text();
-  var intTopicPos = -1;
-  var $newButton;
-
-  // remove old buttons
-  $('li.button_strip_qtopic_li').remove();
-
-  // Trim user names out of the topic name
-  var intBracketPos = strTopicName.lastIndexOf('(');
-  if (intBracketPos > 0) {
-    strTopicName = $.trim(strTopicName.substr(0, intBracketPos));
-  }
-
-  if ($topicForm.length > 0) {
-    intTopicID = $topicForm.find('input[name="topic"]').val();
-    if (intTopicID > 0) {
-      intTopicPos = hasQuickTopic(intTopicID);
-      if (intTopicPos > -1) {
-        $newButton = $("<li class='button_strip_qtopic_li'><a class='button_strip_qtopic' href='#'><span class='last'>Remove Quick Topic</span></a></li>");
-        $newButton.click(function () {
-          quickTopics.remove(intTopicPos, intTopicPos);
-          displayQuickTopics();
-          saveQuickTopics();
-          addQuickTopicButton();
-          return false;
-        });
-      }
-      else {
-        $newButton = $("<li class='button_strip_qtopic_li'><a class='button_strip_qtopic' href='#'><span class='last'>Add Quick Topic</span></a></li>");
-        $newButton.click(function () {
-          addQuickTopic(strTopicName, intTopicID);
-          displayQuickTopics();
-          saveQuickTopics();
-          addQuickTopicButton();
-          return false;
-        });
-      }
-      $buttonLists.append($newButton);
-    }
-  }
-}
-
-function frmQuickTopicsBody(strMessage) {
-  log("functiontrace", "Start Function");
-  var strBody = "";
-  var counter;
-  strBody += "<table>";
-  strBody += "<tr>";
-  strBody += " <th style='text-align: left;'>#</th>";
-  strBody += " <th style='text-align: left;'>Name</th>";
-  strBody += " <th style='text-align: left;'>Topic ID</th>";
-  strBody += " <th style='text-align: left;'>Actions</th>";
-  strBody += "</tr>";
-  for (counter = 0; counter < quickTopics.length; counter++) {
-    var qForum = quickTopics[counter];
-    if (qForum === undefined) {}
-    else {
-      strBody += "<tr id='snipEdit_row_" + counter + "'>";
-      strBody += " <td>" + counter + "</td>";
-      strBody += " <td><input type='text' id='snipEdit_name_" + counter + "' value='" + qForum.name.replace("'", "&#39;") + "' style='width: 25em;' /></td>";
-      strBody += " <td><input type='text' id='snipEdit_id_" + counter + "' value='" + qForum.id + "' style='width: 5em;'/></td>";
-      strBody += " <td>";
-      strBody += "<button type='button' id='snipEdit_update_" + counter + "' class='snipEdit_updatebutton' value='Update'>Update</button> ";
-      strBody += "<button type='button' id='snipEdit_delete_" + counter + "' class='snipEdit_deletebutton' value='Delete'>Delete</button>";
-      strBody += "</td>";
-      strBody += "</tr>";
-    }
-  }
-  strBody += "</table>";
-  strBody += "<p><span id='snipEdit_message'>" + strMessage + "</span></p>";
-  return strBody;
-}
-
-function frmQuickTopics() {
-  log("functiontrace", "Start Function");
-  var strBody = frmQuickTopicsBody("...");
-  var strID;
-  var intID;
-  var qTopic;
-
-  throwModal("Quick Topics", strBody);
-  $('#modalpop button.snipEdit_updatebutton').click(function (e) {
-    strID = $(this).attr("id");
-    strID = strID.replace("snipEdit_update_", "");
-    intID = parseInt(strID, 10);
-    qTopic = quickTopics[intID];
-    qTopic.id = $('#snipEdit_id_' + intID).val();
-    qTopic.name = $('#snipEdit_name_' + intID).val();
-    qTopic.url = urlTopicBase + qTopic.id;
-    saveQuickTopics();
-    displayQuickTopics();
-    $('#modalpop span#snipEdit_message').html("Entry #" + intID + " updated");
-  });
-  $('#modalpop button.snipEdit_deletebutton').click(function (e) {
-    strID = $(this).attr("id");
-    strID = strID.replace("snipEdit_delete_", "");
-    intID = parseInt(strID, 10);
-    quickTopics.remove(intID, intID);
-    saveQuickTopics();
-    displayQuickTopics();
-    //$('#modalpop tr#snipEdit_row_' + intID).remove();
-    //$('#modalpop span#snipEdit_message').html("Entry #" + intID + " removed");
-    strBody = frmQuickTopicsBody("Entry #" + intID + " removed");
-    $("#modalpop").html(strBody);
-  });
-}
-/* =========================== */
-
 /* =========================== */
 /* Replies                     */
 /* =========================== */
@@ -1921,54 +1667,12 @@ function getUnreadReplies(callback) {
     $(data).find('div#unreadreplies table tbody tr').each(function () {
       var strTopicID = $(this).find("a:eq(0)").attr("href").match(/\d+/)[0];
       intTopicID = parseInt(strTopicID, 10);
-      if (config.quickTopics.markNew) {
-        var strLinkText = $('#qTopic_' + intTopicID).find("a span").text();
-        if (strLinkText.substring(0, 1) != "*") {
-          $('#qTopic_' + intTopicID).find("a span").text("*** " + strLinkText + " ***");
-        }
-      }
       objReplies[intTopicID] = true;
       if (objIgnoreReplies[intTopicID] === true) {}
       else {
-        if (config.replies.showMenu) {
-          var lasturl = $(this).find("td.lastpost a:eq(0)").attr("href");
-          if (config.replies.gotoNew) {
-            lasturl = url2new(lasturl);
-          }
-          $thisa = $(this).find("a:eq(0)").attr("href", lasturl);
-          aryReplies.push($thisa.parent().html());
-        }
         intCount++;
       }
     });
-    if (config.autoUpdates.desktopNotications) {
-      askPermission();
-      if (intCount > intUnreadCount) {
-        intUnreadCount = intCount;
-        GM_setValue("unreadReplies", intCount);
-        sendNotification("Elliquiy Replies", "You have new unread replies to your Elliquiy posts").onclick = function (e) {
-          e.preventDefault();
-          window.open("https://elliquiy.com/forums/index.php?action=unreadreplies", "_blank");
-        };
-      }
-    }
-    if (config.replies.showCount) {
-      var $appendTo;
-      if (config.removeHeadFoot.shoutbox) {
-        $appendTo = $("div.main_header div.floatright a:eq(1)");
-      }
-      else {
-        $appendTo = $("div.main_header div.floatright a:eq(2)");
-      }
-      var strText = "New replies to your posts" + " (" + intCount + ")";
-      if (intCount > 0) {
-        strText = "<span style='color:red;'>" + strText + "</span>";
-      }
-      $appendTo.html(strText);
-    }
-    if (config.replies.showMenu) {
-      displayReplies(aryReplies);
-    }
     if (callback) {
       callback();
     }
@@ -2036,50 +1740,8 @@ function removeAllImages() {
 /* =========================== */
 
 /* =========================== */
-/* Header/Footer Removal       */
-/* =========================== */
-function removeHeaderStuff(blUserDep) {
-  log("functiontrace", "Start Function");
-  if (blUserDep) {
-    /*
-    No longer used
-     */
-  }
-  else {
-    if (config.removeHeadFoot.shoutbox) {
-      // remove shoutbox stuff
-      $("#shoutBoxContainer").remove(); // main container
-      $(".shouttabcontainer").remove(); // channel tabs
-      $(".main_header .floatright:eq(1)").remove(); // Disable shoutbox button
-    }
-
-    if (config.removeHeadFoot.styles) {
-      // Finally everything else at the bottom of the box (alternative site styles etc)
-      $(".main_header hr").nextAll().remove();
-    }
-
-    if (config.removeHeadFoot.footer) {
-      $("div#topic_icons").remove();
-    }
-
-    if (config.removeHeadFoot.topicIcons) {
-      // Finally everything else at the bottom of the box (alternative site styles etc)
-      $("div.main_footer").remove();
-    }
-  }
-}
-/* =========================== */
-
-/* =========================== */
 /* Tick Engine                 */
 /* =========================== */
-function fireJQueryStuff() {
-  log("functiontrace", "Start Function");
-  if (config.shoutbox.colourOn) {
-    shoutBoxColor();
-  }
-}
-
 function tick() {
   log("functiontrace", "Start Function");
   // If we are doing anything that requires ticks then we fire them roughly every second.
@@ -2090,21 +1752,6 @@ function tick() {
   intTick += 1;
   log("tickfires", "Tick fired: " + intTick);
 
-  if (config.replies.showCount && config.autoUpdates.unreadMinutes > 0) {
-    if (datNow.getTime() - datUnread.getTime() > 1000 * 60 * config.autoUpdates.unreadMinutes) {
-      datUnread = new Date();
-      log("tickactions", "  Tick: Getting unread replies");
-      getUnreadReplies();
-    }
-  }
-  if (config.autoUpdates.mailMinutes > 0) {
-    intSpan = datNow.getTime() - datMail.getTime();
-    if (datNow.getTime() - datMail.getTime() > 1000 * 60 * config.autoUpdates.mailMinutes) {
-      datMail = new Date();
-      log("tickactions", "  Tick: Getting mail count");
-      updateMailCount();
-    }
-  }
   if (blUserDepReady) {
     blUserDepReady = false;
     log("tickactions", "  Tick: User-dependent stuff");
@@ -2114,82 +1761,11 @@ function tick() {
     if (!blJQueryStuff) {
       log("tickactions", "  Tick: injecting code into base page");
       blJQueryStuff = true;
-      fireJQueryStuff();
     }
   }
 }
 /* =========================== */
 
-/* =========================== */
-/* Mail Counts                 */
-/* =========================== */
-function getUnreadMailCount() {
-    return 0;
-  var $ele = $("span.greeting a");
-  var txt = $ele.text();
-  var ary = txt.split(",");
-  var strCount;
-  var intCount = 0;
-  ary = ary[1].split(" ");
-  strCount = ary[1];
-  if (strCount !== "none") {
-    intCount = parseInt(strCount);
-  }
-  GM_setValue("unreadMail", intCount);
-  return intCount;
-}
-
-function updateMailCount() {
-  log("functiontrace", "Start Function");
-  var strURL = "https://elliquiy.com/forums/index.php?action=search";
-  var intNewMail = 0;
-  askPermission();
-
-  if (intMailCount === -1) {
-    intMailCount = GM_getValue("unreadMail", 0);
-  }
-
-  $.get(strURL, function (data) {
-    var $reportTo = $("span.greeting a");
-    var $mailCountLink = $(data).find("span.greeting a");
-    $reportTo.html($mailCountLink.html());
-    intNewMail = getUnreadMailCount();
-    if (intMailCount < intNewMail) {
-      sendNotification("New Elliquiy PMs", "You have new PMs (" + intNewMail + " unread)").onclick = function (e) {
-        e.preventDefault();
-        window.open("https://elliquiy.com/forums/index.php?action=pm", "_blank");
-      };
-      console.log("Mail count increased from " + intMailCount + " to " + intNewMail);
-    }
-  });
-}
-/* =========================== */
-
-/* =========================== */
-/* Notifications               */
-/* =========================== */
-function askPermission() {
-  log("functiontrace", "Start Function");
-  if (config.autoUpdates.desktopNotications && permResult !== "granted" && permResult !== "denied") {
-    Notification.requestPermission(function (permission) {
-      permResult = permission;
-    });
-  }
-}
-
-function sendNotification(strTitle, strBody ) {
-  log("functiontrace", "Start Function");
-  if (config.autoUpdates.desktopNotications) {
-    var options = {
-      body: strBody,
-      requireInteraction: true,
-      icon: "https://elliquiy.com/favicon.ico"
-    };
-    var notification = new Notification(strTitle, options);
-    return notification;
-  }
-}
-/* =========================== */
 
 /* =========================== */
 /* User Details                */
@@ -2268,9 +1844,6 @@ function userDep() {
   log("functiontrace", "Start Function");
   // Functions that are dependent on user details
 
-  // Remove header stuff that is dependent on user level
-  //removeHeaderStuff(true);
-
   if (config.bookmarks.tags && page.type == "bookmarks") {
     reformatBMs();
   }
@@ -2281,71 +1854,6 @@ function userDep() {
 }
 /* =========================== */
 
-/* =========================== */
-/* Shoutbox Stuff  */
-/* =========================== */
-function injectJQuery() {
-  log("functiontrace", "Start Function");
-  var strSrc = "";
-  strSrc += "var newscript = document.createElement('script');";
-  strSrc += "newscript.type = 'text/javascript';";
-  strSrc += "newscript.async = true;";
-  strSrc += "newscript.src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js';";
-  strSrc += "(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(newscript);";
-  inject(strSrc);
-}
-
-function sbColour(strText, strCol) {
-  if (strText.substr(0, 1) == '/') {
-    return strText.substr(0, strText.indexOf(' ') + 1) + '[color=' + strCol + ']' + strText.substr(strText.indexOf(" ")) + '[/color]';
-  }
-  else {
-    return '[color=' + strCol + ']' + strText + '[/color]';
-  }
-}
-
-function sbFunctions(strControlPostFix, strCol) {
-  log("functiontrace", "Start Function");
-  // remove old click behaviour
-  inject("$('#shoutChatInputFieldButton" + strControlPostFix + "').prop('onclick',null).off('click');");
-  // Add new click behaviour
-  inject("$('#shoutChatInputFieldButton" + strControlPostFix + "').click( function(e) { e.preventDefault(); var strText = $('#shoutChatInputField" + strControlPostFix + "').val(); ajaxChat.sendMessage(sbColour(strText,'" + strCol + "')); return false;});");
-  // remove old enter/return key behaviour
-  inject("$('#shoutChatInputField" + strControlPostFix + "').prop('onkeypress',null).off('keypress');");
-  // add new enter/return key behaviour
-  inject("$('#shoutChatInputField" + strControlPostFix + "').keypress(function(event) {var strText = $('#shoutChatInputField" + strControlPostFix + "').val(); if(event.keyCode === 13 && !event.shiftKey) {ajaxChat.sendMessage(sbColour(strText,'" + strCol + "')); try { event.preventDefault();  } catch(e) { event.returnValue = false; } return false; } return true; });");
-}
-
-/*
-function buildSBSubst() {
-  log("functiontrace", "Start Function");
-  objSBSubst = {};
-  if (strShoutboxSubst && strShoutboxSubst.length > 0) {
-    var arySBSubst = strShoutboxSubst.split("\n");
-    for (var i = 0; i < arySBSubst.length; i++) {
-      if (arySBSubst[i].indexOf("|") !== -1) {
-        var ary = arySBSubst[i].split("|");
-        objSBSubst[ary[0]] = ary[1];
-      }
-    }
-  }
-}
-*/
-
-function shoutBoxColor() {
-  log("functiontrace", "Start Function");
-  // Inject array of subsitutions
-  //var objSBSubst = {":1": "/me peers at some test code and wonders if it is working", ":2": "Looks to be working"};
-  var strSBSubst = JSON.stringify(objSBSubst);
-  inject("var objSBSubst=" + strSBSubst + ";");
-  //inject("function sbSubst(strIn) { var strOut=strIn; for (var property in objSBSubst) { if (objSBSubst.hasOwnProperty(property)) { strOut = strOut.replace(property,objSBSubst[property]); } } return strOut; }");
-  inject("function sbSubst(strIn) { return strIn; }");  // Hopefully not needed any more but just to be sure...
-  // Inject function to produce colour text
-  inject("function sbColour(strText,strCol) { if (strText.substr(0,1) == '/') { return strText.substr(0,strText.indexOf(' ')+1) + '[color=' + strCol + ']' + strText.substr(strText.indexOf(' ')) + '[/color]'; } else { return '[color=' + strCol + ']' + strText + '[/color]'; } }");
-  sbFunctions("", config.shoutbox.publicColour);
-  sbFunctions("ApprovedBox", config.shoutbox.approvedColour);
-}
-/* =========================== */
 
 /* =========================== */
 /* Bookmarks                   */
@@ -3236,6 +2744,7 @@ function annotateNames() {
   var strName;
   var $name;
 
+  console.log("== annotateNames ==");
   // addNameNote("Nowherewoman","Storium: Ev");
   switch (page.type) {
     case "topic":
@@ -3256,6 +2765,8 @@ function annotateNames() {
               $name.css("color", "green");
               break;
             case "above avatar":
+              console.log("avi");
+              console.log($(this).parent().find("li.avatar"));
               $(this).parent().find("li.avatar").before("<li class='charnotes' style='border: thin solid green; padding: 5px;'>" + renderHTML(nameNotes[strName].note) + "</li>");
               break;
             default:
@@ -3272,12 +2783,12 @@ function annotateNames() {
       var $detailedInfo = $("div#detailedinfo");
       var strUserBlock = $basicInfo.find("div.username h4").html();
       if (strUserBlock) {
-        var userBlockEnd = strUserBlock.indexOf(" <");
+        var userBlockEnd = strUserBlock.indexOf("<");
         var strUserID = "";
         if (userBlockEnd == -1) {
           strUserID = $basicInfo.find("div.username h4").text().trim();
         } else {
-          strUserID = $basicInfo.find("div.username h4").html().substr(0,userBlockEnd);
+          strUserID = $basicInfo.find("div.username h4").html().substr(0,userBlockEnd).trim();
         }
         var $nameNotes = $("<div class='nameNotes'></div>");
         var strNote = "";
@@ -3764,36 +3275,13 @@ function main() {
 
     getPageDetails();
     applyCSS();
-    removeHeaderStuff(false);
-
-    if (user.id == "Ssieth") {
-      if (config.admin.removeNewsbox) {
-        $("div.main_newsbox").remove();
-      }
-      if (config.admin.removeDonate) {
-        $(".main_header .donorbanner").remove(); // Disable donorbanner
-      }
-      if (config.admin.removeSsiethStuff) {
-        $(".main_header .floatright:eq(2)").remove(); // Disable shoutbox button
-      }
-    }
 
     if (config.general.debugInfo) {
       createDebug();
     }
 
-    // Inject JQuery for any functions that need it.
-    if (config.shoutbox.colourOn) {
-      injectJQuery();
-      blJQueryStuff = false;
-    }
-
     // Get the sessionAuth object.  This lets us do some under-the-hood stuff :)
     oSessionAuth = getSessionAuth();
-
-    if (config.removeHeadFoot.tidyMenus) {
-      tidyMenus();
-    }
 
     if (config.userNotes.on) {
       loadNameNotes();
@@ -3825,12 +3313,6 @@ function main() {
       removeAllImages();
     }
 
-    if (config.quickTopics.on) {
-      loadQuickTopics();
-      displayQuickTopics();
-      addQuickTopicButton();
-    }
-
     if (config.general.ajaxButtons) {
       ajaxButtons();
     }
@@ -3855,12 +3337,6 @@ function main() {
       }
     }
 
-    if (config.replies.showCount || config.quickTopics.markNew) {
-      loadIgnoredReplies();
-      addIgnoreRepliesButton();
-      getUnreadReplies();
-    }
-
     if (config.bookmarks.tags) {
       loadBMTags();
       if (page.type == "board") {
@@ -3877,12 +3353,6 @@ function main() {
       tagOnBM();
     }
 
-    if (config.autoUpdates.unreadMinutes > 0 || config.autoUpdates.mailMinutes > 0) {
-      if (config.autoUpdates.mailMinutes > 0) {
-        updateMailCount();
-      }
-    }
-
     if (config.bookmarks.allLink && page.type == "bookmarks") {
       BMAllLinks();
     }
@@ -3893,14 +3363,6 @@ function main() {
 
     if (page.type == 'pm-send') {
       //frmUserList();
-    }
-
-    if (page.type == 'replies') {
-      console.log(objReplies);
-      if (config.replies.hideUnwatched) {
-        let $tNew = getBMsFromTable("unwatch");
-        $("table").replaceWith($tNew);
-      }
     }
 
     // images
