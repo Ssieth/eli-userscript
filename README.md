@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.0.9: 
+
+* Bookmarks menu is back
+
 2.0.7: 
 
 * Repagination and infinity paging are now working again (I think)

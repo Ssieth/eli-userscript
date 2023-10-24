@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.7
+// @version     2.0.9
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -523,7 +523,6 @@ function editConfig() {
 /* =========================== */
 function displaySettings() {
   log("functiontrace", "Start Function");
-
   $("li#button_settings").remove();
   let settingsURL = "https://elliquiy.com/forums/index.php?action=help#scriptsettings";
   let $menunav = $('ul#top_info');
@@ -1600,7 +1599,7 @@ function buildSnipMenu() {
 
 function displaySnippets() {
   log("functiontrace", "Start Function");
-  console.log("Display Snippets");
+  // console.log("Display Snippets");
   var $copyTo = $('#post_header');
   if ($copyTo.length > 0) {
     $copyTo.find("#snipMenu").remove();
@@ -2389,7 +2388,7 @@ function getBMsFromTable(bmType) {
   log("getBMsFromTable", "Start Function");
   var intRow = 0;
 
-  console.log("===== getBMsFromTable:" + bmType + "=====")
+  //console.log("===== getBMsFromTable:" + bmType + "=====")
   var $tNew = $("table").clone();
 
   switch (bmType) {
@@ -2468,8 +2467,8 @@ function getBMsFromTable(bmType) {
       });
       break;
   }
-  console.log($tNew);
-  console.log("/===== getBMsFromTable 2 =====")
+  //console.log($tNew);
+  //console.log("/===== getBMsFromTable 2 =====")
   $tNew.addClass("bmHideable");
   return $tNew;
 }
@@ -2501,7 +2500,7 @@ function reformatBMsCollapse() {
   let $tTags = {};
   for (counter = 0; counter < aryBMTags.length; counter++) {
     let strTag = aryBMTags[counter];
-    console.log("=> Tag: " + strTag);
+    // console.log("=> Tag: " + strTag);
     $tTags[strTag] = getBMsFromTable(strTag);
   }
 
@@ -2675,25 +2674,32 @@ function displayBMMenu() {
   log("functiontrace", "Start Function");
   var counter;
   var strBase = "https://elliquiy.com/forums/index.php?action=bookmarks";
-  $("li#button_bookmarks ul").remove();
-  var $menunav = $('ul#menu_nav');
-  var $menuQ = $('li#button_bookmarks');
-  var $menuQ_ul = $("<ul style='background-color: white;'></ul>");
+  $("#bm_menu").remove();
 
+  let $menunav = $('li.button_bookmarks');
+  let $menuQOuter = $("<div id='bm_menu' class='top_menu' style='display: hidden'><div class='profile_user_links'><ol></ol></div>");
+  let $menuQ = $menuQOuter.find("ol");
+
+  $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=all' id='bm-all' style='display: inline;'><span>All</span></a></li>")
   if (config.bookmarks.owedTag) {
-    $menuQ_ul.append("<li><a href='" + strBase + "&tag=owe' id='bm-owe'><span class='bm_link'>Posts Owed</span></a></li>");
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=owe' id='bm-owe' style='display: inline;'><span>Posts Owed</span></a></li>")
   }
   if (config.bookmarks.repliesTag) {
-    $menuQ_ul.append("<li><a href='" + strBase + "&tag=replies' id='bm-replies'><span class='bm_link'>Replies</span></a></li>");
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=replies' id='bm-replies' style='display: inline;'><span>Replies</span></a></li>")
   }
   if (config.bookmarks.noTagsTag) {
-    $menuQ_ul.append("<li><a href='" + strBase + "&tag=no-tags' id='bm-no-tags'><span class='bm_link'>No Tags</span></a></li>");
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=no-tags' id='bm-no-tags' style='display: inline;'><span>No Tags</span></a></li>")
   }
   for (counter = 0; counter < aryBMTags.length; counter++) {
     var strTag = aryBMTags[counter];
-    $menuQ_ul.append("<li><a href='" + strBase + "&tag=" + strTag + "' id='bm-" + strTag + "'><span class='bm_link'>" + strTag + "</span></a></li>");
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=" + strTag + "' id='bm-" + strTag + "' style='display: inline;'><span>" + strTag + "</span></a></li>")
   }
-  $menuQ.append($menuQ_ul);
+  $menunav.append($menuQOuter);
+  $menunav.find("a:eq(0)").click(function(e){
+    $menuQOuter.toggle();
+    e.preventDefault();
+  });
+  $menunav.find("a:eq(0) .textmenu").html("Bookmarks");
 }
 
 function reCaseBMTag(strTag) {
@@ -3840,7 +3846,7 @@ function main() {
     }
 
     if (config.general.snippets) {
-        console.log("Snips");
+      //  console.log("Snips");
       loadSnippets();
       displaySnippets();
     }
