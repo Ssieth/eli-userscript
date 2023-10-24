@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.17
+// @version     2.1.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -3267,6 +3267,13 @@ function scrollEvents(scroll) {
   }
 }
 
+function addElliLogo() {
+  $("#smflogo").attr("src","https://cabbit.org.uk/pic/elli/logo.png");
+  $("#smflogo").attr("alt","Elliquiy - Write with us");
+  $("#smflogo").attr("title","Elliquiy");
+  $("#smflogo").css("height","75px")
+}
+
 function main() {
   log("functiontrace", "Start Function");
   log("startup", "Starting " + GM_info.script.name + " v" + GM_info.script.version);
@@ -3275,6 +3282,8 @@ function main() {
 
     getPageDetails();
     applyCSS();
+
+    addElliLogo();
 
     if (config.general.debugInfo) {
       createDebug();

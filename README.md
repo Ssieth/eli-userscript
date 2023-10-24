@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.1.0: 
+
+* Replace SMF logo with Elliquiy one
+
 2.0.17: 
 
 * Removed unsupported settings
