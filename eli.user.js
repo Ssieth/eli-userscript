@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.0.9
+// @version     2.0.12
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -358,6 +358,7 @@ function initConfig(andThen) {
   initConfigItem("topicFilters","CSS_Mark", "background-color: lightgray; text-decoration: line-through;", {text: "Mark Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Question", "background-color: cornsilk;" , {text: "Question Styling (CSS)", type: "text" });
   strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
+  strCSSFT = strCSSFT.replaceAll(";"," !important;")
   // Speech Styling
   initConfigItem("speechStyling","on", true, {text: "Style Speech?", type: "bool" });
   initConfigItem("speechStyling","incQuote", true , {text: "Include quotes?", type: "bool" });
@@ -911,44 +912,39 @@ function filterTopics() {
   var $url;
   var id;
   var name;
-  $('div.main_content form table tbody tr,div#messageindex table tbody tr').each(function () {
+  console.log("== filter topics ==");
+  $('#topic_container div.windowbg').each(function () {
     $row = $(this);
-    if ($row.attr("class") === undefined) {
-      if (page.type == "bookmarks") {
-        $url = $row.find("td:eq(1) a:eq(0)");
-      }
-      else {
-        $url = $row.find("td:eq(2) a:eq(0)");
-      }
+      $url = $row.find("div.info span.preview a");
       id = "" + $url.attr("href").match(/\d+/)[0];
       name = $url.text();
       if (objFilterTopics[id] === undefined) {}
       else {
         switch (objFilterTopics[id].filterType) {
           case "mark":
-            $row.find("td").addClass("FTMark");
+            $row.addClass("FTMark");
             break;
           case "mark-genre":
-            $row.find("td").addClass("FTMark");
+            $row.addClass("FTMark");
             filterTopicsSetIcon($row,"drama.png");
             break;
           case "mark-gender":
-            $row.find("td").addClass("FTMark");
+            $row.addClass("FTMark");
             filterTopicsSetIcon($row,"manwoman.png");
             break;
           case "mark-canon":
-            $row.find("td").addClass("FTMark");
+            $row.addClass("FTMark");
             filterTopicsSetIcon($row,"canon.webp");
             break;
           case "question":
-            $row.find("td").addClass("FTQ");
+            $row.addClass("FTQ");
             filterTopicsSetIcon($row,"question.png");
             break;
           case "hi":
-            $row.find("td").addClass("FTHi");
+            $row.addClass("FTHi");
             break;
           case "hisoft":
-            $row.find("td").addClass("FTHiSoft");
+            $row.addClass("FTHiSoft");
             break;
           case "hide":
             $row.hide();
@@ -957,24 +953,22 @@ function filterTopics() {
             break;
         }
       }
-    }
   });
 }
 
 function quickFT() {
   log("functiontrace", "Start Function");
   var intRow = 0;
-  $("table tr").each(function () {
-    intRow++;
-    if (intRow > 2) {
-      $(this).find("td:eq(0) img").click(function (e) {
-        var strTopicURL = $(this).parent().parent().find("td:eq(2) a:eq(0)");
-        var strTopicName = strTopicURL.text();
-        var strTopicID = strTopicURL.attr("href").match(/\d+/)[0];
-        frmFT(strTopicID, strTopicName, "mark");
-      }).addClass('pointer');
-    }
+//  console.log("=== qft ===")
+  $("#topic_container div.windowbg").each(function () {
+    $(this).find("div.board_icon").click(function (e) {
+      var strTopicURL = $(this).parent().find("div.info span.preview a");
+      var strTopicName = strTopicURL.text();
+      var strTopicID = strTopicURL.attr("href").match(/\d+/)[0];
+      frmFT(strTopicID, strTopicName, "mark");
+    }).addClass('pointer');
   });
+//  console.log("/=== qft ===")
 }
 
 function loadFilterTopics() {
@@ -2680,7 +2674,7 @@ function displayBMMenu() {
   let $menuQOuter = $("<div id='bm_menu' class='top_menu' style='display: hidden'><div class='profile_user_links'><ol></ol></div>");
   let $menuQ = $menuQOuter.find("ol");
 
-  $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=all' id='bm-all' style='display: inline;'><span>All</span></a></li>")
+  $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=' id='bm-all' style='display: inline;'><span>All</span></a></li>")
   if (config.bookmarks.owedTag) {
     $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=owe' id='bm-owe' style='display: inline;'><span>Posts Owed</span></a></li>")
   }

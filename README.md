@@ -9,6 +9,10 @@ The specific features are listed below:
 ## In the last version
 2.0.9: 
 
+* Topic filters are back.
+
+2.0.9: 
+
 * Bookmarks menu is back
 
 2.0.7: 
