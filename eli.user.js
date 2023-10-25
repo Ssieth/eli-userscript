@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.1.1
+// @version     2.1.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -500,7 +500,7 @@ function displaySettings() {
     }
 
     $menuQ.append("<li><span class='main_icons drafts'></span> <a href='#' id='snippets_link_settings'>Snippets</a></li>")
-    $menuQ.append("<li><span class='main_icons drafts'></span> <a href='https://elliquiy.com/forums/index.php?action=help#sortsnippets' id='snippets_sort_settings'>Sort Snippets</a></li>")
+    $menuQ.append("<li><span class='main_icons drafts'></span> <a href='https://elliquiy.com/forums/index.php?action=sortsnippets' id='snippets_sort_settings'>Sort Snippets</a></li>")
     $menuQ.find("a#snippets_link_settings").click(function (e) {
       e.preventDefault();
       frmSnippet();
@@ -1172,8 +1172,11 @@ function sortSnippets() {
     saveConfig();
   }
   var $page = $("div#helpmain");
+  if ($page.length <= 0) {
+    $page = $("#fatal_error div.windowbg")
+  }
   $page.css("max-width","initial");
-  $("h3.catbg").html("<h2>Sort Snippets</h2>");
+  $("h3.catbg").html("Sort Snippets");
   document.title = "Sort Snippets";
   var $help = $("<p>Just grab the snippet and drag it where you want it in the ordering.</p>");
   var $sortOptions = $("<p></p>");
@@ -2453,6 +2456,9 @@ function getPageDetails() {
   else if (page.url.full.toLowerCase().indexOf("action=profile") > 0) {
     page.type = "profile";
   }
+  else if (page.url.full.toLowerCase().indexOf("action=sortsnippets") > 0) {
+    page.type = "sortsnippets";
+  }
   else if (page.url.full.toLowerCase().indexOf("action=help") > 0) {
     switch (page.url.hash.toLowerCase()) {
       case  "#scriptsettings":
@@ -2744,7 +2750,7 @@ function annotateNames() {
   var strName;
   var $name;
 
-  console.log("== annotateNames ==");
+  // console.log("== annotateNames ==");
   // addNameNote("Nowherewoman","Storium: Ev");
   switch (page.type) {
     case "topic":
