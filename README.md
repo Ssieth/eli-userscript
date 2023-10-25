@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.1.5:
+
+* Minor tidy-up to have ScriptSettings use action rather than bookmark hash
+
 2.1.4:
 
 * Addressing a bug when moving between script settings and snippet sorting pages

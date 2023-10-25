@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.1.4
+// @version     2.1.5
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -409,11 +409,12 @@ function editConfig() {
   GM_addStyle(".gm-settings-setting-label { margin-right: 10px; display: inline; font-weight: bold; color: black;}");
   GM_addStyle(".gm-settings-control-int { width: 4rem; }");
   GM_addStyle(".gm-settings-setting-label { max-width: 15rem; display: inline-block; }");
-  var $page = $("div#helpmain");
+  //var $page = $("div#helpmain");
+  let $page = $("#fatal_error div.windowbg");
 
   $page.css("max-width","initial");
   //var $title = $("<h2>Script Settings (v" + GM_info.script.version + ")</h2>");
-  $("h3.catbg").html("<h2>Script Settings (v" + GM_info.script.version + ")</h2>");
+  $("h3.catbg").html("Script Settings (v" + GM_info.script.version + ")");
   document.title = "Script Settings (v" + GM_info.script.version + ")";
   $page.html("");
   for (var key in config_display) {
@@ -484,7 +485,7 @@ function editConfig() {
 function displaySettings() {
   log("functiontrace", "Start Function");
   $("li#button_settings").remove();
-  let settingsURL = "https://elliquiy.com/forums/index.php?action=help#scriptsettings";
+  let settingsURL = "https://elliquiy.com/forums/index.php?action=scriptsettings";
   let $menunav = $('ul#top_info');
   let $menuQOuter = $("<li><a href='#' id='script_menu_top'><span class='main_icons maintain'></span> <span class='textmenu'>Script</span></a><div id='script_menu' class='top_menu' style='display: hidden'><div class='profile_user_links'><ol></ol></div><!-- .profile_user_links --></div></li>");
   let $menuQ = $menuQOuter.find("ol");
@@ -2458,6 +2459,9 @@ function getPageDetails() {
   }
   else if (page.url.full.toLowerCase().indexOf("action=sortsnippets") > 0) {
     page.type = "sortsnippets";
+  }
+  else if (page.url.full.toLowerCase().indexOf("action=scriptsettings") > 0) {
+    page.type = "scriptsettings";
   }
   else if (page.url.full.toLowerCase().indexOf("action=help") > 0) {
     switch (page.url.hash.toLowerCase()) {
