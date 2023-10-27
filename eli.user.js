@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.2.6
+// @version     2.2.8
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -103,7 +103,7 @@ var strCSSMenus = ".dropbox li lu { background-color: white; }";
 var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
 var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;}";
-var strCSSTagBubble = ".tagbubble { display: inline; background-color: aquamarine; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
+var strCSSTagBubble = ".tagbubble { display: inline; background-color: aquamarine; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;} .tagbubbleAuto { display: inline; background-color: yellow; color: black; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
 
 var sort_by = function (field, reverse, primer) {
 
@@ -1984,15 +1984,27 @@ function showTagBubbles() {
     let $row = $(this);
     let strTopicURL = $row.find("td:eq(1) a:eq(0)").attr("href");
     let strTopicID = strTopicURL.match(/\d+/)[0];
+    let strLastUser = $(this).find("td:eq(5) a:eq(1)").html();
     let topicID = parseInt(strTopicID);
     if (BMTags[topicID]) {
       let aryTags = BMTags[topicID].sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase());  });
       for (counter = 0; counter < aryTags.length; counter++) {
         let strTag = aryTags[counter].trim();
-        let $bubble = $("<div class='tagbubble fakelink' id='" + topicID + "tagbubble-" + strTag + "'>" + strTag + "</div> ");
+        let $bubble = $("<div class='tagbubble fakelink' id='" + topicID + "-tagbubble-" + strTag + "'>" + strTag + "</div> ");
         $row.find("td:eq(1)").append($bubble);
         $bubble.click(function() {
           let $tableOpen = $("table#tblBM" + strTag.toLowerCase());
+          $tableOpen.toggle();
+        });
+      }
+    }
+    if (config.bookmarks.owedTag) {
+      if (strLastUser !== user.name && !hasTag(strTopicID, "notowed")) {
+        let strTag = "Owe";
+        let $bubble = $("<div class='tagbubbleAuto fakelink' id='" + topicID + "-tagbubble-owe'>Owed</div> ");
+        $row.find("td:eq(1)").append($bubble);
+        $bubble.click(function() {
+          let $tableOpen = $("table#tblBMowe");
           $tableOpen.toggle();
         });
       }
@@ -2023,7 +2035,7 @@ function showBMTable($t,title,id, allFirst) {
 function reformatBMsCollapse() {
   // Lood up all of the possible BM tables
   let $tAll = getBMsFromTable("all");
-  let $tRep = getBMsFromTable("replies");
+  //let $tRep = getBMsFromTable("replies");
   let $tOwe = getBMsFromTable("owe");
   let $tNoTags = getBMsFromTable("no-tags");
   let $tTags = {};
@@ -2050,9 +2062,11 @@ function reformatBMsCollapse() {
         if (config.bookmarks.owedTag) {
           showBMTable($tOwe,"Auto: Post Owed","owe");
         }
+        /*
         if (config.bookmarks.repliesTag) {
           showBMTable($tRep,"Auto: Replies","replies");
         }
+        */
         break;
       case "tags":
         for (counter = 0; counter < aryBMTags.length; counter++) {

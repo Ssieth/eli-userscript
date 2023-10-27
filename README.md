@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.2.8:
+
+* Added owed auto-tag to tag-bubbles
+
 2.2.6:
 
 * First release of tag-bubbles on bookmarks
