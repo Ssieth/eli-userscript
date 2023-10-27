@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.2.8
+// @version     2.2.9
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -103,7 +103,7 @@ var strCSSMenus = ".dropbox li lu { background-color: white; }";
 var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
 var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;}";
-var strCSSTagBubble = ".tagbubble { display: inline; background-color: aquamarine; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;} .tagbubbleAuto { display: inline; background-color: yellow; color: black; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
+var strCSSTagBubble = ".tagbubble { display: inline; background-color: #557ea0; color: white; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;} .tagbubbleAuto { display: inline; background-color: #a85400; color: white; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
 
 var sort_by = function (field, reverse, primer) {
 
