@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.1.5
+// @version     2.2.6
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -103,6 +103,7 @@ var strCSSMenus = ".dropbox li lu { background-color: white; }";
 var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
 var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;}";
+var strCSSTagBubble = ".tagbubble { display: inline; background-color: aquamarine; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
 
 var sort_by = function (field, reverse, primer) {
 
@@ -597,16 +598,16 @@ function repage_getPage($pageBody0, strURL, stopAt) {
       } else {
         nextURL = strURLNext;
       }
-      console.log("repage_gp: page " + iPage + ", stopping at " + stopAt);
+      //console.log("repage_gp: page " + iPage + ", stopping at " + stopAt);
       if ($pageBody.length > 0) {
           $pageBody0.append($pageBody.html());
       }
       if (iPage >= stopAt) {
-        console.log("repate: We reached the limit, stopping!")
+        //console.log("repate: We reached the limit, stopping!")
         return;
       }
       if (strURLNext === "") {
-        console.log("repage: No next, last page?");
+        //console.log("repage: No next, last page?");
       } else {
         // Don't spam too hard
         setTimeout(function() {
@@ -620,7 +621,7 @@ function repage_getPage($pageBody0, strURL, stopAt) {
 function getNextURL($page,iPage) {
   let strNext = 'div.pagelinks a';
   let strPage = "" + (iPage+1);
-  console.log("Looking for " + strPage)
+  //console.log("Looking for " + strPage)
   let $next = $page.find(strNext).filter(function() {return $(this).text() == strPage;})
   if ($next.length > 0) {
     return $next.attr("href");
@@ -1188,11 +1189,9 @@ function sortSnippets() {
   GM_addStyle("#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; cursor: pointer; border: thin solid black;}");
   GM_addStyle("#sortable li span { position: absolute; margin-left: -1.3em; }");
   var aryKeys = sortedSnippetKeys();
-  console.log(aryKeys);
-  console.log(snippets);
   for (var i = 0; i < aryKeys.length; i++) {
     var key = aryKeys[i];
-    console.log("KEY: " + key);
+    //console.log("KEY: " + key);
     var snippet = snippets[key];
     if (snippet.body.trim() === "") {
       delete snippets[key];
@@ -1890,6 +1889,7 @@ function addTBody(strTableSel, ignoreFirstRow) {
   var trs = $table[0].getElementsByTagName("tr");
 }
 
+
 function getBMsFromTable(bmType) {
   log("getBMsFromTable", "Start Function");
   var intRow = 0;
@@ -1979,6 +1979,29 @@ function getBMsFromTable(bmType) {
   return $tNew;
 }
 
+function showTagBubbles() {
+  $("tbody tr").each( function () {
+    let $row = $(this);
+    let strTopicURL = $row.find("td:eq(1) a:eq(0)").attr("href");
+    let strTopicID = strTopicURL.match(/\d+/)[0];
+    let topicID = parseInt(strTopicID);
+    if (BMTags[topicID]) {
+      let aryTags = BMTags[topicID].sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase());  });
+      for (counter = 0; counter < aryTags.length; counter++) {
+        let strTag = aryTags[counter].trim();
+        let $bubble = $("<div class='tagbubble fakelink' id='" + topicID + "tagbubble-" + strTag + "'>" + strTag + "</div> ");
+        $row.find("td:eq(1)").append($bubble);
+        $bubble.click(function() {
+          let $tableOpen = $("table#tblBM" + strTag.toLowerCase());
+          $tableOpen.toggle();
+        });
+      }
+    }
+  });
+  /*
+  */
+}
+
 function showBMTable($t,title,id, allFirst) {
   if ($t.find("tr").length > 1) {
     $t.attr("id","tblBM" + id.toLowerCase() );
@@ -2046,7 +2069,7 @@ function reformatBMsCollapse() {
     setTimeout(function() {
       let tags = page.url.tag.split(",");
       tags.forEach(function(tag) {
-        console.log("Showing: #tblBM" + tag.trim());
+        //console.log("Showing: #tblBM" + tag.trim());
         $("#tblBM" + tag.trim()).show();
       });
     },100);
@@ -2077,6 +2100,8 @@ function reformatBMsCollapse() {
         frmBMs(strTopicID, "");
       }).addClass('pointer');
   });
+
+  showTagBubbles();
 }
 
 function reformatBMs() {
@@ -2517,6 +2542,7 @@ function applyCSS() {
   GM_addStyle(strCSSFT);
   GM_addStyle(strCSSFakeLinks);
   GM_addStyle(strCSSTblSorter);
+  GM_addStyle(strCSSTagBubble);
 }
 /* =========================== */
 
@@ -2775,8 +2801,6 @@ function annotateNames() {
               $name.css("color", "green");
               break;
             case "above avatar":
-              console.log("avi");
-              console.log($(this).parent().find("li.avatar"));
               $(this).parent().find("li.avatar").before("<li class='charnotes' style='border: thin solid green; padding: 5px;'>" + renderHTML(nameNotes[strName].note) + "</li>");
               break;
             default:
@@ -3034,19 +3058,6 @@ function getMemberSearch(auth, strSearch) {
 function getSessionAuth() {
   log("functiontrace", "Start Function");
   var auth = {};
-
-    /*
-    console.log(unsafeWindow.smf_member_id);
-    console.log(unsafeWindow.smf_session_id);
-
-  var $profileMenu = $("#profile_menu");
-  console.log($profileMenu);
-  var $butLog =  $profileMenu.find("span.logout a");
-  console.log($butLog);
-  var href = $butLog.prop("href");
-  var aryHref = href.split(";");
-  var aryHref2 = aryHref[1].split("=");
-*/
 
   auth.sId = unsafeWindow.smf_member_id; //aryHref2[1];
   auth.sVar = unsafeWindow.smf_session_id; //aryHref2[0];
@@ -3390,10 +3401,8 @@ function main() {
     }
 
     if (page.type == "scriptsettings") {
-      console.log("Editing config");
       editConfig();
     } else if (page.type == "sortsnippets") {
-      console.log("Sorting snippets");
       sortSnippets();
     }
 
