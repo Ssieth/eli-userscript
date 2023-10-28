@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.2.9
+// @version     2.3.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -104,6 +104,7 @@ var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
 var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;}";
 var strCSSTagBubble = ".tagbubble { display: inline; background-color: #557ea0; color: white; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;} .tagbubbleAuto { display: inline; background-color: #a85400; color: white; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
+var strCSSBodyFont = "body {font-size: 90%; }";
 
 var sort_by = function (field, reverse, primer) {
 
@@ -335,6 +336,14 @@ function initConfig(andThen) {
   initConfigItem("general","ajaxButtons", true, {text: "Make buttons AJAX?", type: "bool" });
   initConfigItem("general","freezeGifs", false, {text: "Freeze GIFs ?", type: "bool" });
   initConfigItem("general","freezeGifsDelay", 15, {text: "Play auto-frozen GIFs for (secs):", type: "int", min: 0, max: 9999 });
+  initConfigItem("general","bodyFontSize",90,{text: "Font size (%, default 90)", type: "int", min: 30, max: 500 });
+  initConfigItem("general","bodyFontFace", "", {text: "Font (blank for default)", type: "text" });
+  strCSSBodyFont = "body {font-size: " + config.general.bodyFontSize + "%; "
+  if (config.general.bodyFontFace.trim() != "") {
+    strCSSBodyFont = strCSSBodyFont + " font-family: " + config.general.bodyFontFace;
+  }
+  strCSSBodyFont = strCSSBodyFont + "}";
+
   // Topic Filters
   initConfigItem("topicFilters","on", false, {text: "Topic Filters On?", type: "bool" });
   initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
@@ -374,14 +383,18 @@ function initConfig(andThen) {
 
 // Returns true if a setting hsa been set, false otherwise
 function updateConfig(controlID) {
-	var $control = $("div#helpmain").find("#" + controlID);
+	var $control = $("div#fatal_error").find("#" + controlID);
 	var aID = controlID.split("-");
 	var catID = aID[3];
 	var settingID = aID[4];
+  console.log("Set: " + settingID);
+  console.log($control);
 	if ($control.hasClass("gm-settings-control-bool")) {
 		config[catID][settingID] = $control[0].checked;
 	} else if ($control.hasClass("gm-settings-control-int")) {
+        console.log("Inty: " + settingID);
         var intVal = parseInt($control.val());
+        console.log(intVal);
         if ($.isNumeric("" + intVal)) {
             if (config_display[catID][settingID].hasOwnProperty("min") && intVal < config_display[catID][settingID].min) {
                 console.log("There's a minimum and " + intVal + " < " + config_display[catID][settingID].min);
@@ -2557,6 +2570,7 @@ function applyCSS() {
   GM_addStyle(strCSSFakeLinks);
   GM_addStyle(strCSSTblSorter);
   GM_addStyle(strCSSTagBubble);
+  GM_addStyle(strCSSBodyFont);
 }
 /* =========================== */
 
