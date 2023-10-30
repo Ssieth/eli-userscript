@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.3.2:
+
+* Added icons for tags and auto-tags onto the bookmarks list
+
 2.3.0:
 
 * Added font size and font face as options to general settings.

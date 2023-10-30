@@ -8,7 +8,7 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.3.0
+// @version     2.3.2
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2070,10 +2070,10 @@ function reformatBMsCollapse() {
         break;
       case "autos":
         if (config.bookmarks.noTagsTag) {
-          showBMTable($tNoTags,"Auto: No Tags","no-tags");
+          showBMTable($tNoTags,"<img src='https://cabbit.org.uk/pic/elli/tag-auto.png' style='height:20px; top: 4px;position: relative;'> No Tags","no-tags");
         }
         if (config.bookmarks.owedTag) {
-          showBMTable($tOwe,"Auto: Post Owed","owe");
+          showBMTable($tOwe,"<img src='https://cabbit.org.uk/pic/elli/tag-auto.png' style='height:20px; top: 4px;position: relative;'> Post Owed","owe");
         }
         /*
         if (config.bookmarks.repliesTag) {
@@ -2084,7 +2084,7 @@ function reformatBMsCollapse() {
       case "tags":
         for (counter = 0; counter < aryBMTags.length; counter++) {
           let strTag = aryBMTags[counter];
-          showBMTable($tTags[strTag],"Tagged: " + strTag,strTag);
+          showBMTable($tTags[strTag],"<img src='https://cabbit.org.uk/pic/elli/tag.png' style='height:20px; top: 4px;position: relative;'> " + strTag,strTag);
         }
         break;
     }
