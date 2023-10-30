@@ -8,7 +8,14 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js
 // @require     https://cdn.jsdelivr.net/npm/ui-contextmenu@1.18.1/jquery.ui-contextmenu.min.js
-// @version     2.3.2
+// @resource    iconTag             https://cabbit.org.uk/pic/elli/tag.png
+// @resource    iconTagAuto         https://cabbit.org.uk/pic/elli/tag-auto.png
+// @resource    logoMain            https://cabbit.org.uk/pic/elli/logo.png
+// @resource    iconFilterDrama     https://cabbit.org.uk/eli/img/drama.png
+// @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
+// @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
+// @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
+// @version     2.4.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -16,6 +23,7 @@
 // @grant       GM_listValues
 // @grant       GM_setClipboard
 // @grant       GM_xmlhttpRequest
+// @grant       GM_getResourceURL
 // @license     MIT
 // @copyright   2018, Ssieth (https://openuserjs.org//users/Ssieth)
 // ==/UserScript==
@@ -71,7 +79,6 @@ var userLists = {};
 var currentUserList = {};
 var strScriptAdmins = ['Ssieth', 'Outcast'];
 var permResult;
-const urlImg = "https://cabbit.org.uk/eli/img/";
 
 // For Scroll events
 let last_known_scroll_position = 0;
@@ -854,8 +861,8 @@ function addFilterTopicButton() {
 }
 
 function filterTopicsSetIcon($row,iconName) {
-	var srcImg = urlImg + iconName;
-	$row.find("td:eq(0) img").attr({
+	var srcImg = GM_getResourceURL("iconFilter" + iconName);
+	$row.find("img:eq(0)").attr({
 		src: srcImg,
 		width: "20px"
 	});
@@ -869,7 +876,7 @@ function filterTopics() {
   var name;
   console.log("== filter topics ==");
   $('#topic_container div.windowbg').each(function () {
-    $row = $(this);
+      $row = $(this);
       $url = $row.find("div.info span.preview a");
       id = "" + $url.attr("href").match(/\d+/)[0];
       name = $url.text();
@@ -881,19 +888,19 @@ function filterTopics() {
             break;
           case "mark-genre":
             $row.addClass("FTMark");
-            filterTopicsSetIcon($row,"drama.png");
+            filterTopicsSetIcon($row,"Drama");
             break;
           case "mark-gender":
             $row.addClass("FTMark");
-            filterTopicsSetIcon($row,"manwoman.png");
+            filterTopicsSetIcon($row,"Gender");
             break;
           case "mark-canon":
             $row.addClass("FTMark");
-            filterTopicsSetIcon($row,"canon.webp");
+            filterTopicsSetIcon($row,"Canon");
             break;
           case "question":
             $row.addClass("FTQ");
-            filterTopicsSetIcon($row,"question.png");
+            filterTopicsSetIcon($row,"Question");
             break;
           case "hi":
             $row.addClass("FTHi");
@@ -2070,10 +2077,10 @@ function reformatBMsCollapse() {
         break;
       case "autos":
         if (config.bookmarks.noTagsTag) {
-          showBMTable($tNoTags,"<img src='https://cabbit.org.uk/pic/elli/tag-auto.png' style='height:20px; top: 4px;position: relative;'> No Tags","no-tags");
+          showBMTable($tNoTags,"<img src='" + GM_getResourceURL("iconTagAuto") + "' style='height:20px; top: 4px;position: relative;'> No Tags","no-tags");
         }
         if (config.bookmarks.owedTag) {
-          showBMTable($tOwe,"<img src='https://cabbit.org.uk/pic/elli/tag-auto.png' style='height:20px; top: 4px;position: relative;'> Post Owed","owe");
+          showBMTable($tOwe,"<img src='" + GM_getResourceURL("iconTagAuto") + "' style='height:20px; top: 4px;position: relative;'> Post Owed","owe");
         }
         /*
         if (config.bookmarks.repliesTag) {
@@ -2084,7 +2091,7 @@ function reformatBMsCollapse() {
       case "tags":
         for (counter = 0; counter < aryBMTags.length; counter++) {
           let strTag = aryBMTags[counter];
-          showBMTable($tTags[strTag],"<img src='https://cabbit.org.uk/pic/elli/tag.png' style='height:20px; top: 4px;position: relative;'> " + strTag,strTag);
+          showBMTable($tTags[strTag],"<img src='" + GM_getResourceURL("iconTag") + "' style='height:20px; top: 4px;position: relative;'> " + strTag,strTag);
         }
         break;
     }
@@ -3317,7 +3324,7 @@ function scrollEvents(scroll) {
 }
 
 function addElliLogo() {
-  $("#smflogo").attr("src","https://cabbit.org.uk/pic/elli/logo.png");
+  $("#smflogo").attr("src",GM_getResourceURL("logoMain"));
   $("#smflogo").attr("alt","Elliquiy - Write with us");
   $("#smflogo").attr("title","Elliquiy");
   $("#smflogo").css("height","75px")

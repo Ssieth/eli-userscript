@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.4.0:
+
+* Fixed icons on filter topics
+* Started to fetch external images and icons via @resource rather than directly
+
 2.3.2:
 
 * Added icons for tags and auto-tags onto the bookmarks list
