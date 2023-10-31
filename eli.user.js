@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.4.0
+// @version     2.4.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -2037,8 +2037,8 @@ function showTagBubbles() {
 function showBMTable($t,title,id, allFirst) {
   if ($t.find("tr").length > 1) {
     $t.attr("id","tblBM" + id.toLowerCase() );
-    $("#main_content_section").append("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
-    $("#main_content_section").append($t);
+    $("#main_content_section form").append("<div class='cat_bar bmCatName' style='cursor: pointer;'><h3 class='catbg'>" + title + "</h3></div>")
+    $("#main_content_section form").append($t);
     let $tog = $t.find('input:checkbox:first');
 
     // Make the toggle-all checkboxes work only on their own tables.

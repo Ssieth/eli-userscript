@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.4.1:
+
+* Fixed deletion of bookmarks.
+
 2.4.0:
 
 * Fixed icons on filter topics
