@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.5.0
+// @version     2.5.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -314,7 +314,13 @@ function showQuickLinks() {
     for (counter2 = 0; counter2 < aryLinks.length; counter2++) {
       let strLink = aryLinks[counter2];
       let objLink = objCat.links[strLink];
-      let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + objLink.url + "' style='display: inline; padding-left: 0px;'><span>" + strLink + "</span></a></li>");
+      let strTarget = "";
+      if (config.quickLinks.externalInTab) {
+        if (objLink.url.toLowerCase().indexOf("https://elliquiy.com") == -1) {
+          strTarget = " target='_blank'";
+        }
+      }
+      let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a" + strTarget + " href='" + objLink.url + "' style='display: inline; padding-left: 0px;'><span>" + strLink + "</span></a></li>");
       $ol.append($link);
       $link.on( "contextmenu", function(e) {
         e.preventDefault();
@@ -593,6 +599,7 @@ function initConfig(andThen) {
   strCSSFT = strCSSFT.replaceAll(";"," !important;")
   // Quick Links
   initConfigItem("quickLinks","on", false, {text: "Enable Quick Links?", type: "bool" });
+  initConfigItem("quickLinks","externalInTab", true, {text: "Open External In New Tab?", type: "bool" });
   // Speech Styling
   initConfigItem("speechStyling","on", true, {text: "Style Speech?", type: "bool" });
   initConfigItem("speechStyling","incQuote", true , {text: "Include quotes?", type: "bool" });
