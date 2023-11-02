@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.5.0:
+
+* New version of Quick Links implemented
+
 2.4.1:
 
 * Fixed deletion of bookmarks.

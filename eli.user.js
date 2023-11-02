@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.4.1
+// @version     2.5.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -79,6 +79,7 @@ var userLists = {};
 var currentUserList = {};
 var strScriptAdmins = ['Ssieth', 'Outcast'];
 var permResult;
+var quickLinks = {};
 
 // For Scroll events
 let last_known_scroll_position = 0;
@@ -232,9 +233,13 @@ String.prototype.containsCount = function (findStr) {
   return count;
 };
 
-function throwModal(strTitle, strBody) {
+function throwModal(strTitle, strBody, width) {
   log("functiontrace", "Start Function");
   var intHeight;
+  let strWidth = "720px";
+  if (width) {
+    strWidth = width;
+  }
   intHeight = Math.floor($(window).height() * 0.8);
   if ($("#modalpop").length === 0) {
     $('body').append($(strModal));
@@ -242,7 +247,7 @@ function throwModal(strTitle, strBody) {
   $('#modalpop').html(strBody).on("dialogopen", function (event, ui) {});
   $('#modalpop').dialog({
     title: strTitle,
-    width: "720px",
+    width: strWidth,
     maxHeight: intHeight
   });
 }
@@ -264,8 +269,233 @@ function getWordCount(strText) {
  */
 (function(b,c){var $=b.jQuery||b.Cowboy||(b.Cowboy={}),a;$.throttle=a=function(e,f,j,i){var h,d=0;if(typeof f!=="boolean"){i=j;j=f;f=c}function g(){var o=this,m=+new Date()-d,n=arguments;function l(){d=+new Date();j.apply(o,n)}function k(){h=c}if(i&&!h){l()}h&&clearTimeout(h);if(i===c&&m>e){l()}else{if(f!==true){h=setTimeout(i?k:l,i===c?e-m:e)}}}if($.guid){g.guid=j.guid=j.guid||$.guid++}return g};$.debounce=function(d,e,f){return f===c?a(d,e,false):a(d,f,e!==false)}})(this);
 
+// Sort an object's keys either by alpha or by the 'sortOrder' property
+function sortKeys(o,bySortOrder) {
+    if (bySortOrder) {
+      return Object
+        .keys(o)
+        .sort(function (a, b) { return o[a].sortOrder > o[b].sortOrder;  })
+    } else {
+      return Object
+        .keys(o)
+        .sort()
+    }
+}
+
+function slugify(str) {
+  return String(str)
+    .normalize('NFKD') // split accented characters into their base characters and diacritical marks
+    .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+    .trim() // trim leading or trailing whitespace
+    .toLowerCase() // convert to lowercase
+    .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
+    .replace(/\s+/g, '-') // replace spaces with hyphens
+    .replace(/-+/g, '-'); // remove consecutive hyphens
+}
+/* =========================== */
 
 /* =========================== */
+/* Quick Links                 */
+/* =========================== */
+function showQuickLinks() {
+  console.log("=== Show Quick Links ===");
+  $("#mobile_user_menu ul.dropmenu li.button_QL").remove();
+  let bySortOrder = false;
+  let aryCats = sortKeys(quickLinks,bySortOrder);
+  for (counter = 0; counter < aryCats.length; counter++) {
+    let strCat = aryCats[counter];
+    let objCat = quickLinks[strCat];
+    let slug = slugify(strCat);
+    $catMenu = $("<li class='button_QL'><a href='#' id='ql_" + slug + "_click'><span class='main_icons drafts'></span><span class='textmenu'>" + strCat + "</span></a><div id='ql_" +
+                 slug + "_menu' class='top_menu' style='display: hidden; min-width: auto;'><div class='profile_user_links'><ol id='ql_ol_" + slugify(strCat) + "' style='column-count: 1'></ol></div></div></li>");
+    $ol = $catMenu.find("#ql_ol_" + slugify(strCat));
+
+    let aryLinks = sortKeys(objCat.links,bySortOrder);
+    for (counter2 = 0; counter2 < aryLinks.length; counter2++) {
+      let strLink = aryLinks[counter2];
+      let objLink = objCat.links[strLink];
+      let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + objLink.url + "' style='display: inline; padding-left: 0px;'><span>" + strLink + "</span></a></li>");
+      $ol.append($link);
+      $link.on( "contextmenu", function(e) {
+        e.preventDefault();
+        deleteQL(strCat,strLink);
+        saveQuickLinks();
+        showQuickLinks();
+      });
+    }
+    let $link = $("<li style='padding-left: 24px; width: auto;'><span style='font-weight: bold; display: inline;padding-left: 2px'>+</span> <a href='#' style='display: inline;padding-left: 13px;'><span>Add</span></a></li>");
+    $link.click(function(e) {
+      e.preventDefault();
+      $("#mobile_user_menu .top_menu").hide();
+      frmQL(strCat);
+    });
+    $ol.append($link);
+
+    $catMenu.on( "contextmenu", function(e) {
+      e.preventDefault();
+      deleteQLCat(strCat);
+      saveQuickLinks();
+      showQuickLinks();
+    });
+    $catMenu.find("#ql_" + slug + "_click").click(function() {
+      let strTog = "#ql_" + slug + "_menu";
+      $tog = $(strTog);
+      if ($tog.is(":hidden")) {
+        $("#mobile_user_menu .top_menu").hide();
+      }
+      $tog.toggle();
+    });
+    $("#mobile_user_menu ul.dropmenu").append($catMenu);
+  }
+  $qlAdd = $("<li class='button_QL'><a href='#'><span class='textmenu'>(+)</span></a></li>");
+  $qlAdd.click(function(e) {
+    e.preventDefault();
+    $("#mobile_user_menu .top_menu").hide();
+    frmQLCat();
+  });
+  $("#mobile_user_menu ul.dropmenu").append($qlAdd);
+}
+
+function loadQuickLinks() {
+  let strQL = GM_getValue("quickLinksNew","");
+  if (strQL === "") {
+    quickLinks = {};
+  } else {
+    quickLinks =  JSON.parse(strQL);
+  }
+}
+
+function saveQuickLinks() {
+  let strLinks = JSON.stringify(quickLinks);
+  console.log("=== Saving QLs ===");
+  console.log(strLinks);
+  GM_setValue("quickLinksNew",strLinks);
+}
+
+function saveQLCategory(title, sortOrder, oldTitle) {
+  let objQL = {};
+  objQL.title = title;
+  objQL.sortOrder = sortOrder;
+  if (oldTitle && quickLinks[oldTitle]) {
+    objQL.links = quickLinks[oldTitle].links;
+    delete objQL[oldTitle];
+  } else {
+    objQL.links = {};
+  }
+  quickLinks[title] = objQL;
+}
+
+function saveQL(cat,title,url,sortOrder,oldCat,oldTitle) {
+  let objQL = {};
+  objQL.cat = cat;
+  objQL.title = title;
+  objQL.url = url;
+  objQL.sortOrder = sortOrder;
+  if (oldCat && oldTitle && quickLinks[oldCat] && quickLinks[oldCat].links[oldTitle]) {
+    delete quickLinks[oldCat].links[oldTitle];
+  }
+  quickLinks[cat].links[title] = objQL;
+}
+
+function deleteQL(cat,title) {
+  if (cat && title && quickLinks[cat] && quickLinks[cat].links[title]) {
+    delete quickLinks[cat].links[title];
+  }
+}
+
+function deleteQLCat(cat) {
+  console.log(quickLinks[cat].links );
+  if (cat && quickLinks[cat] && Object.keys(quickLinks[cat].links).length === 0) {
+    delete quickLinks[cat];
+  }
+}
+
+
+function frmQLBody(cat) {
+  log("functiontrace", "Start Function");
+  var strBody = "";
+  var key;
+  strBody += "<table>";
+  strBody += "<tr>";
+  strBody += " <th style='vertical-align: top; text-align: right;'>Name:</th>";
+  strBody += " <td><input type='text' id='qlName' size='50' placeholder='Name Me'></td>";
+  strBody += "</tr>";
+  strBody += "<tr>";
+  strBody += " <th style='vertical-align: top; text-align: right;'>URL:</th>";
+  strBody += " <td><input type='text' id='qlUrl' size='100'></td>";
+  strBody += "</tr>";
+  strBody += "<tr>";
+  strBody += " <td colspan=2 style='vertical-align: top; text-align: center;'>";
+  strBody += "<center><button type='button' id='qlAdd' class='qlAdd' value='Use'>Add</button></center>";
+  strBody += "</td>";
+  strBody += "</tr>";
+  strBody += "</table>";
+  strBody += "<input type='hidden' id='qlCat' value='cat'>";
+  return strBody;
+}
+
+function frmQLButtons(cat) {
+  log("functiontrace", "Start Function");
+  var strBody;
+  var strID;
+  var snippet;
+  $('button#qlAdd').click(function (e) {
+    e.preventDefault();
+    saveQL(cat,$('#qlName').val(),$('#qlUrl').val(),999);
+    console.log(quickLinks);
+    saveQuickLinks();
+    showQuickLinks();
+    $('#modalpop').dialog( "close" );
+  });
+}
+
+function frmQL(cat) {
+  log("functiontrace", "Start Function");
+  var strBody = frmQLBody(cat);
+  throwModal("Add Quick Link", strBody,"auto");
+  $("#qlUrl").val(window.location);
+  frmQLButtons(cat);
+}
+
+function frmQLCatBody() {
+  log("functiontrace", "Start Function");
+  var strBody = "";
+  var key;
+  strBody += "<table>";
+  strBody += "<tr>";
+  strBody += " <th style='vertical-align: top; text-align: right;'>Name:</th>";
+  strBody += " <td><input type='text' id='qlName' size='50' placeholder='Name Me'></td>";
+  strBody += "</tr>";
+  strBody += "<tr>";
+  strBody += " <td colspan=2 style='vertical-align: top; text-align: center;'>";
+  strBody += "<center><button type='button' id='qlAdd' class='qlAdd' value='Use'>Add</button></center>";
+  strBody += "</td>";
+  strBody += "</tr>";
+  strBody += "</table>";
+  return strBody;
+}
+
+function frmQLCatButtons() {
+  log("functiontrace", "Start Function");
+  var strBody;
+  var strID;
+  var snippet;
+  $('button#qlAdd').click(function (e) {
+    e.preventDefault();
+    saveQLCategory($('#qlName').val(),999);
+    console.log(quickLinks);
+    saveQuickLinks();
+    showQuickLinks();
+    $('#modalpop').dialog( "close" );
+  });
+}
+
+function frmQLCat(cat) {
+  log("functiontrace", "Start Function");
+  var strBody = frmQLCatBody(cat);
+  throwModal("Add Quick Link Category", strBody,"auto");
+  frmQLCatButtons(cat);
+}
 
 
 /* =========================== */
@@ -331,6 +561,7 @@ function initConfig(andThen) {
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
   initConfigCategory("image","Images");
+  initConfigCategory("quickLinks","Quick Links");
   //initConfigCategory("admin","Admin",true);
   //initConfigCategory("importExport","Import / Export");
   // General Settings
@@ -360,6 +591,8 @@ function initConfig(andThen) {
   initConfigItem("topicFilters","CSS_Question", "background-color: cornsilk;" , {text: "Question Styling (CSS)", type: "text" });
   strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
   strCSSFT = strCSSFT.replaceAll(";"," !important;")
+  // Quick Links
+  initConfigItem("quickLinks","on", false, {text: "Enable Quick Links?", type: "bool" });
   // Speech Styling
   initConfigItem("speechStyling","on", true, {text: "Style Speech?", type: "bool" });
   initConfigItem("speechStyling","incQuote", true , {text: "Include quotes?", type: "bool" });
@@ -431,6 +664,7 @@ function editConfig() {
   GM_addStyle(".gm-settings-control-int { width: 4rem; }");
   GM_addStyle(".gm-settings-setting-label { max-width: 15rem; display: inline-block; }");
   //var $page = $("div#helpmain");
+  $("#fatal_error").css("width","auto");
   let $page = $("#fatal_error div.windowbg");
 
   $page.css("max-width","initial");
@@ -1195,6 +1429,7 @@ function sortSnippets() {
   }
   var $page = $("div#helpmain");
   if ($page.length <= 0) {
+    $("#fatal_error").css("width","auto");
     $page = $("#fatal_error div.windowbg")
   }
   $page.css("max-width","initial");
@@ -2242,27 +2477,33 @@ function displayBMMenu() {
   $("#bm_menu").remove();
 
   let $menunav = $('li.button_bookmarks');
-  let $menuQOuter = $("<div id='bm_menu' class='top_menu' style='display: hidden'><div class='profile_user_links'><ol></ol></div>");
+  let $menuQOuter = $("<div id='bm_menu' class='top_menu' style='display: hidden; min-width: auto;'><div class='profile_user_links'><ol style='column-count: 1'></ol></div>");
   let $menuQ = $menuQOuter.find("ol");
 
-  $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=' id='bm-all' style='display: inline;'><span>All</span></a></li>")
+  $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=' id='bm-all' style='display: inline; padding-left: 0px;'><span>All</span></a></li>")
   if (config.bookmarks.owedTag) {
-    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=owe' id='bm-owe' style='display: inline;'><span>Posts Owed</span></a></li>")
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=owe' id='bm-owe' style='display: inline; padding-left: 0px;'><span>Posts Owed</span></a></li>")
   }
   if (config.bookmarks.repliesTag) {
-    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=replies' id='bm-replies' style='display: inline;'><span>Replies</span></a></li>")
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=replies' id='bm-replies' style='display: inline; padding-left: 0px;'><span>Replies</span></a></li>")
   }
   if (config.bookmarks.noTagsTag) {
-    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=no-tags' id='bm-no-tags' style='display: inline;'><span>No Tags</span></a></li>")
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=no-tags' id='bm-no-tags' style='display: inline; padding-left: 0px;'><span>No Tags</span></a></li>")
   }
   for (counter = 0; counter < aryBMTags.length; counter++) {
     var strTag = aryBMTags[counter];
-    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=" + strTag + "' id='bm-" + strTag + "' style='display: inline;'><span>" + strTag + "</span></a></li>")
+    $menuQ.append("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + strBase + "&tag=" + strTag + "' id='bm-" + strTag + "' style='display: inline; padding-left: 0px;'><span>" + strTag + "</span></a></li>")
   }
   $menunav.append($menuQOuter);
   $menunav.find("a:eq(0)").click(function(e){
-    $menuQOuter.toggle();
     e.preventDefault();
+      let $tog = $menuQOuter
+      if ($tog.is(":hidden")) {
+        $("#mobile_user_menu .top_menu").hide();
+      }
+      $tog.toggle();
+
+//    $menuQOuter.toggle();
   });
   $menunav.find("a:eq(0) .textmenu").html("Bookmarks");
 }
@@ -3408,6 +3649,13 @@ function main() {
         quickFT();
       }
       displayBMMenu();
+    }
+
+    if (config.quickLinks.on) {
+      console.log("=== Quick Links ===");
+      loadQuickLinks();
+      console.log(quickLinks);
+      showQuickLinks();
     }
 
     if (config.general.wordCount && (page.type == "post" || page.type == "topic")) {
