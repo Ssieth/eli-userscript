@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.5.3:
+
+* You can now have apostrophes, quotes and ampersands in the names of Quick Links and Quick Link Categories
+* Deleting quick links or quick link categories now has a yes/no confirmation.
+
 2.5.1:
 
 * Added option (on by default) for external quick links to open in new tab

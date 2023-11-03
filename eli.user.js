@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.5.1
+// @version     2.5.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -159,6 +159,18 @@ function stopDefaultAction(e) {
   }
 }
 
+function cleanInput(input) {
+  if (input) {
+    let output = input;
+    output = output.replaceAll("\'","&apos;");
+    output = output.replaceAll("\"","&quot;");
+    output = output.replaceAll("&(?![amp;|apos;|quote;])", "&amp;");
+    return output;
+  } else {
+    return input;
+  }
+}
+
 function rInt(min, max) {
   // Returns a random integer between min (included) and max (included)
   // Using Math.round() will give you a non-uniform distribution!
@@ -231,6 +243,38 @@ String.prototype.containsCount = function (findStr) {
     }
   }
   return count;
+};
+
+function confirmDialog(stitle, message, onYes, onNO) {
+  $('<div></div>').appendTo('body')
+    .html('<div><h6>' + message + '</h6></div>')
+    .dialog({
+      modal: true,
+      title: stitle,
+      autoOpen: true,
+      width: '720px',
+      buttons: {
+        Yes: function() {
+          console.log("Yes");
+          if (onYes) {
+            onYes();
+          }
+
+          $(this).dialog("close");
+        },
+        No: function() {
+          console.log("No");
+          if (onNO) {
+            onNO();
+          }
+
+          $(this).dialog("close");
+        }
+      },
+      close: function(event, ui) {
+        $(this).remove();
+      }
+    });
 };
 
 function throwModal(strTitle, strBody, width) {
@@ -323,10 +367,12 @@ function showQuickLinks() {
       let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a" + strTarget + " href='" + objLink.url + "' style='display: inline; padding-left: 0px;'><span>" + strLink + "</span></a></li>");
       $ol.append($link);
       $link.on( "contextmenu", function(e) {
-        e.preventDefault();
-        deleteQL(strCat,strLink);
-        saveQuickLinks();
-        showQuickLinks();
+        stopDefaultAction(e);
+        confirmDialog("Delete Quick Link","Delete quick link " + strCat + "/" + strLink + "?",function(){
+          deleteQL(strCat,strLink);
+          saveQuickLinks();
+          showQuickLinks();
+        });
       });
     }
     let $link = $("<li style='padding-left: 24px; width: auto;'><span style='font-weight: bold; display: inline;padding-left: 2px'>+</span> <a href='#' style='display: inline;padding-left: 13px;'><span>Add</span></a></li>");
@@ -338,12 +384,15 @@ function showQuickLinks() {
     $ol.append($link);
 
     $catMenu.on( "contextmenu", function(e) {
-      e.preventDefault();
-      deleteQLCat(strCat);
-      saveQuickLinks();
-      showQuickLinks();
+      stopDefaultAction(e);
+      confirmDialog("Delete Quick Link Category","Delete category " + strCat + "?",function(){
+        deleteQLCat(strCat);
+        saveQuickLinks();
+        showQuickLinks();
+      });
     });
-    $catMenu.find("#ql_" + slug + "_click").click(function() {
+    $catMenu.find("#ql_" + slug + "_click").click(function(e) {
+      stopDefaultAction(e);
       let strTog = "#ql_" + slug + "_menu";
       $tog = $(strTog);
       if ($tog.is(":hidden")) {
@@ -380,7 +429,8 @@ function saveQuickLinks() {
 
 function saveQLCategory(title, sortOrder, oldTitle) {
   let objQL = {};
-  objQL.title = title;
+  let strTitle = cleanInput(title);
+  objQL.title = strTitle;
   objQL.sortOrder = sortOrder;
   if (oldTitle && quickLinks[oldTitle]) {
     objQL.links = quickLinks[oldTitle].links;
@@ -388,19 +438,20 @@ function saveQLCategory(title, sortOrder, oldTitle) {
   } else {
     objQL.links = {};
   }
-  quickLinks[title] = objQL;
+  quickLinks[strTitle] = objQL;
 }
 
 function saveQL(cat,title,url,sortOrder,oldCat,oldTitle) {
   let objQL = {};
+  let strTitle = cleanInput(title);
   objQL.cat = cat;
-  objQL.title = title;
+  objQL.title = strTitle;
   objQL.url = url;
   objQL.sortOrder = sortOrder;
   if (oldCat && oldTitle && quickLinks[oldCat] && quickLinks[oldCat].links[oldTitle]) {
     delete quickLinks[oldCat].links[oldTitle];
   }
-  quickLinks[cat].links[title] = objQL;
+  quickLinks[cat].links[strTitle] = objQL;
 }
 
 function deleteQL(cat,title) {
