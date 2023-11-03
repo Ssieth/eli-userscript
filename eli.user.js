@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.6.0
+// @version     2.6.2
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1170,6 +1170,9 @@ function filterTopics() {
   $('#topic_container div.windowbg').each(function () {
       $row = $(this);
       $url = $row.find("div.info span.preview a");
+      if ($url.length==0) {
+        $url = $row.find("div.info span a");
+      }
       id = "" + $url.attr("href").match(/\d+/)[0];
       name = $url.text();
       if (objFilterTopics[id] === undefined) {}
@@ -1217,6 +1220,9 @@ function quickFT() {
   $("#topic_container div.windowbg").each(function () {
     $(this).find("div.board_icon").click(function (e) {
       var strTopicURL = $(this).parent().find("div.info span.preview a");
+      if (strTopicURL.length == 0) {
+        strTopicURL = $(this).parent().find("div.info span a");
+      }
       var strTopicName = strTopicURL.text();
       var strTopicID = strTopicURL.attr("href").match(/\d+/)[0];
       frmFT(strTopicID, strTopicName, "mark");
@@ -2838,6 +2844,9 @@ function getPageDetails() {
   else if (page.url.full.toLowerCase().indexOf("?board=") > 0) {
     page.type = "board";
   }
+  else if (page.url.full.toLowerCase().indexOf("?action=unread") > 0) {
+    page.type = "unread";
+  }
   else if (page.url.full.toLowerCase().indexOf("?action=pm;sa=send") > 0) {
     page.type = "pm-send";
   }
@@ -3656,11 +3665,11 @@ function main() {
     if (config.topicFilters.on) {
       loadFilterTopics();
       addFilterTopicButton();
-      if (page.type == "board" || page.type == "bookmarks") {
+      if (page.type == "board" || page.type == "bookmarks" || page.type == "unread") {
         if (page.type == "bookmarks") {
           addTBody("table", true);
         }
-
+        quickFT();
         filterTopics();
       }
     }

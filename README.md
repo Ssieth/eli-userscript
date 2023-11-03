@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.6.2:
+
+* Topic filters now viewable and available in more places.
+
 2.6.0:
 
 * Snippets should now work on quick replies box.
