@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.5.3
+// @version     2.6.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1847,18 +1847,17 @@ function buildSnipMenu() {
   return $snipNew;
 }
 
-function displaySnippets() {
-  log("functiontrace", "Start Function");
-  // console.log("Display Snippets");
-  var $copyTo = $('#post_header');
+
+function setSnipMenu(strSel, copyTo) {
+  var $copyTo = $(copyTo);
   if ($copyTo.length > 0) {
     $copyTo.find("#snipMenu").remove();
     $copyTo.before(buildSnipMenu());
   }
 
   if (config.general.snippetscontext) {
-     $(document).contextmenu({
-      delegate: "#post_area textarea",
+    $(document).contextmenu({
+      delegate: strSel,
       closeOnWindowBlur: false,
       menu: "#snipMenu",
       select: function(event, ui) {
@@ -1870,6 +1869,23 @@ function displaySnippets() {
       $("#snipMenu").hide();
     } );
   }
+}
+
+function displaySnippets() {
+  log("functiontrace", "Start Function");
+  // console.log("Display Snippets");
+
+  setTimeout(function() {
+    console.log("== dS ==")
+    if ($("#post_area textarea").length > 0) {
+      strLastFocus ="#post_area textarea";
+      setSnipMenu("#post_area textarea","#post_header");
+    } else if ($("#postmodify textarea").length > 0) {
+      strLastFocus ="#postmodify textarea";
+      setSnipMenu("#postmodify textarea","#postmodify .sceditor-container");
+    }
+  },500);
+
 }
 /* =========================== */
 
@@ -1994,30 +2010,6 @@ function getUnreadReplies(callback) {
     }
   });
   return intCount;
-}
-/* =========================== */
-
-/* =========================== */
-/* Registering Focus           */
-/* =========================== */
-function registerLastFocus(strSelect) {
-  log("functiontrace", "Start Function");
-  var $sel;
-  $sel = $(strSelect);
-  if ($sel.length > 0) {
-    $sel.focus(function () {
-      strLastFocus = strSelect;
-    });
-  }
-}
-
-function registerFocuses() {
-  log("functiontrace", "Start Function");
-  registerLastFocus("#post_area textarea");
-  registerLastFocus("#postmodify textarea");
-  registerLastFocus("textarea#message");
-  registerLastFocus("input#to_control");
-  registerLastFocus("input[name='subject']");
 }
 /* =========================== */
 
@@ -3679,10 +3671,6 @@ function main() {
 
     if (config.general.ajaxButtons) {
       ajaxButtons();
-    }
-
-    if (config.general.snippets) {
-      registerFocuses();
     }
 
     if (config.general.snippets) {

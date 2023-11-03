@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.6.0:
+
+* Snippets should now work on quick replies box.
+
 2.5.3:
 
 * You can now have apostrophes, quotes and ampersands in the names of Quick Links and Quick Link Categories
