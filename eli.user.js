@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.6.2
+// @version     2.6.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1166,12 +1166,24 @@ function filterTopics() {
   var $url;
   var id;
   var name;
+  var blTable = false;
   console.log("== filter topics ==");
-  $('#topic_container div.windowbg').each(function () {
+  let $rows = $('#topic_container div.windowbg')
+  if ($rows.length == 0) {
+    console.log("= Table =");
+    $rows = $('div#main_content_section tr').not(".catbg");
+    console.log($rows);
+    blTable = true;
+  }
+  $rows.each(function () {
       $row = $(this);
-      $url = $row.find("div.info span.preview a");
-      if ($url.length==0) {
-        $url = $row.find("div.info span a");
+      if (!blTable) {
+        $url = $row.find("div.info span.preview a");
+        if ($url.length==0) {
+          $url = $row.find("div.info span a");
+        }
+      } else {
+        $url = $row.find("td:eq(1) a");
       }
       id = "" + $url.attr("href").match(/\d+/)[0];
       name = $url.text();
@@ -1209,6 +1221,7 @@ function filterTopics() {
           default:
             break;
         }
+        $row.find("td").css("background-color",$row.css("background-color"));
       }
   });
 }
@@ -2189,17 +2202,6 @@ function BMAllLinks() {
     }
   });
 }
-
-function addTBody(strTableSel, ignoreFirstRow) {
-  var $table = $(strTableSel);
-  var $tbody = $("<tbody></tbody>");
-  if (ignoreFirstRow) {
-    $(strTableSel + " tr:not(:first-child)").appendTo($tbody);
-  }
-  $table.append($tbody);
-  var trs = $table[0].getElementsByTagName("tr");
-}
-
 
 function getBMsFromTable(bmType) {
   log("getBMsFromTable", "Start Function");
@@ -3666,9 +3668,6 @@ function main() {
       loadFilterTopics();
       addFilterTopicButton();
       if (page.type == "board" || page.type == "bookmarks" || page.type == "unread") {
-        if (page.type == "bookmarks") {
-          addTBody("table", true);
-        }
         quickFT();
         filterTopics();
       }
