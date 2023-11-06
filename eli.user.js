@@ -15,7 +15,7 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.6.3
+// @version     2.6.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -964,15 +964,19 @@ function frmFTBody(strID, strText, strType) {
   if (objFT) {
     strType = objFT.filterType;
   }
-  strBody = "<p><strong>Add Topic Filter</strong></p>";
-  strBody += "<table>";
+  strBody = "<style>"
+  strBody += "table.frmFT th { vertical-align: top; text-align: right; padding-top: 14px; }"
+  strBody += "table.frmFT td { vertical-align: top; text-align: left; padding-top: 10px; padding-bottom: 10px; }"
+  strBody += "</style>"
+  strBody += "<p><strong>Add Topic Filter</strong></p>";
+  strBody += "<table class='frmFT'>";
   strBody += "<tr>";
   strBody += " <th style='vertical-align: top; text-align: right;'>ID:</th>";
-  strBody += " <td><input type='text' id='topicID' size='10' value='" + strID + "'></td>";
+  strBody += " <td colspan=2><input type='text' id='topicID' size='10' value='" + strID + "'></td>";
   strBody += "</tr>";
   strBody += "<tr>";
   strBody += " <th style='vertical-align: top; text-align: right;'>Name:</th>";
-  strBody += " <td><input type='text' id='topicName' size='50' value='" + strText + "'></td>";
+  strBody += " <td colspan=2><input type='text' id='topicName' size='50' value='" + strText + "'></td>";
   strBody += "</tr>";
   strBody += "<tr>";
   strBody += " <th style='vertical-align: top; text-align: right;'>Filter Type:</th>";
@@ -988,8 +992,28 @@ function frmFTBody(strID, strText, strType) {
     strBody += "checked='checked' ";
   }
   strBody += "/><label for='filterTypeMark'>: General Mark</label>";
+  strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeHilight' value='hi' ";
+  if (strType == "hi") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeHilight'>: Hilight</label>";
+  strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeHilightSoft' value='hisoft' ";
+  if (strType == "hisoft") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeHilightSoft'>: Soft Hilight</label>";
+  strBody += "<br />";
+  console.log("Type: " + strType);
+  strBody += "<input type='radio' name='filterType' id='filterTypeNone' value='' ";
+  if (!strType) {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeNone'>: No Filter</label>";
+  strBody += "</td>";
+  strBody += "<td>";
   if (config.topicFilters.requestMarks) {
-    strBody += "<br />";
     strBody += "<input type='radio' name='filterType' id='filterTypeGenre' value='mark-genre' ";
     if (strType == "mark-genre") {
       strBody += "checked='checked' ";
@@ -1014,24 +1038,14 @@ function frmFTBody(strID, strText, strType) {
     }
     strBody += "/><label for='filterTypeQuestion'>: Question</label>";
   }
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeHilight' value='hi' ";
-  if (strType == "hi") {
-    strBody += "checked='checked' ";
-  }
-  strBody += "/><label for='filterTypeHilight'>: Hilight</label>";
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeHilightSoft' value='hisoft' ";
-  if (strType == "hisoft") {
-    strBody += "checked='checked' ";
-  }
-  strBody += "/><label for='filterTypeHilightSoft'>: Soft Hilight</label>";
   strBody += "</td>";
+
   strBody += "</tr>";
   strBody += "<tr>";
   strBody += " <td colspan='2'><center><button value='Set' id='setFilter'>Set</button></center></td>";
   strBody += "</tr>";
   strBody += "</table>";
+  /*
   strBody += "<p><strong>Current Filters</strong></p>";
   strBody += "<table>";
   strBody += "<tr>";
@@ -1050,6 +1064,8 @@ function frmFTBody(strID, strText, strType) {
     strBody += "</td>";
     strBody += "</tr>";
   }
+  */
+
   return strBody;
 }
 
@@ -1080,7 +1096,9 @@ function frmFTButtons() {
     if (page.type == "board") {
       filterTopics();
     }
+    $('#modalpop').dialog("close");
   });
+  /*
   $('#modalpop button.FTEdit_updatebutton').click(function (e) {
     strID = $(this).attr("id");
     strID = strID.replace("FTEdit_update_", "");
@@ -1098,6 +1116,7 @@ function frmFTButtons() {
     $("#modalpop").html(strBody);
     frmFTButtons();
   });
+  */
 }
 
 function frmFT(strID, strText) {

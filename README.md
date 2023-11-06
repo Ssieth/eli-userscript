@@ -7,9 +7,16 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.6.4:
+
+* No Filter is now an option for topic filters.
+* Removed long, awkward list of of topic filters on the set filter form.
+* Topic filter form reorganized and tidied.
+* Topic filter form now closes when filter is set.
+
 2.6.3:
 
-* Topic filers now viewable in bookmarks screen
+* Topic filters now viewable in bookmarks screen
 
 2.6.2:
 
