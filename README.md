@@ -9,6 +9,10 @@ The specific features are listed below:
 ## In the last version
 2.6.5:
 
+* Topic filters reorganized
+
+2.6.5:
+
 * Topic filters now has a kink option
 
 2.6.4:

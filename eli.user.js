@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.6.5
+// @version     2.6.6
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -642,7 +642,6 @@ function initConfig(andThen) {
 
   // Topic Filters
   initConfigItem("topicFilters","on", false, {text: "Topic Filters On?", type: "bool" });
-  initConfigItem("topicFilters","requestMarks", true, {text: "RP Request Mark Filters On?", type: "bool" });
   initConfigItem("topicFilters","CSS_Hi", "background-color: yellow;", {text: "Hilight Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_HiSoft", "background-color: #BBE4BB;", {text: "Soft Hilight Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Mark", "background-color: lightgray; text-decoration: line-through;", {text: "Mark Styling (CSS)", type: "text" });
@@ -982,17 +981,19 @@ function frmFTBody(strID, strText, strType) {
   strBody += "<tr>";
   strBody += " <th style='vertical-align: top; text-align: right;'>Filter Type:</th>";
   strBody += " <td>";
+  console.log("Type: " + strType);
+  strBody += "<input type='radio' name='filterType' id='filterTypeNone' value='' ";
+  if (!strType) {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeNone'>: No Filter</label>";
+  strBody += "<br />";
+  strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeHide' value='hide' ";
   if (strType == "hide") {
     strBody += "checked='checked' ";
   }
   strBody += "/><label for='filterTypeHide'>: Hide<label>";
-  strBody += "<br />";
-  strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='mark' ";
-  if (strType == "mark") {
-    strBody += "checked='checked' ";
-  }
-  strBody += "/><label for='filterTypeMark'>: General Mark</label>";
   strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeHilight' value='hi' ";
   if (strType == "hi") {
@@ -1006,45 +1007,42 @@ function frmFTBody(strID, strText, strType) {
   }
   strBody += "/><label for='filterTypeHilightSoft'>: Soft Hilight</label>";
   strBody += "<br />";
-  console.log("Type: " + strType);
-  strBody += "<input type='radio' name='filterType' id='filterTypeNone' value='' ";
-  if (!strType) {
+  strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
+  if (strType == "question") {
     strBody += "checked='checked' ";
   }
-  strBody += "/><label for='filterTypeNone'>: No Filter</label>";
+  strBody += "/><label for='filterTypeQuestion'>: Question</label>";
   strBody += "</td>";
   strBody += "<td>";
-  if (config.topicFilters.requestMarks) {
-    strBody += "<input type='radio' name='filterType' id='filterTypeGenre' value='mark-genre' ";
-    if (strType == "mark-genre") {
-      strBody += "checked='checked' ";
-    }
-    strBody += "/><label for='filterTypeGenre'>: Genre</label>";
-    strBody += "<br />";
-    strBody += "<input type='radio' name='filterType' id='filterTypeGender' value='mark-gender' ";
-    if (strType == "mark-gender") {
-      strBody += "checked='checked' ";
-    }
-    strBody += "/><label for='filterTypeGender'>: Gender</label>";
-    strBody += "<br />";
-    strBody += "<input type='radio' name='filterType' id='filterTypeCanon' value='mark-canon' ";
-    if (strType == "mark-canon") {
-      strBody += "checked='checked' ";
-    }
-    strBody += "/><label for='filterTypeCanon'>: Canon</label>";
-    strBody += "<br />";
-        strBody += "<input type='radio' name='filterType' id='filterTypeKink' value='mark-kink' ";
-    if (strType == "mark-kink") {
-      strBody += "checked='checked' ";
-    }
-    strBody += "/><label for='filterTypeKink'>: Kink</label>";
-    strBody += "<br />";
-    strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
-    if (strType == "question") {
-      strBody += "checked='checked' ";
-    }
-    strBody += "/><label for='filterTypeQuestion'>: Question</label>";
+  strBody += "<input type='radio' name='filterType' id='filterTypeMark' value='mark' ";
+  if (strType == "mark") {
+    strBody += "checked='checked' ";
   }
+  strBody += "/><label for='filterTypeMark'>: General Mark</label>";
+  strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeGenre' value='mark-genre' ";
+  if (strType == "mark-genre") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeGenre'>: Genre</label>";
+  strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeGender' value='mark-gender' ";
+  if (strType == "mark-gender") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeGender'>: Gender</label>";
+  strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeCanon' value='mark-canon' ";
+  if (strType == "mark-canon") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeCanon'>: Canon</label>";
+  strBody += "<br />";
+      strBody += "<input type='radio' name='filterType' id='filterTypeKink' value='mark-kink' ";
+  if (strType == "mark-kink") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeKink'>: Kink</label>";
   strBody += "</td>";
 
   strBody += "</tr>";
