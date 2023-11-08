@@ -15,7 +15,8 @@
 // @resource    iconFilterGender    https://cabbit.org.uk/eli/img/manwoman.png
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
-// @version     2.6.4
+// @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
+// @version     2.6.5
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -1032,6 +1033,12 @@ function frmFTBody(strID, strText, strType) {
     }
     strBody += "/><label for='filterTypeCanon'>: Canon</label>";
     strBody += "<br />";
+        strBody += "<input type='radio' name='filterType' id='filterTypeKink' value='mark-kink' ";
+    if (strType == "mark-kink") {
+      strBody += "checked='checked' ";
+    }
+    strBody += "/><label for='filterTypeKink'>: Kink</label>";
+    strBody += "<br />";
     strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
     if (strType == "question") {
       strBody += "checked='checked' ";
@@ -1223,6 +1230,10 @@ function filterTopics() {
           case "mark-canon":
             $row.addClass("FTMark");
             filterTopicsSetIcon($row,"Canon");
+            break;
+          case "mark-kink":
+            $row.addClass("FTMark");
+            filterTopicsSetIcon($row,"Kink");
             break;
           case "question":
             $row.addClass("FTQ");
@@ -3055,20 +3066,9 @@ function exportValues() {
   var strVals = "";
   var strBody = "";
   strVals = getSettingsForExport();
-  strBody = "<p>You can <span class='fakelink' id='exportToCabbitLink'>copy settings to cabbit.org.uk by clicking here</span>.</p><p>The settings should have been copied to the clipboard but just in case they haven't, they are presented below:</p><textarea rows='15' cols='60'>" + strVals + "</textarea>";
-  throwModal("Export Settings", strBody);
-  $('#exportToCabbitLink').click(function (e) {
-    e.preventDefault();
-    cabbitSaveSettings(function (response) {
-      if (response.status == "ok") {
-        alert("Settings successfully exported to cabbit.org");
-      }
-      else {
-        alert("An error occurred: " + response.errorMsg);
-      }
-    });
-  });
+  strBody = "<p>The settings should have been copied to the clipboard but just in case they haven't, they are presented below:</p><textarea rows='15' cols='60'>" + strVals + "</textarea>";
   GM_setClipboard(strVals);
+  throwModal("Export Settings", strBody);
 }
 
 function frmImport() {
@@ -3078,21 +3078,9 @@ function frmImport() {
   var aryPair = [];
   var strVal = "";
   var objImport = {};
-  strBody += "<p><span class='fakelink' id='cabbitLoadSettingsLink'>Load settings from cabbit.org.uk</span></p>";
-  strBody += "<p>Or copy the settings into the box below:</p><textarea rows='15' cols='60' id='import_settings'></textarea><br /><button id='import_button' type='button' value='import'>Import</button>";
+  strBody += "<p>Copy the settings into the box below:</p><textarea rows='15' cols='60' id='import_settings'></textarea><br /><button id='import_button' type='button' value='import'>Import</button>";
   strBody += "<p style='color: red; font-weight: bold'>Warning: this can mess up your settings and prevent the script from running... use at your own risk</p>";
   throwModal("Import Settings", strBody);
-  $('#cabbitLoadSettingsLink').click(function (e) {
-    cabbitLoadSettings(function (response) {
-      if (response.status == "ok") {
-        alert("Settings successfully imported from cabbit.org");
-        window.location.reload(true);
-      }
-      else {
-        alert("An error occurred: " + response.errorMsg);
-      }
-    });
-  });
 
   $('#modalpop #import_button').click(function (e) {
     e.preventDefault();

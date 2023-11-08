@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.6.5:
+
+* Topic filters now has a kink option
+
 2.6.4:
 
 * No Filter is now an option for topic filters.
