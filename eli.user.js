@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.6.6
+// @version     2.7.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -342,20 +342,142 @@ function slugify(str) {
 /* =========================== */
 /* Quick Links                 */
 /* =========================== */
+function sortQLCats_enableCustom() {
+  switch (config.quickLinks.sortType) {
+    case "alpha":
+      $("#sortable").hide();
+      break;
+    default:
+      $("#sortable").show();
+  }
+}
+
+function sortQLCats() {
+  if (!quickLinks) {
+    quickLinks = {};
+  }
+  if (!config.quickLinks.sortType) {
+    config.quickLinks.sortType = "alpha";
+    saveConfig();
+  }
+  let $page = $("#fatal_error div.windowbg");
+  $("#fatal_error").css("width","auto");
+  $page.css("max-width","initial");
+  $("h3.catbg").html("Sort Quicklink Categories");
+  document.title = "Sort Quicklink Categories";
+  var $help = $("<p>Just grab the category and drag it where you want it in the ordering.</p>");
+  var $sortOptions = $("<p></p>");
+  var $snippetList = $("<ul id='sortable'></ul>");
+  $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeAlpha' value='alpha' " + ((config.quickLinks.sortType == "alpha") ? " checked='checked'" : "") + "/>: <label for='sortTypeAlpha'>Alphabetical</label><br />");
+  $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeCustom' value='custom' " + ((config.quickLinks.sortType == "custom") ? " checked='checked'" : "") + "/>: <label for='sortTypeCustom'>Custom</label><br />");
+  GM_addStyle("#sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; list-style-type:none; }");
+  GM_addStyle("#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; cursor: pointer; border: thin solid black;}");
+  GM_addStyle("#sortable li span { position: absolute; margin-left: -1.3em; }");
+  var aryKeys = sortKeys(quickLinks,config.quickLinks.sortType == "custom");
+  for (var i = 0; i < aryKeys.length; i++) {
+    let key = aryKeys[i];
+    //console.log("KEY: " + key);
+    let qlCat = quickLinks[key];
+    $snippetList.append($("<li id='" + key + "'>" + key + "</li>"));
+  }
+  $page.html("");
+  $page.append($help);
+  $page.append($sortOptions);
+  $page.append($snippetList);
+  sortQLCats_enableCustom();
+  $(".sortType").change(function() {
+    config.quickLinks.sortType = $('.sortType:checked').val();
+    saveConfig();
+    sortQLCats_enableCustom();
+    showQuickLinks();
+  });
+  $( "#sortable" ).sortable({
+    cursor: "move",
+    deactivate: function( event, ui ) {
+      var arySorted = $( "#sortable" ).sortable( "toArray" );
+      for (var i = 0; i < arySorted.length; i++) {
+        if (!quickLinks[cleanInput(arySorted[i])]) {
+          console.log("*** Error finding snippet::" +  arySorted[i] + "::");
+        } else {
+          quickLinks[cleanInput(arySorted[i])].sortOrder = i;
+        }
+      }
+      console.log(snippets);
+      saveQuickLinks();
+      showQuickLinks();
+    }
+  });
+  $( "#sortable" ).disableSelection();
+}
+
+function sortQLs(strCat) {
+  console.log("-+-+ " + strCat);
+  if (!config.quickLinks.sortType) {
+    config.quickLinks.sortType = "alpha";
+    saveConfig();
+  }
+  let $page = $("#fatal_error div.windowbg");
+  $("#fatal_error").css("width","auto");
+  $page.css("max-width","initial");
+  $("h3.catbg").html("Sort Quicklinks in Category " + strCat);
+  document.title = "Sort Quicklinks in Category " + strCat;
+  var $help = $("<p>Just grab the link and drag it where you want it in the ordering.</p>");
+  var $sortOptions = $("<p></p>");
+  var $snippetList = $("<ul id='sortable'></ul>");
+  $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeAlpha' value='alpha' " + ((config.quickLinks.sortType == "alpha") ? " checked='checked'" : "") + "/>: <label for='sortTypeAlpha'>Alphabetical</label><br />");
+  $sortOptions.append("<input class='sortType' type='radio' name='sortType' id='sortTypeCustom' value='custom' " + ((config.quickLinks.sortType == "custom") ? " checked='checked'" : "") + "/>: <label for='sortTypeCustom'>Custom</label><br />");
+  GM_addStyle("#sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; list-style-type:none; }");
+  GM_addStyle("#sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; cursor: pointer; border: thin solid black;}");
+  GM_addStyle("#sortable li span { position: absolute; margin-left: -1.3em; }");
+  var aryKeys = sortKeys(quickLinks[strCat].links,config.quickLinks.sortType == "custom");
+  for (var i = 0; i < aryKeys.length; i++) {
+    let key = aryKeys[i];
+    $snippetList.append($("<li id='" + key + "'>" + key + "</li>"));
+  }
+  $page.html("");
+  $page.append($help);
+  $page.append($sortOptions);
+  $page.append($snippetList);
+  sortQLCats_enableCustom();
+  $(".sortType").change(function() {
+    config.quickLinks.sortType = $('.sortType:checked').val();
+    saveConfig();
+    sortQLCats_enableCustom();
+    showQuickLinks();
+  });
+  $( "#sortable" ).sortable({
+    cursor: "move",
+    deactivate: function( event, ui ) {
+      var arySorted = $( "#sortable" ).sortable( "toArray" );
+      for (var i = 0; i < arySorted.length; i++) {
+        if (!quickLinks[cleanInput(strCat)] || !quickLinks[cleanInput(strCat)].links[cleanInput(arySorted[i])]) {
+          console.log("*** Error finding snippet::" +  arySorted[i] + "::");
+        } else {
+          quickLinks[cleanInput(strCat)].links[cleanInput(arySorted[i])].sortOrder = i;
+        }
+      }
+      saveQuickLinks();
+      showQuickLinks();
+    }
+  });
+  $( "#sortable" ).disableSelection();
+}
+
 function showQuickLinks() {
   console.log("=== Show Quick Links ===");
   $("#mobile_user_menu ul.dropmenu li.button_QL").remove();
   let bySortOrder = false;
-  let aryCats = sortKeys(quickLinks,bySortOrder);
+  let aryCats = sortKeys(quickLinks,config.quickLinks.sortType == "custom");
   for (counter = 0; counter < aryCats.length; counter++) {
     let strCat = aryCats[counter];
     let objCat = quickLinks[strCat];
     let slug = slugify(strCat);
     $catMenu = $("<li class='button_QL'><a href='#' id='ql_" + slug + "_click'><span class='main_icons drafts'></span><span class='textmenu'>" + strCat + "</span></a><div id='ql_" +
-                 slug + "_menu' class='top_menu' style='display: hidden; min-width: auto;'><div class='profile_user_links'><ol id='ql_ol_" + slugify(strCat) + "' style='column-count: 1'></ol></div></div></li>");
+                 slug + "_menu' class='top_menu' style='display: hidden; min-width: auto;'><div class='profile_user_links'><ol id='ql_ol_" + slugify(strCat) + "' style='column-count: 1'></ol><hr style='margin-bottom: 1px; margin-top: 5px;' /><ol id='ql_ol_" + slugify(strCat) + "_meta' style='column-count: 1'></ol></div></div></li>");
     $ol = $catMenu.find("#ql_ol_" + slugify(strCat));
+    $olMeta = $catMenu.find("#ql_ol_" + slugify(strCat) + "_meta");
 
-    let aryLinks = sortKeys(objCat.links,bySortOrder);
+    let aryLinks = sortKeys(objCat.links,config.quickLinks.sortType == "custom");
     for (counter2 = 0; counter2 < aryLinks.length; counter2++) {
       let strLink = aryLinks[counter2];
       let objLink = objCat.links[strLink];
@@ -376,13 +498,23 @@ function showQuickLinks() {
         });
       });
     }
-    let $link = $("<li style='padding-left: 24px; width: auto;'><span style='font-weight: bold; display: inline;padding-left: 2px'>+</span> <a href='#' style='display: inline;padding-left: 13px;'><span>Add</span></a></li>");
-    $link.click(function(e) {
+
+    let $linkAdd = $("<li style='padding-left: 24px; width: auto;'><span style='font-weight: bold; display: inline;padding-left: 2px'>+</span> <a href='#' style='display: inline;padding-left: 13px;'><span>Add</span></a></li>");
+    $linkAdd.click(function(e) {
       e.preventDefault();
       $("#mobile_user_menu .top_menu").hide();
       frmQL(strCat);
     });
-    $ol.append($link);
+    $linkAdd.on("contextmenu", function(e) {
+      stopDefaultAction(e);
+    });
+    $olMeta.append($linkAdd);
+
+    let $linkSort = $("<li style='padding-left: 24px; width: auto;'><span style='font-weight: bold; display: inline;padding-left: 3px'>↕</span> <a href='https://elliquiy.com/forums/index.php?action=sortqls&cat=" + strCat + "' style='display: inline;padding-left: 13px;'><span>Sort</span></a></li>");
+    $linkSort.on("contextmenu", function(e) {
+      stopDefaultAction(e);
+    });
+    $olMeta.append($linkSort);
 
     $catMenu.on( "contextmenu", function(e) {
       stopDefaultAction(e);
@@ -410,6 +542,10 @@ function showQuickLinks() {
     frmQLCat();
   });
   $("#mobile_user_menu ul.dropmenu").append($qlAdd);
+
+  let $qlSort = $("<li class='button_QL'><a href='https://elliquiy.com/forums/index.php?action=sortqlcats'><span class='textmenu'>(↕)</span></a></li>");
+  $("#mobile_user_menu ul.dropmenu").append($qlSort);
+
 }
 
 function loadQuickLinks() {
@@ -2846,6 +2982,12 @@ function getPageDetails() {
   else if (page.url.full.toLowerCase().indexOf("action=sortsnippets") > 0) {
     page.type = "sortsnippets";
   }
+  else if (page.url.full.toLowerCase().indexOf("action=sortqlcats") > 0) {
+    page.type = "sortqlcats";
+  }
+  else if (page.url.full.toLowerCase().indexOf("action=sortqls") > 0) {
+    page.type = "sortqls";
+  }
   else if (page.url.full.toLowerCase().indexOf("action=scriptsettings") > 0) {
     page.type = "scriptsettings";
   }
@@ -3746,6 +3888,19 @@ function main() {
       editConfig();
     } else if (page.type == "sortsnippets") {
       sortSnippets();
+    }
+
+    if (page.type == "sortqlcats") {
+      sortQLCats()
+    }
+
+    if (page.type == "sortqls") {
+      let iPos = window.location.href.indexOf("&cat=");
+      if (iPos === -1) {
+        sortQLs("*");
+      } else {
+        sortQLs(window.location.href.substr(iPos+5));
+      }
     }
 
     repaginate();

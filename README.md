@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.7.0:
+
+* Quick Links are now sortable.
+
 2.6.5:
 
 * Topic filters reorganized
