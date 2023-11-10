@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.7.1:
+
+* Improved debug info display
+* Quick links sorting now works for cetagories with spaces in 
+
 2.7.0:
 
 * Quick Links are now sortable.

@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.7.0
+// @version     2.7.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -411,6 +411,7 @@ function sortQLCats() {
 }
 
 function sortQLs(strCat) {
+  strCat = strCat.replaceAll("%20"," ");
   console.log("-+-+ " + strCat);
   if (!config.quickLinks.sortType) {
     config.quickLinks.sortType = "alpha";
@@ -3153,27 +3154,26 @@ function saveLastVer() {
 /* =========================== */
 function createDebug() {
   log("functiontrace", "Start Function");
-  $("body").append("<div style='padding: 10px; background-color: yellow; margin-left: auto; margin-right: auto; width: 90%;' id='debug'><p>Debug Info</p><ul></ul></div>");
+  $("body").append("<div style='padding: 10px; background-color: yellow; margin-left: auto; margin-right: auto; width: 90%;' id='debug'><p style='font-size: 120%; font-weight: bold;'>Debug Info</p><ul></ul></div>");
 }
 
 function debugUserInfo() {
   log("functiontrace", "Start Function");
   var $displayAt = $("div#debug ul");
-  var $userInfo = $("<li>User Info: <ul></ul></li>");
+  var $userInfo = $("<li><b>User Info:</b> <ul></ul></li>");
   var $userInfo_ul = $userInfo.find("ul");
-  var $snippets = $("<li>Snippets: <ul></ul></li>");
+  var $snippets = $("<li><b>Snippets:</b> <ul><li><textbox width='100' height='3'>" + rawBMs() + "</textbox></li></ul></li>");
   var $snippets_ul = $snippets.find("ul");
-  var $bms = $("<li>Bookmarks: <ul></ul></li>");
-  var $bms_ul = $bms.find("ul");
-  $userInfo_ul.append("<li>ID: " + user.id + "</li>");
-  $userInfo_ul.append("<li>UserName: " + user.name + "</li>");
-  $userInfo_ul.append("<li>Position: " + user.position + "</li>");
-  $userInfo_ul.append("<li>Level: " + user.level + "</li>");
+  var $bms = $("<li><b>Bookmarks:</b> <ul><li><textbox width='100' height='3'>" + rawSnippets() + "</textbox></li></ul></li>");
+  var $qls = $("<li><b>Quick Links:</b> <ul><li><textbox width='100' height='3'>" + JSON.stringify(quickLinks) + "</textbox></li></ul></li>");
+  $userInfo_ul.append("<li><b>ID:</b> " + user.id + "</li>");
+  $userInfo_ul.append("<li><b>UserName:</b> " + user.name + "</li>");
+  $userInfo_ul.append("<li><b>Position:</b> " + user.position + "</li>");
+  $userInfo_ul.append("<li><b>Level:</b> " + user.level + "</li>");
   $displayAt.append($userInfo);
-  $snippets_ul.append("<li><pre>" + rawSnippets() + "</pre></li>");
   $displayAt.append($snippets);
-  $bms_ul.append("<li><pre>" + rawBMs() + "</pre></li>");
   $displayAt.append($bms);
+  $displayAt.append($qls);
 }
 /* =========================== */
 
