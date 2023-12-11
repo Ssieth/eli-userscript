@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.7.2:
+
+* Checks for and removes quick links and quick link categories that are blank.
+
 2.7.1:
 
 * Improved debug info display

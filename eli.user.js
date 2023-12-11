@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.7.1
+// @version     2.7.2
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -304,6 +304,49 @@ function getWordCount(strText) {
   return wordCount;
 }
 
+// Average an array
+function getAvg(ary) {
+  const total = ary.reduce((acc, c) => acc + c, 0);
+  return total / ary.length;
+}
+
+/* The following function returns an object representing lexical diversity information for a given text */
+function lexDiv(strText) {
+	var window = 150;
+  var regex = /\s+/gi;
+  var aryWords = strText.trim().replace(regex, ' ').split(' ');
+  var wordCount = aryWords.length;
+  var objOut = {};
+	var divs = [];
+
+    /* Load the words into an object array with usage counts */
+	if (wordCount < (window + 1)) {
+		objOut.diversity = -1;
+	} else {
+		for (var w = 0; w < (wordCount - window); w++) {
+			var objWords = {};
+			var distinctCount = 0;
+			for (var i = 0; i < window; i++) {
+				var strWord = aryWords[i + w].toLowerCase();
+				if (objWords[strWord] === undefined) {
+					objWords[strWord] = 1;
+					distinctCount += 1;
+				} else {
+					objWords[strWord] += 1;
+				}
+			}
+      //console.log(distinctCount/window);
+      divs.push(distinctCount/window);
+		}
+    objOut.diversity = getAvg(divs);
+	}
+
+  objOut.wordCount = wordCount;
+  //objOut.distinctCount = distinctCount;
+  objOut.diversityFixed = objOut.diversity.toFixed(2);
+  return objOut;
+}
+
 /*
  * jQuery throttle / debounce - v1.1 - 3/7/2010
  * http://benalman.com/projects/jquery-throttle-debounce-plugin/
@@ -549,12 +592,28 @@ function showQuickLinks() {
 
 }
 
+function cleanQuickLinks() {
+  for (var cat in quickLinks) {
+    if (cat.trim() == '') {
+      delete quickLinks[cat]
+    } else {
+      for (var lnk in quickLinks[cat].links) {
+        if (lnk.trim() == "") {
+          delete quickLinks[cat].links[lnk];
+        }
+      }
+    }
+  }
+  saveQuickLinks();
+}
+
 function loadQuickLinks() {
   let strQL = GM_getValue("quickLinksNew","");
   if (strQL === "") {
     quickLinks = {};
   } else {
     quickLinks =  JSON.parse(strQL);
+    cleanQuickLinks();
   }
 }
 
@@ -765,6 +824,7 @@ function initConfig(andThen) {
   initConfigItem("general","snippetscontext", false, {text: "Snippets context menu?", type: "bool" });
   initConfigItem("general","userLists", false, {text: "User lists?", type: "bool" });
   initConfigItem("general","wordCount", true, {text: "Show wordcounts?", type: "bool" });
+  initConfigItem("general","lexDiv", false, {text: "Show lexical diversity?", type: "bool" });
   initConfigItem("general","debugInfo", false, {text: "Debug information?", type: "bool" });
   initConfigItem("general","ajaxButtons", true, {text: "Make buttons AJAX?", type: "bool" });
   initConfigItem("general","freezeGifs", false, {text: "Freeze GIFs ?", type: "bool" });
@@ -3059,23 +3119,46 @@ function applyCSS() {
 /* =========================== */
 function setWordCount() {
   log("functiontrace", "Start Function");
+  let objWC = {}
   switch (page.type) {
     case "post":
       $('#recent div.windowbg').each(function () {
         var $wcLoc = $(this).find('span.smalltext');
         var strText = $(this).find('div.list_posts').text();
-        $wcLoc.append(" <span class='wordcountExt' style='float: right; margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + getWordCount(strText) + "</span>)</span>");
+        objWC = lexDiv(strText);
+        let strLexDiv = "";
+        if (config.general.lexDiv) {
+          if (objWC.diversityFixed > 0) {
+            strLexDiv = ", LexDiv: " + objWC.diversityFixed;
+          }
+        }
+
+        $wcLoc.append(" <span class='wordcountExt' style='float: right; margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + objWC.wordCount + strLexDiv + "</span>)</span>");
       });
-      $("#post_confirm_buttons span.smalltext").after("<div id='wordcountPost' style='margin-right: 10px;'>Wordcount: <span id='wordcountPostCount'>0</span></div>");
+      $("#post_confirm_buttons span.smalltext").after("<div id='wordcountPost' style='margin-right: 10px;'>Wordcount: <span id='wordcountPostCount'>0</span><div class='lexDivOuter' style='display: none;'>, LexDiv: <span id='wordcountPostCountLD'>0</span></div></div>");
       $("textarea").keypress(function (event) {
-        $("span#wordcountPostCount").text(getWordCount($("textarea").val()));
+        objWC = lexDiv($("textarea").val());
+        $("span#wordcountPostCount").text(objWC.wordCount);
+        if (config.general.lexDiv) {
+          if (objWC.diversityFixed > 0) {
+            $("span#wordcountPostCountLD").text(objWC.diversityFixed);
+            $("div.lexDivOuter").css("display","inline");
+          }
+        }
       });
       break;
     case "topic":
       $('div.postarea').each(function () {
         var $wcLoc = $(this).find('div.keyinfo');
         var strText = $(this).find('div.post').text();
-        $wcLoc.find("div.postinfo").append(" <span class='wordcountExt' style='margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + getWordCount(strText) + "</span>)</span>");
+        objWC = lexDiv(strText);
+        let strLexDiv = "";
+        if (config.general.lexDiv) {
+          if (objWC.diversityFixed > 0) {
+            strLexDiv = ", LexDiv: " + objWC.diversityFixed;
+          }
+        }
+        $wcLoc.find("div.postinfo").append(" <span class='wordcountExt' style='margin-right: 10px; margin-top: 3px;'>(<span class='wordcountInt'>Word count: "+ objWC.wordCount + strLexDiv + "</span>)</span>");
       });
       break;
     default:
