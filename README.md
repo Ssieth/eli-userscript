@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.8.0:
+
+* Added option to show a quick menu of bookmarks.  It is off by default and available in the settings under bookmarks
+
 2.7.3:
 
 * Some fixes for quick links with various breaking characters in their names such as & and even spaces for some browsers.

@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.7.3
+// @version     2.8.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -507,6 +507,62 @@ function sortQLs(strCat) {
   $( "#sortable" ).disableSelection();
 }
 
+function quickBMs() {
+    if (!config.bookmarks.showQuickMenu) {
+      return;
+    }
+    let strCat = "Quick BMs";
+    let slug = slugify(strCat);
+    $catMenu = $("<li class='button_QL'><a href='#' id='ql_" + slugify(strCat) + "_click'><span class='main_icons drafts'></span><span class='textmenu'>" + strCat + "</span></a><div id='ql_" +
+                 slugify(strCat) + "_menu' class='top_menu' style='display: hidden; min-width: auto;'><div class='profile_user_links'><ol id='ql_ol_" + slugify(strCat) + "' style='column-count: 1'></ol></div></div></li>");
+    $ol = $catMenu.find("#ql_ol_" + slugify(strCat));
+    $olMeta = $catMenu.find("#ql_ol_" + slugify(strCat) + "_meta");
+    let strURL = "https://elliquiy.com/forums/index.php?action=bookmarks";
+    GM_xmlhttpRequest({
+      method: "GET",
+      url: strURL,
+      onload: function (response) {
+        console.log("=== Links 1 ===");
+        let $page = $(response.responseText);
+        let $pageBody = $page.find("#main_content_section form table");
+        let $rows = $pageBody.find("tr")
+        $rows.each(function () {
+          $row = $(this);
+          $a = $row.find("td:eq(1) a:eq(0)");
+          if ($a.length > 0) {
+            let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a href='" + $a.attr("href") + "' style='display: inline; padding-left: 0px;'><span>" + $a.text() + "</span></a></li>");
+            $ol.append($link);
+          }
+
+        });
+
+        var items = $ol.find("li").get();
+        items.sort(function(a,b){
+          var keyA = $(a).text().toLowerCase();
+          var keyB = $(b).text().toLowerCase();
+
+          if (keyA < keyB) return -1;
+          if (keyA > keyB) return 1;
+          return 0;
+        });
+        $.each(items, function(i, li){
+          $ol.append(li); /* This removes li from the old spot and moves it */
+        });
+
+        $("#mobile_user_menu ul.dropmenu").append($catMenu);
+        $catMenu.find("#ql_" + slug + "_click").click(function(e) {
+          stopDefaultAction(e);
+          let strTog = "#ql_" + slug + "_menu";
+          $tog = $(strTog);
+          if ($tog.is(":hidden")) {
+            $("#mobile_user_menu .top_menu").hide();
+          }
+          $tog.toggle();
+        });
+      }
+    });
+}
+
 function showQuickLinks() {
   console.log("=== Show Quick Links ===");
   $("#mobile_user_menu ul.dropmenu li.button_QL").remove();
@@ -590,6 +646,7 @@ function showQuickLinks() {
   let $qlSort = $("<li class='button_QL'><a href='https://elliquiy.com/forums/index.php?action=sortqlcats'><span class='textmenu'>(↕)</span></a></li>");
   $("#mobile_user_menu ul.dropmenu").append($qlSort);
 
+  quickBMs();
 }
 
 function cleanQuickLinks() {
@@ -890,6 +947,7 @@ function initConfig(andThen) {
   initConfigItem("bookmarks","tagOnBM", true, {text: "Add tags when bookmarking?", type: "bool" });
   initConfigItem("bookmarks","repliesTag", true, {text: "Replies Auto-Tag?", type: "bool" });
   initConfigItem("bookmarks","noTagsTag", true, {text: "No Tags Auto-Tag?", type: "bool" });
+  initConfigItem("bookmarks","showQuickMenu", false, {text: "Show Quick Menu?", type: "bool" });
   // Repagination
   initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
   initConfigItem("repage","maxpage", 10, {text: "Max pages (1-100)?", type: "int", min: 1, max: 100 });
