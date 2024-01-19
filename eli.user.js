@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.8.0
+// @version     2.8.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -3218,16 +3218,18 @@ function setWordCount() {
         $wcLoc.append(" <span class='wordcountExt' style='float: right; margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + objWC.wordCount + strLexDiv + "</span>)</span>");
       });
       $("#post_confirm_buttons span.smalltext").after("<div id='wordcountPost' style='margin-right: 10px;'>Wordcount: <span id='wordcountPostCount'>0</span><div class='lexDivOuter' style='display: none;'>, LexDiv: <span id='wordcountPostCountLD'>0</span></div></div>");
-      $("textarea").keypress(function (event) {
-        objWC = lexDiv($("textarea").val());
-        $("span#wordcountPostCount").text(objWC.wordCount);
-        if (config.general.lexDiv) {
-          if (objWC.diversityFixed > 0) {
-            $("span#wordcountPostCountLD").text(objWC.diversityFixed);
-            $("div.lexDivOuter").css("display","inline");
+      let dbFun = $.debounce(1000, function(e) {
+          objWC = lexDiv($("textarea").val());
+          $("span#wordcountPostCount").text(objWC.wordCount);
+          if (config.general.lexDiv) {
+            if (objWC.diversityFixed > 0) {
+              $("span#wordcountPostCountLD").text(objWC.diversityFixed);
+              $("div.lexDivOuter").css("display","inline");
+            }
           }
-        }
-      });
+        });
+
+      $("textarea").keypress(dbFun);
       break;
     case "topic":
       $('div.postarea').each(function () {

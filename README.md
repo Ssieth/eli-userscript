@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.8.1:
+
+* Performance improvement - added a 1s debounce to word count on edit box.
+
 2.8.0:
 
 * Added option to show a quick menu of bookmarks.  It is off by default and available in the settings under bookmarks
