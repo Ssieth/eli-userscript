@@ -16,7 +16,7 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.8.1
+// @version     2.9.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -522,7 +522,7 @@ function quickBMs() {
       method: "GET",
       url: strURL,
       onload: function (response) {
-        console.log("=== Links 1 ===");
+        //console.log("=== Links 1 ===");
         let $page = $(response.responseText);
         let $pageBody = $page.find("#main_content_section form table");
         let $rows = $pageBody.find("tr")
@@ -564,7 +564,7 @@ function quickBMs() {
 }
 
 function showQuickLinks() {
-  console.log("=== Show Quick Links ===");
+  //console.log("=== Show Quick Links ===");
   $("#mobile_user_menu ul.dropmenu li.button_QL").remove();
   let bySortOrder = false;
   let aryCats = sortKeys(quickLinks,config.quickLinks.sortType == "custom");
@@ -696,7 +696,7 @@ function loadQuickLinks() {
 
 function saveQuickLinks() {
   let strLinks = JSON.stringify(quickLinks);
-  console.log("=== Saving QLs ===");
+  //console.log("=== Saving QLs ===");
   //console.log(strLinks);
   GM_setValue("quickLinksNew",strLinks);
 }
@@ -877,8 +877,8 @@ function loadConfig(andThen) {
 function saveConfig(andThen) {
 	config.version = GM_info.script.version;
   config.savedWhen = new Date();
-  console.log("Saving config");
-  console.log(config);
+  //console.log("Saving config");
+  //console.log(config);
   GM_setValue("config",JSON.stringify(config));
   if (andThen) andThen();
 }
@@ -892,13 +892,11 @@ function initConfig(andThen) {
   initConfigCategory("topicFilters","Topic Filters");
   initConfigCategory("speechStyling","Speech Styling");
   initConfigCategory("userNotes","User Notes");
-  //initConfigCategory("quickTopics","Quick Topics");
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
   initConfigCategory("image","Images");
   initConfigCategory("quickLinks","Quick Links");
-  //initConfigCategory("admin","Admin",true);
-  //initConfigCategory("importExport","Import / Export");
+
   // General Settings
   initConfigItem("general","removePics", false, {text: "Remove pictures?", type: "bool" });
   initConfigItem("general","snippets", false, {text: "Snippets?", type: "bool" });
@@ -912,6 +910,7 @@ function initConfig(andThen) {
   initConfigItem("general","freezeGifsDelay", 15, {text: "Play auto-frozen GIFs for (secs):", type: "int", min: 0, max: 9999 });
   initConfigItem("general","bodyFontSize",90,{text: "Font size (%, default 90)", type: "int", min: 30, max: 500 });
   initConfigItem("general","bodyFontFace", "", {text: "Font (blank for default)", type: "text" });
+  initConfigItem("general","newButton", true, {text: "New button for threads?", type: "bool" });
   strCSSBodyFont = "body {font-size: " + config.general.bodyFontSize + "%; "
   if (config.general.bodyFontFace.trim() != "") {
     strCSSBodyFont = strCSSBodyFont + " font-family: " + config.general.bodyFontFace;
@@ -926,16 +925,20 @@ function initConfig(andThen) {
   initConfigItem("topicFilters","CSS_Question", "background-color: cornsilk;" , {text: "Question Styling (CSS)", type: "text" });
   strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
   strCSSFT = strCSSFT.replaceAll(";"," !important;")
+
   // Quick Links
   initConfigItem("quickLinks","on", false, {text: "Enable Quick Links?", type: "bool" });
   initConfigItem("quickLinks","externalInTab", true, {text: "Open External In New Tab?", type: "bool" });
+
   // Speech Styling
   initConfigItem("speechStyling","on", true, {text: "Style Speech?", type: "bool" });
   initConfigItem("speechStyling","incQuote", true , {text: "Include quotes?", type: "bool" });
   initConfigItem("speechStyling","CSS", "color: blue;", {text: "Speech Styling (CSS)", type: "text" });
+
   // User Notes
   initConfigItem("userNotes","on", false, {text: "User Notes?", type: "bool" });
   initConfigItem("userNotes","style", "Hover Over Name", {text: "Note Style", type: "select", select: aryUserNoteOptions});
+
   // Bookmarks
   initConfigItem("bookmarks","tags", true, {text: "Bookmark Tags?", type: "bool" });
   initConfigItem("bookmarks","collapse", true, {text: "Collapsable View?", type: "bool" });
@@ -948,10 +951,12 @@ function initConfig(andThen) {
   initConfigItem("bookmarks","repliesTag", true, {text: "Replies Auto-Tag?", type: "bool" });
   initConfigItem("bookmarks","noTagsTag", true, {text: "No Tags Auto-Tag?", type: "bool" });
   initConfigItem("bookmarks","showQuickMenu", false, {text: "Show Quick Menu?", type: "bool" });
+
   // Repagination
   initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
   initConfigItem("repage","maxpage", 10, {text: "Max pages (1-100)?", type: "int", min: 1, max: 100 });
   initConfigItem("repage","infinity", false, {text: "Infinity paging?", type: "bool" });
+
   // Images
   initConfigItem("image","enlarge", true, {text: "Click to Enlarge?", type: "bool" });
   saveConfig();
@@ -964,26 +969,26 @@ function updateConfig(controlID) {
 	var aID = controlID.split("-");
 	var catID = aID[3];
 	var settingID = aID[4];
-  console.log("Set: " + settingID);
-  console.log($control);
+  //console.log("Set: " + settingID);
+  //console.log($control);
 	if ($control.hasClass("gm-settings-control-bool")) {
 		config[catID][settingID] = $control[0].checked;
 	} else if ($control.hasClass("gm-settings-control-int")) {
-        console.log("Inty: " + settingID);
+        //console.log("Inty: " + settingID);
         var intVal = parseInt($control.val());
-        console.log(intVal);
+        //console.log(intVal);
         if ($.isNumeric("" + intVal)) {
             if (config_display[catID][settingID].hasOwnProperty("min") && intVal < config_display[catID][settingID].min) {
-                console.log("There's a minimum and " + intVal + " < " + config_display[catID][settingID].min);
+                //console.log("There's a minimum and " + intVal + " < " + config_display[catID][settingID].min);
                 return false;
             }
             if (config_display[catID][settingID].hasOwnProperty("max") && intVal > config_display[catID][settingID].max) {
-                console.log("There's a maximum and " + intVal + " > " + config_display[catID][settingID].max);
+                //console.log("There's a maximum and " + intVal + " > " + config_display[catID][settingID].max);
                 return false;
             }
             config[catID][settingID] = intVal;
         } else {
-            console.log("Not an integer: " + $control.val())
+            //console.log("Not an integer: " + $control.val())
             return false;
         }
 	} else {
@@ -1228,7 +1233,7 @@ function repaginate() {
       lastPageLoaded = iPage;
       loadingPage = false;
     }
-    console.log("/===== Repaginate =====")
+    //console.log("/===== Repaginate =====")
   }
 }
 
@@ -1260,7 +1265,7 @@ function frmFTBody(strID, strText, strType) {
   strBody += "<tr>";
   strBody += " <th style='vertical-align: top; text-align: right;'>Filter Type:</th>";
   strBody += " <td>";
-  console.log("Type: " + strType);
+  //console.log("Type: " + strType);
   strBody += "<input type='radio' name='filterType' id='filterTypeNone' value='' ";
   if (!strType) {
     strBody += "checked='checked' ";
@@ -1470,12 +1475,12 @@ function filterTopics() {
   var id;
   var name;
   var blTable = false;
-  console.log("== filter topics ==");
+  //console.log("== filter topics ==");
   let $rows = $('#topic_container div.windowbg')
   if ($rows.length == 0) {
-    console.log("= Table =");
+    //console.log("= Table =");
     $rows = $('div#main_content_section tr').not(".catbg");
-    console.log($rows);
+    //console.log($rows);
     blTable = true;
   }
   $rows.each(function () {
@@ -1858,7 +1863,7 @@ function sortSnippets() {
           snippets[arySorted[i]].ordinal = i;
         }
       }
-      console.log(snippets);
+      //console.log(snippets);
       saveSnippets();
     }
   });
@@ -1882,7 +1887,7 @@ function sortedSnippetKeys() {
   if (config.snippets && config.snippets.sortType) {
     sortType = config.snippets.sortType;
   }
-  console.log("SortType:" + sortType);
+  //console.log("SortType:" + sortType);
   switch (sortType) {
     case "alpha":
       return Object.keys(snippets).sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase());  });
@@ -2098,13 +2103,13 @@ function replaceSnippetsTags() {
   var aryKeys = sortedSnippetKeys();
   var textArea = $(strLastFocus);
   if (textArea.length > 0) {
-    console.log("RST: Got textarea");
+    //console.log("RST: Got textarea");
     //textArea = textArea[0];
     var strText = textArea.val();
     for (var i = 0; i < aryKeys.length; i++) {
       var strKey = aryKeys[i];
       strText = strText.replaceAll("\\[" + i + "\\]", snippets[strKey].body);
-      console.log("RST: replaced: " + strKey);
+      //console.log("RST: replaced: " + strKey);
     }
     textArea.val(strText);
   }
@@ -2202,7 +2207,7 @@ function displaySnippets() {
   // console.log("Display Snippets");
 
   setTimeout(function() {
-    console.log("== dS ==")
+    //console.log("== dS ==")
     if ($("#post_area textarea").length > 0) {
       strLastFocus ="#post_area textarea";
       setSnipMenu("#post_area textarea","#post_header");
@@ -3155,6 +3160,7 @@ function getPageDetails() {
   }
   else if (page.url.full.toLowerCase().indexOf("?topic=") > 0) {
     page.type = "topic";
+    page.url.topic = page.url.full.substr(page.url.full.toLowerCase().indexOf("?topic=")+7).split("&")[0];
   }
   else if (page.url.full.toLowerCase().indexOf("?board=") > 0) {
     page.type = "board";
@@ -3177,8 +3183,8 @@ function getPageDetails() {
   else {
     page.url.tag = "";
   }
-  console.log("Page:");
-  console.log(page);
+  //console.log("Page:");
+  //console.log(page);
 }
 /* =========================== */
 
@@ -3218,6 +3224,7 @@ function setWordCount() {
         $wcLoc.append(" <span class='wordcountExt' style='float: right; margin-right: 10px;'>(<span class='wordcountInt'>Word count: " + objWC.wordCount + strLexDiv + "</span>)</span>");
       });
       $("#post_confirm_buttons span.smalltext").after("<div id='wordcountPost' style='margin-right: 10px;'>Wordcount: <span id='wordcountPostCount'>0</span><div class='lexDivOuter' style='display: none;'>, LexDiv: <span id='wordcountPostCountLD'>0</span></div></div>");
+      let $wys =  $("iframe").contents().find("body");
       let dbFun = $.debounce(1000, function(e) {
           objWC = lexDiv($("textarea").val());
           $("span#wordcountPostCount").text(objWC.wordCount);
@@ -3228,7 +3235,18 @@ function setWordCount() {
             }
           }
         });
-
+      let dbFunWys = $.debounce(1000, function(e) {
+        //console.log($wys.html().replace(/(<([^>]+)>)/gi, " "));
+          objWC = lexDiv($wys.html().replace(/(<([^>]+)>)/gi, " "));
+          $("span#wordcountPostCount").text(objWC.wordCount);
+          if (config.general.lexDiv) {
+            if (objWC.diversityFixed > 0) {
+              $("span#wordcountPostCountLD").text(objWC.diversityFixed);
+              $("div.lexDivOuter").css("display","inline");
+            }
+          }
+        });
+      $wys.keypress(dbFunWys);
       $("textarea").keypress(dbFun);
       break;
     case "topic":
@@ -3946,6 +3964,19 @@ function addElliLogo() {
   $("#smflogo").css("height","75px")
 }
 
+// Add 'Goto New' button to topics
+function addNewButton() {
+  let $newButton = $("a.button button_strip_new");
+  if ($newButton.length <= 0) {
+    let url = page.url.full;
+    console.log(page.url.topic);
+    url = url.replace(page.url.topic,page.url.topic.split(".")[0].split("#")[0] + '.new#new');
+    $newButton = $("<a href='" + url + "' class='button button_strip_new'>GoTo New</a>");
+    let $buttonLoc = $("div.top div.buttonlist");
+    $buttonLoc.append($newButton);
+  }
+}
+
 function main() {
   log("functiontrace", "Start Function");
   log("startup", "Starting " + GM_info.script.name + " v" + GM_info.script.version);
@@ -4020,9 +4051,9 @@ function main() {
     }
 
     if (config.quickLinks.on) {
-      console.log("=== Quick Links ===");
+      //console.log("=== Quick Links ===");
       loadQuickLinks();
-      console.log(quickLinks);
+      //console.log(quickLinks);
       showQuickLinks();
     }
 
@@ -4036,6 +4067,12 @@ function main() {
 
     if (config.bookmarks.allLink && page.type == "bookmarks") {
       BMAllLinks();
+    }
+
+    if (page.type == "topic") {
+      if  (config.general.newButton) {
+        addNewButton();
+      }
     }
 
     if (config.speechStyling.on) {
