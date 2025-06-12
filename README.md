@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.10.0:
+
+* Improved interface for deletion of quick links and quick link categories
+
 2.9.1:
 
 * Added a GotoNew button to topics.  Disable with the "New button for threads" setting under general settings.

@@ -16,7 +16,8 @@
 // @resource    iconFilterCanon     https://cabbit.org.uk/eli/img/canon.webp
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
-// @version     2.9.1
+// @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
+// @version     2.10.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -572,8 +573,20 @@ function showQuickLinks() {
     let strCat = aryCats[counter];
     let objCat = quickLinks[strCat];
     let slug = slugify(strCat);
-    $catMenu = $("<li class='button_QL'><a href='#' id='ql_" + slug + "_click'><span class='main_icons drafts'></span><span class='textmenu'>" + objCat.title + "</span></a><div id='ql_" +
+    let catDel = "";
+    if (quickLinks[strCat] && Object.keys(quickLinks[strCat].links).length === 0) {
+      catDel = " <img class='qlcat_delicon' style='height: 1.2em; float: right; margin-top: 6px;' src='" + GM_getResourceURL("iconDelete") + "' />"
+    }
+    $catMenu = $("<li class='button_QL'><a href='#' id='ql_" + slug + "_click' style='display: inline-block'><span class='main_icons drafts'></span><span class='textmenu'>" + objCat.title + "</span></a>" + catDel + "<div id='ql_" +
                  slug + "_menu' class='top_menu' style='display: hidden; min-width: auto;'><div class='profile_user_links'><ol id='ql_ol_" + slugify(strCat) + "' style='column-count: 1'></ol><hr style='margin-bottom: 1px; margin-top: 5px;' /><ol id='ql_ol_" + slugify(strCat) + "_meta' style='column-count: 1'></ol></div></div></li>");
+
+    $catMenu.find("img.qlcat_delicon").click( function(e) {
+      confirmDialog("Delete Quick Link Category","Delete category " + objCat.title + "?",function(){
+        deleteQLCat(strCat);
+        saveQuickLinks();
+        showQuickLinks();
+      });
+    });
     $ol = $catMenu.find("#ql_ol_" + slugify(strCat));
     $olMeta = $catMenu.find("#ql_ol_" + slugify(strCat) + "_meta");
 
@@ -587,10 +600,9 @@ function showQuickLinks() {
           strTarget = " target='_blank'";
         }
       }
-      let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a" + strTarget + " href='" + objLink.url + "' style='display: inline; padding-left: 0px;'><span>" + objLink.title + "</span></a></li>");
+      let $link = $("<li style='padding-left: 24px; width: auto;'><span class='main_icons drafts'></span> <a" + strTarget + " href='" + objLink.url + "' style='display: inline; padding-left: 0px;'><span>" + objLink.title + "</span></a> <img class='ql_delicon' style='height: 1.2em; float: right; margin-top: 6px;' src='" + GM_getResourceURL("iconDelete") + "' /></li>");
       $ol.append($link);
-      $link.on( "contextmenu", function(e) {
-        stopDefaultAction(e);
+      $link.find("img.ql_delicon").click(function(e) {
         confirmDialog("Delete Quick Link","Delete quick link " + objCat.title + "/" + objLink.title + "?",function(){
           deleteQL(strCat,strLink);
           saveQuickLinks();
@@ -616,14 +628,6 @@ function showQuickLinks() {
     });
     $olMeta.append($linkSort);
 
-    $catMenu.on( "contextmenu", function(e) {
-      stopDefaultAction(e);
-      confirmDialog("Delete Quick Link Category","Delete category " + objCat.title + "?",function(){
-        deleteQLCat(strCat);
-        saveQuickLinks();
-        showQuickLinks();
-      });
-    });
     $catMenu.find("#ql_" + slug + "_click").click(function(e) {
       stopDefaultAction(e);
       let strTog = "#ql_" + slug + "_menu";
