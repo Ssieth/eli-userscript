@@ -18,7 +18,7 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.0
+// @version     2.11.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
