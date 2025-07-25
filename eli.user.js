@@ -17,7 +17,8 @@
 // @resource    iconFilterQuestion  https://cabbit.org.uk/eli/img/question.png
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
-// @version     2.10.0
+// @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
+// @version     2.11.0
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
@@ -112,7 +113,7 @@ var strCSSTblSorter = [
 var strCSSMenus = ".dropbox li lu { background-color: white; }";
 var strCSSPointer = ".pointer {cursor: pointer !important; }";
 var strCSSFakeLinks = ".fakelink {color:#039;text-decoration:none;} .fakelink:hover, .fakelink:active {cursor: pointer; text-decoration: underline;} ";
-var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;}";
+var strCSSFT = ".FTMark {background-color: lightgray; text-decoration: line-through; } .FTHi {background-color: yellow;}  .FTHiSoft {background-color: #BBE4BB;} .FTLater {background-color: aliceblue;}";
 var strCSSTagBubble = ".tagbubble { display: inline; background-color: #557ea0; color: white; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;} .tagbubbleAuto { display: inline; background-color: #a85400; color: white; padding-left: 5px; border-radius: 10px; padding-right: 5px; padding-top: 2px; padding-bottom: 4px; margin-left: 5px;}";
 var strCSSBodyFont = "body {font-size: 90%; }";
 
@@ -927,7 +928,8 @@ function initConfig(andThen) {
   initConfigItem("topicFilters","CSS_HiSoft", "background-color: #BBE4BB;", {text: "Soft Hilight Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Mark", "background-color: lightgray; text-decoration: line-through;", {text: "Mark Styling (CSS)", type: "text" });
   initConfigItem("topicFilters","CSS_Question", "background-color: cornsilk;" , {text: "Question Styling (CSS)", type: "text" });
-  strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
+  initConfigItem("topicFilters","CSS_Later", "background-color: aliceblue;" , {text: "Later Styling (CSS)", type: "text" });
+  strCSSFT = ".FTMark { " + config.topicFilters.CSS_Mark + " } .FTHi { " + config.topicFilters.CSS_Hi + " }  .FTHiSoft { " + config.topicFilters.CSS_HiSoft + " } .FTLater { " + config.topicFilters.CSS_Later + " } .FTQ { " + config.topicFilters.CSS_Question + "}";
   strCSSFT = strCSSFT.replaceAll(";"," !important;")
 
   // Quick Links
@@ -1295,6 +1297,12 @@ function frmFTBody(strID, strText, strType) {
   }
   strBody += "/><label for='filterTypeHilightSoft'>: Soft Hilight</label>";
   strBody += "<br />";
+  strBody += "<input type='radio' name='filterType' id='filterTypeLater' value='later' ";
+  if (strType == "later") {
+    strBody += "checked='checked' ";
+  }
+  strBody += "/><label for='filterTypeLater'>: Later</label>";
+  strBody += "<br />";
   strBody += "<input type='radio' name='filterType' id='filterTypeQuestion' value='question' ";
   if (strType == "question") {
     strBody += "checked='checked' ";
@@ -1531,6 +1539,10 @@ function filterTopics() {
           case "hisoft":
             $row.addClass("FTHiSoft");
             break;
+          case "later":
+            $row.addClass("FTLater");
+            filterTopicsSetIcon($row,"Later");
+            break;			
           case "hide":
             $row.hide();
             break;

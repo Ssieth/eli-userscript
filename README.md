@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.1 (what happened to 2.11.0?  Nobody knows, least of all me):
+
+* Added a new filter topic option - Later, to show topics/threads you want to look at later.
+
 2.10.0:
 
 * Improved interface for deletion of quick links and quick link categories
