@@ -7,6 +7,12 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.2:
+
+* Added some functionality to show if a topic is already bookmarked (on by default)
+* Fixed the "Add tags when bookmarking?" option
+* Removed user lists functionality as it was no longer working. Added to longer-term to-do to look at.
+
 2.11.1 (what happened to 2.11.0?  Nobody knows, least of all me):
 
 * Added a new filter topic option - Later, to show topics/threads you want to look at later.

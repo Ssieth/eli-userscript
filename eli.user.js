@@ -18,8 +18,9 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.1
+// @version     2.11.2
 // @grant       GM_getValue
+// @grant       GM_setValue
 // @grant       GM_setValue
 // @grant       GM_deleteValue
 // @grant       GM_addStyle
@@ -509,6 +510,24 @@ function sortQLs(strCat) {
   $( "#sortable" ).disableSelection();
 }
 
+function setBMButton() {
+	let threadID = page.url.topic.split(".")[0];
+	let intID = Number.parseInt(threadID);
+	let strURL = "https://elliquiy.com/forums/index.php?action=bookmarks";
+	GM_xmlhttpRequest({
+	  method: "GET",
+	  url: strURL,
+	  onload: function (response) {
+        let strCheck = "?topic=" + intID + ".";
+        if (response.responseText.includes(strCheck)) {
+          let $button = $("a.button_strip_bookmark_add");
+          $button.css("background-image","linear-gradient(#e2e9f3 0%, #ccc 70%)");
+          $button.text("Bookmarked");
+  		  }
+	  }
+	});
+}
+
 function quickBMs() {
     if (!config.bookmarks.showQuickMenu) {
       return;
@@ -906,7 +925,7 @@ function initConfig(andThen) {
   initConfigItem("general","removePics", false, {text: "Remove pictures?", type: "bool" });
   initConfigItem("general","snippets", false, {text: "Snippets?", type: "bool" });
   initConfigItem("general","snippetscontext", false, {text: "Snippets context menu?", type: "bool" });
-  initConfigItem("general","userLists", false, {text: "User lists?", type: "bool" });
+  // initConfigItem("general","userLists", false, {text: "User lists?", type: "bool" });
   initConfigItem("general","wordCount", true, {text: "Show wordcounts?", type: "bool" });
   initConfigItem("general","lexDiv", false, {text: "Show lexical diversity?", type: "bool" });
   initConfigItem("general","debugInfo", false, {text: "Debug information?", type: "bool" });
@@ -957,6 +976,7 @@ function initConfig(andThen) {
   initConfigItem("bookmarks","repliesTag", true, {text: "Replies Auto-Tag?", type: "bool" });
   initConfigItem("bookmarks","noTagsTag", true, {text: "No Tags Auto-Tag?", type: "bool" });
   initConfigItem("bookmarks","showQuickMenu", false, {text: "Show Quick Menu?", type: "bool" });
+  initConfigItem("bookmarks","indicateBMd", true, {text: "Show BM status on button", type: "bool" });
 
   // Repagination
   initConfigItem("repage","on", false, {text: "Repaginate?", type: "bool" });
@@ -1110,11 +1130,13 @@ function displaySettings() {
       frmSnippet();
     });
 
+/*
     $menuQ.append("<li><span class='main_icons people'></span> <a href='#' id='userLists_link_settings'>User Lists</a></li>")
     $menuQ.find("a#userLists_link_settings").click(function (e) {
       e.preventDefault();
       frmUserLists();
     });
+*/
 
     $menuQ.append("<li><span class='main_icons maintain'></span> <a href='#' id='setting_managetags_link'>Manage Tags</a></li>")
     $menuQ.find("a#setting_managetags_link").click(function (e) {
@@ -1542,7 +1564,7 @@ function filterTopics() {
           case "later":
             $row.addClass("FTLater");
             filterTopicsSetIcon($row,"Later");
-            break;			
+            break;
           case "hide":
             $row.hide();
             break;
@@ -3110,7 +3132,7 @@ function frmBMs(strID, strBookMarkURL) {
 
 function tagOnBM() {
   log("functiontrace", "Start Function");
-  $('a.button_strip_bookmark').click(function (e) {
+  $('a.button_strip_bookmark_add').click(function (e) {
     var strURL = $(this).attr("href");
     var strID = strURL.match(/\d+/)[0];
     e.preventDefault();
@@ -4048,6 +4070,7 @@ function main() {
       displaySnippets();
     }
 
+/*
     if (config.general.userLists) {
       loadUserLists();
       displayUserLists();
@@ -4057,6 +4080,7 @@ function main() {
         }
       }
     }
+*/
 
     if (config.bookmarks.tags) {
       loadBMTags();
@@ -4084,6 +4108,11 @@ function main() {
     if (config.bookmarks.allLink && page.type == "bookmarks") {
       BMAllLinks();
     }
+
+	if (config.bookmarks.indicateBMd && page.type == "topic") {
+	  setBMButton();
+	}
+
 
     if (page.type == "topic") {
       if  (config.general.newButton) {
