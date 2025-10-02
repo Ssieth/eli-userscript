@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.3:
+
+* Fixed 'tag bubbles' in bookmarks
+
 2.11.2:
 
 * Added some functionality to show if a topic is already bookmarked (on by default)

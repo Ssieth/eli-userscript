@@ -18,7 +18,7 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.2
+// @version     2.11.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_setValue
@@ -2643,15 +2643,19 @@ function getBMsFromTable(bmType) {
 }
 
 function showTagBubbles() {
-  $("tbody tr").each( function () {
+  console.log("TB 1");
+  $("thead tr").not(".catbg").each( function () {
+    console.log("TB 2");
     let $row = $(this);
     let strTopicURL = $row.find("td:eq(1) a:eq(0)").attr("href");
     let strTopicID = strTopicURL.match(/\d+/)[0];
     let strLastUser = $(this).find("td:eq(5) a:eq(1)").html();
     let topicID = parseInt(strTopicID);
     if (BMTags[topicID]) {
+      console.log("TB 3");
       let aryTags = BMTags[topicID].sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase());  });
       for (counter = 0; counter < aryTags.length; counter++) {
+        console.log("TB 4");
         let strTag = aryTags[counter].trim();
         let $bubble = $("<div class='tagbubble fakelink' id='" + topicID + "-tagbubble-" + strTag + "'>" + strTag + "</div> ");
         $row.find("td:eq(1)").append($bubble);
