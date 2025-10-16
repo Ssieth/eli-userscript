@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.6: 
+
+* Added new %sel%[default text]%/sel% syntax for snippets that can take a default subsitution when used with no selection to be replaced.
+
 2.11.5:
 
 * Emergency fix for 2.11.4 - ignore the User Tags setting - it won't do anything for now but also won't break anything.

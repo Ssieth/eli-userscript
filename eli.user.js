@@ -18,7 +18,7 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.5
+// @version     2.11.6
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_setValue
@@ -2100,11 +2100,20 @@ function pasteToDesc(snippet, moveToEnd) {
     let iPos = snippet.indexOf("%sel%");
 
     if (iPos > -1) {
-      let strSel = "";
-      if (end > start) {
-        strSel = textArea.val().substring(start, end);
+      let match = snippet.match(/\%sel\%(.*)\%\/sel\%/s);
+      if (match == null) {
+        let strSel = "";
+        if (end > start) {
+          strSel = textArea.val().substring(start, end);
+        }
+        snippet = snippet.replace("%sel%",strSel);
+      } else {
+        let strSel = match[1];
+        if (end > start) {
+          strSel = textArea.val().substring(start, end);
+        }
+        snippet = snippet.replace(match[0],strSel);
       }
-      snippet = snippet.replace("%sel%",strSel);
     }
 
     var replacement = snippet;
