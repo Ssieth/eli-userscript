@@ -7,6 +7,11 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.4:
+
+* A bit of work done in prep for "user tags"
+* Changed how snippets are inserted to put them in the Undo chain.
+
 2.11.3:
 
 * Fixed 'tag bubbles' in bookmarks

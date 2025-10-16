@@ -18,7 +18,7 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.3
+// @version     2.11.4
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_setValue
@@ -71,6 +71,7 @@ var page = {};
 var BMTags = {};
 var aryBMTags = [];
 var aryBMTagsLower = [];
+var memberCache = {};
 var objFilterTopics = {};
 var blTickStarted = false;
 var nameNotes = {};
@@ -916,6 +917,7 @@ function initConfig(andThen) {
   initConfigCategory("topicFilters","Topic Filters");
   initConfigCategory("speechStyling","Speech Styling");
   initConfigCategory("userNotes","User Notes");
+  //initConfigCategory("userTags","User Tags");
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
   initConfigCategory("image","Images");
@@ -963,6 +965,9 @@ function initConfig(andThen) {
   // User Notes
   initConfigItem("userNotes","on", false, {text: "User Notes?", type: "bool" });
   initConfigItem("userNotes","style", "Hover Over Name", {text: "Note Style", type: "select", select: aryUserNoteOptions});
+
+  // User Tags
+  //initConfigItem("userTags", "on", false, {text: "User Tags?", type: "bool"});
 
   // Bookmarks
   initConfigItem("bookmarks","tags", true, {text: "Bookmark Tags?", type: "bool" });
@@ -2085,19 +2090,6 @@ function saveSnippets() {
   GM_setValue("snippets", JSON.stringify(snippets));
 }
 
-function moveCaretToEnd(el) {
-  log("functiontrace", "Start Function");
-  if (typeof el.selectionStart == "number") {
-    el.selectionStart = el.selectionEnd = el.value.length;
-  }
-  else if (typeof el.createTextRange != "undefined") {
-    el.focus();
-    var range = el.createTextRange();
-    range.collapse(false);
-    range.select();
-  }
-}
-
 /* For doing bold, italics etc */
 function pasteToDesc(snippet, moveToEnd) {
   log("functiontrace", "Start Function");
@@ -2116,10 +2108,9 @@ function pasteToDesc(snippet, moveToEnd) {
     }
 
     var replacement = snippet;
-    textArea.val(textArea.val().substring(0, start) + replacement + textArea.val().substring(end, textArea.val().length));
-    if (moveToEnd) {
-      moveCaretToEnd(textArea[0]);
-    }
+    //textArea.val(textArea.val().substring(0, start) + replacement + textArea.val().substring(end, textArea.val().length));
+    document.execCommand("insertText", false, replacement);
+
   }
 }
 
@@ -2169,7 +2160,7 @@ function getSnipCats() {
 }
 
 function buildSnipMenu() {
-  let $snipNew = $("<ul id='snipMenu' style='width: 8rem; float: right; margin-right: 15rem; z-index: 999; margin-top: 9px;'><li><div id='snipNewTop'>Snippets</div><ul id='snipMenuInner' style='width: 10rem'></ul></li></ul>")
+  let $snipNew = $("<ul id='snipMenu' style='width: 8rem; float: right; margin-right: 15rem; z-index: 999; margin-top: 9px;'><li><div id='snipNewTop'>Snippets</div><ul id='snipMenuInner' style='width: 12rem'></ul></li></ul>")
   let $snipInner = $snipNew.find("#snipMenuInner");
   $snipNew.find('#snipNewTop').click(function (e) {
     //e.preventDefault();
@@ -2181,7 +2172,7 @@ function buildSnipMenu() {
   var keys = sortedSnippetKeys();
   let cats = getSnipCats();
   for (const catName of cats) {
-    let $catLi = $("<li><div>" + catName + "</div><ul style='width: 10rem' id='snipCat-" + catName + "'></ul></li>");
+    let $catLi = $("<li><div>" + catName + "</div><ul id='snipCat-" + catName + "'></ul></li>");
     $snipInner.append($catLi);
   }
   for (const key of keys) {
@@ -2643,16 +2634,13 @@ function getBMsFromTable(bmType) {
 }
 
 function showTagBubbles() {
-  console.log("TB 1");
   $("thead tr").not(".catbg").each( function () {
-    console.log("TB 2");
     let $row = $(this);
     let strTopicURL = $row.find("td:eq(1) a:eq(0)").attr("href");
     let strTopicID = strTopicURL.match(/\d+/)[0];
     let strLastUser = $(this).find("td:eq(5) a:eq(1)").html();
     let topicID = parseInt(strTopicID);
     if (BMTags[topicID]) {
-      console.log("TB 3");
       let aryTags = BMTags[topicID].sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase());  });
       for (counter = 0; counter < aryTags.length; counter++) {
         console.log("TB 4");
@@ -3873,6 +3861,74 @@ function setupImageEnlarge() {
 /* =========================== */
 
 /* =========================== */
+/* Member Cache and Tags       */
+/* =========================== */
+
+function getUserDetail($el,matchText) {
+  let value = "";
+  let $dt = $el.find(`dt:contains('${matchText}')`);
+  if ($dt.length>0) {
+    let $dd = $dt.next();
+    value = $dd.text();
+  }
+  return value;
+}
+
+function getUserProfileDetails() {
+  if (page.type !== "profile") return;
+  let $basicInfo = $("div#basicinfo");
+  let $detailedInfo = $("div#detailedinfo");
+  let aryURL = location.href.split("=");
+  let usr = {};
+  usr.id = Number.parseInt(aryURL[aryURL.length-1]);
+
+  if (memberCache[usr.id]) {
+    usr = memberCache[usr.id];
+  }
+
+  usr.name = $("div.username h4").clone().children().remove().end().text().trim();
+  usr.personalText = getUserDetail($detailedInfo,'Personal text:');
+  usr.customTitle = getUserDetail($detailedInfo,'Custom title:');
+  usr.position = $basicInfo.find("span.position").text().trim();
+  usr.posts = getUserDetail($detailedInfo,"Posts:");
+  usr.title = $detailedInfo.find("dd:eq(2)").text().trim();
+  usr.referrals = $detailedInfo.find("dd:eq(4)").text().trim();
+  usr.gender =getUserDetail($detailedInfo,"Gender:");
+  usr.age = getUserDetail($detailedInfo,"Age:");
+  usr.location = $detailedInfo.find("dd:eq(8)").text().trim();
+  usr.dateReg = getUserDetail($detailedInfo,"Date registered:");
+  usr.dateLocal = getUserDetail($detailedInfo,"Local Time:");
+  usr.dateLast = getUserDetail($detailedInfo,"Last active:");
+
+  return usr;
+}
+
+function cacheMember() {
+  if (page.type !== "profile") return;
+  if (location.href.includes("area=")) {
+    if (!location.href.includes("area=summary")) return
+  }
+  let usr = getUserProfileDetails();
+  if (usr) {
+    memberCache[usr.id] = usr;
+  }
+  console.log(memberCache);
+  saveMemberCache();
+}
+
+function saveMemberCache() {
+  log("functiontrace", "Start Function");
+  GM_setValue("memberCache", JSON.stringify(memberCache));
+}
+
+function loadMemberCache() {
+  var strMemCache = GM_getValue("memberCache", "");
+  if (strMemCache !== "") {
+    memberCache = JSON.parse(strMemCache);
+  }
+}
+
+/* =========================== */
 /* Settings on cabbit          */
 /* =========================== */
 function sha256(str) {
@@ -4037,6 +4093,11 @@ function main() {
     // Get the sessionAuth object.  This lets us do some under-the-hood stuff :)
     oSessionAuth = getSessionAuth();
 
+    if (config.userTags.on) {
+      console.log("Loading member cache");
+      loadMemberCache();
+    }
+
     if (config.userNotes.on) {
       loadNameNotes();
       annotateNames();
@@ -4074,6 +4135,7 @@ function main() {
       displaySnippets();
     }
 
+    cacheMember();
 /*
     if (config.general.userLists) {
       loadUserLists();
@@ -4085,6 +4147,8 @@ function main() {
       }
     }
 */
+
+
 
     if (config.bookmarks.tags) {
       loadBMTags();
