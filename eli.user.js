@@ -18,7 +18,7 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.4
+// @version     2.11.5
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_setValue
@@ -917,7 +917,7 @@ function initConfig(andThen) {
   initConfigCategory("topicFilters","Topic Filters");
   initConfigCategory("speechStyling","Speech Styling");
   initConfigCategory("userNotes","User Notes");
-  //initConfigCategory("userTags","User Tags");
+  initConfigCategory("userTags","User Tags");
   initConfigCategory("bookmarks","Bookmarks");
   initConfigCategory("repage","Repagination");
   initConfigCategory("image","Images");
@@ -967,7 +967,7 @@ function initConfig(andThen) {
   initConfigItem("userNotes","style", "Hover Over Name", {text: "Note Style", type: "select", select: aryUserNoteOptions});
 
   // User Tags
-  //initConfigItem("userTags", "on", false, {text: "User Tags?", type: "bool"});
+  initConfigItem("userTags", "on", false, {text: "User Tags?", type: "bool"});
 
   // Bookmarks
   initConfigItem("bookmarks","tags", true, {text: "Bookmark Tags?", type: "bool" });
