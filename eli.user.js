@@ -18,7 +18,7 @@
 // @resource    iconFilterKink      https://cabbit.org.uk/pic/elli/kink.png
 // @resource    iconDelete          https://cabbit.org.uk/pic/elli/deleteicon.png
 // @resource    iconFilterLater     https://cabbit.org.uk/pic/elli/latericon.png
-// @version     2.11.7
+// @version     2.11.8
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_setValue
@@ -1915,6 +1915,7 @@ function sortSnippets() {
 
 function cleanSnippets() {
   log("functiontrace", "Start Function");
+  return;
   var key;
   for (key in snippets) {
     var snippet = snippets[key];
@@ -1964,7 +1965,7 @@ function setSnippet() {
   snippet.ordinal = Object.keys(snippets).length;
   snippets[strID] = snippet;
 
-  cleanSnippets();
+  //cleanSnippets();
   saveSnippets();
   //displaySnippets();
   //$('#modalpop').dialog( "close" );

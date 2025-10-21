@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.8: 
+
+* Allow saving of various flavours of whitespace as the sole contents of a snippet
+
 2.11.7: 
 
 * Fix so that snippet menus that aren't context menus close once a snippet is selected.
