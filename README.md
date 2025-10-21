@@ -7,6 +7,10 @@ It requires a userscript plugin for your browser.  I use TamperMonkey (https://w
 The specific features are listed below:
 
 ## In the last version
+2.11.7: 
+
+* Fix so that snippet menus that aren't context menus close once a snippet is selected.
+
 2.11.6: 
 
 * Added new %sel%[default text]%/sel% syntax for snippets that can take a default subsitution when used with no selection to be replaced.
